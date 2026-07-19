@@ -1,0 +1,24 @@
+[project]
+name = "snippet-pipeline"
+version = "0.1.0"
+description = "Orchestrator for §9.3 snippet-selection Phase 1: method filtering, slicing, and Checker Framework verifiability analysis."
+requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0",
+    "Jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.scripts]
+snippet-pipeline = "snippet_pipeline.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["snippet_pipeline*"]

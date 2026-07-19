@@ -1,0 +1,112 @@
+# snippet-selection-pipeline configuration.
+#
+# Fill in each repo's `path` (and ideally `commit`, for reproducibility) after you've cloned
+# it locally - the pipeline does not clone anything itself. `build_system` values below are
+# my best knowledge of each project's primary build tool; VERIFY before running, especially
+# the two flagged exceptions.
+
+output_dir: ./output
+gradle_command: gradle   # must be a Gradle 8.x on PATH (or point this at a wrapper script)
+
+tools:
+  method_analyzer_dir: ../tools/method-analyzer
+  specimin_dir: null   # REQUIRED: set to your local clone of https://github.com/njit-jerse/specimin
+  # method_analyzer_jar: optional override; defaults to
+  #   <method_analyzer_dir>/build/libs/method-analyzer-all.jar (built automatically if missing)
+
+filtering:
+  min_loc: 20
+  max_loc: 30
+
+checker_framework:
+  version: "4.2.1"            # verify: https://github.com/typetools/checker-framework/releases
+  gradle_plugin_version: "0.6.42"  # verify: https://plugins.gradle.org/plugin/org.checkerframework
+
+checkers_file: checkers.yaml
+
+repos:
+  - name: netty
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: spring-framework
+    path: null
+    commit: null
+    build_system: gradle
+
+  - name: kafka
+    path: null
+    commit: null
+    build_system: gradle
+
+  - name: druid
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: dubbo
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: libgdx
+    path: null
+    commit: null
+    build_system: gradle
+
+  - name: spring-boot
+    path: null
+    commit: null
+    build_system: gradle
+
+  - name: rxjava
+    path: null
+    commit: null
+    build_system: gradle
+
+  # NOTE: Selenium builds with Bazel, not Gradle or Maven - neither classpath-resolution
+  # strategy in classpath.py will work for it as-is. Either supply a `classpath_override`
+  # file (a pre-computed classpath, one jar per line) or exclude this repo from the run.
+  - name: selenium
+    path: null
+    commit: null
+    build_system: maven  # placeholder only - see note above; will fail until overridden
+    classpath_override: null
+
+  - name: mybatis-3
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: guava
+    path: null
+    commit: null
+    build_system: maven
+
+  # NOTE: javaguide is primarily a Markdown study-notes repository, not a buildable Java
+  # project - expect few or no candidate methods (and no dependency jars to resolve) from it.
+  - name: javaguide
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: ghidra
+    path: null
+    commit: null
+    build_system: gradle
+
+  - name: hudi
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: apollo
+    path: null
+    commit: null
+    build_system: maven
+
+  - name: WxJava
+    path: null
+    commit: null
+    build_system: maven

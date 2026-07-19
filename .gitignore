@@ -1,0 +1,20 @@
+# Java / Gradle
+build/
+.gradle/
+*.class
+
+# Python
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+
+# Pipeline output and generated CSVs (eval/ under method-analyzer is committed fixture data,
+# not generated output, and is intentionally not excluded here)
+output/
+tools/method-analyzer/results/
+aggregated_methods.csv
+
+.idea/
+*.iml
+.DS_Store

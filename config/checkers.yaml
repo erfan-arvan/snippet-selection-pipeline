@@ -1,0 +1,23 @@
+# Checker Framework checkers run in Stage F, one per isolated compile invocation.
+# Class names verified directly against checkerframework.org/api (checker-framework 4.2.1,
+# the latest release as of this pipeline's authoring) - reverify if you pin a different
+# Checker Framework version in pipeline.yaml's `checker_framework.version`.
+checkers:
+  - id: nullness
+    processor: org.checkerframework.checker.nullness.NullnessChecker
+  - id: index
+    processor: org.checkerframework.checker.index.IndexChecker
+  - id: optional
+    processor: org.checkerframework.checker.optional.OptionalChecker
+  - id: interning
+    processor: org.checkerframework.checker.interning.InterningChecker
+  - id: resourceleak
+    processor: org.checkerframework.checker.resourceleak.ResourceLeakChecker
+  - id: sqlquotes
+    processor: org.checkerframework.checker.sqlquotes.SqlQuotesChecker
+  - id: regex
+    processor: org.checkerframework.checker.regex.RegexChecker
+  - id: formatter
+    processor: org.checkerframework.checker.formatter.FormatterChecker
+  - id: i18n
+    processor: org.checkerframework.checker.i18n.I18nChecker
