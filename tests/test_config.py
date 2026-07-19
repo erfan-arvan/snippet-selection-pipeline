@@ -16,11 +16,31 @@ def test_loads_real_pipeline_config_with_16_repos_and_9_checkers():
     }
 
 
-def test_relative_tool_paths_resolve_against_yaml_location_not_cwd():
-    config = load_config(REPO_ROOT / "config" / "pipeline.yaml")
+def test_relative_tool_paths_resolve_against_yaml_location_not_cwd(tmp_path):
+    # Uses its own throwaway fixture rather than config/pipeline.yaml - that file is meant to
+    # be edited by whoever runs the pipeline (real repo paths, real tool dirs), so a test
+    # asserting on its exact path-resolution behavior would break the moment someone
+    # legitimately customizes it (as happened here: swapping a relative tools path for an
+    # absolute one on a system where /project is itself a symlink to /mmfs1/project tripped
+    # this exact assertion, even though nothing was actually wrong).
+    # Mirrors the real repo layout: config/pipeline.yaml sits next to checkers.yaml, with
+    # tools/ as a sibling directory one level up.
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    (config_dir / "checkers.yaml").write_text("checkers: []\n")
+    (config_dir / "pipeline.yaml").write_text(
+        "output_dir: ./output\n"
+        "tools:\n"
+        "  method_analyzer_dir: ../tools/method-analyzer\n"
+        "  specimin_dir: ../tools/specimin\n"
+        "checkers_file: checkers.yaml\n"
+        "repos: []\n"
+    )
+    (tmp_path / "tools" / "method-analyzer").mkdir(parents=True)
 
-    # tools.method_analyzer_dir is "../tools/method-analyzer" relative to config/pipeline.yaml
-    assert Path(config.tools.method_analyzer_dir) == (REPO_ROOT / "tools" / "method-analyzer").resolve()
+    config = load_config(config_dir / "pipeline.yaml")
+
+    assert Path(config.tools.method_analyzer_dir) == (tmp_path / "tools" / "method-analyzer").resolve()
 
 
 def test_repo_names_match_the_sixteen_target_projects():
