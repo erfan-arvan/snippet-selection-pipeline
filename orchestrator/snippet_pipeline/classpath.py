@@ -91,6 +91,9 @@ def _gradle_executable(repo_path: Path, fallback_command: str) -> str:
     """
     wrapper = repo_path / "gradlew"
     if wrapper.is_file():
+        # Some filesystems (seen on an HPC /project mount) don't reliably preserve git's
+        # tracked executable bit on checkout - re-assert it rather than trust the checkout.
+        wrapper.chmod(0o755)
         return str(wrapper)
     return fallback_command
 
@@ -98,6 +101,7 @@ def _gradle_executable(repo_path: Path, fallback_command: str) -> str:
 def _maven_executable(repo_path: Path, fallback_command: str) -> str:
     wrapper = repo_path / "mvnw"
     if wrapper.is_file():
+        wrapper.chmod(0o755)
         return str(wrapper)
     return fallback_command
 
