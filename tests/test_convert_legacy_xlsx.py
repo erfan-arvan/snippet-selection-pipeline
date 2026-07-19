@@ -54,6 +54,10 @@ def fixture_path(tmp_path):
              True, "int", "Too long.", "", 0, 50, 45),
         _row("usesCustom", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob CustomType cb",
              True, "int", "Uses a custom type.", "", 1, 22, 18),
+        # Reproduces the real "ghost row" bug: no method name at all (empty string, like a
+        # blank Excel row inside a formatting-bloated used range), but with a stray non-null
+        # value in some other column so an "all cells are None" check wouldn't catch it.
+        ["", "", "", "", "", "", "", "", "FALSE", 0, "", 0, 0, 0, "", "", "", "", "", 0, 0, 0, 0, 0, "", None, None],
     ]
     path = tmp_path / "legacy.xlsx"
     _write_fixture(path, rows)
@@ -122,3 +126,22 @@ def test_staging_relative_file_path_strips_repos_prefix(fixture_path, tmp_path):
 
     records = _load_by_method(output)
     assert records["sumValues"]["filePath"] == "source/src/com/example/util/MathUtil.java"
+
+
+def test_ghost_rows_with_no_method_name_are_excluded_even_with_stray_values(fixture_path, tmp_path):
+    # Reproduces the real bug hit on HPC: Excel's used-range extended to its absolute row
+    # limit (a formatting artifact), and some of those trailing rows had a stray non-null
+    # value in some column while having no method name - "not every cell is None" wasn't a
+    # strong enough signal to exclude them, bloating the manifest to ~1M lines.
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    with open(output) as f:
+        lines = [json.loads(line) for line in f]
+
+    # Fixture has 6 real methods + 1 ghost row. Of the 6 real ones, "mapify" is intentionally
+    # dropped (unparseable multi-param types, by design - see the dedicated test for that), so
+    # 5 lines is correct here: what matters for *this* test is that the ghost row contributed
+    # zero of them, and every line that was written has a real method name.
+    assert len(lines) == 5
+    assert all(record["methodName"] for record in lines)

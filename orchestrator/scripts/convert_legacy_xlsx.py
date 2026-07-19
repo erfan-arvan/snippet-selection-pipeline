@@ -108,11 +108,18 @@ def convert(input_path: str, output_path: str) -> None:
 
     with open(output_path, "w") as out:
         for row in rows:
-            if row is None or all(v is None for v in row):
+            if row is None:
+                continue
+            # A real data row must have a method name - this is a stronger signal than "not
+            # every cell is None", which turned out to be too weak: the source sheet's used
+            # range extends to Excel's absolute row limit (a formatting artifact, not real
+            # data), and some of those trailing "ghost" rows have a stray non-null value in
+            # some column while still having no actual method data.
+            method_name = col("Method", row)
+            if method_name is None or not str(method_name).strip():
                 continue
             total += 1
 
-            method_name = col("Method", row)
             path = col("Path", row) or ""
             class_name = col("Class", row) or ""
             package_name = col("Package", row) or ""
