@@ -44,10 +44,19 @@ class ToolsConfig:
         return Path(self.method_analyzer_dir).expanduser().resolve() / "build" / "libs" / "method-analyzer-all.jar"
 
 
+ALL_CRITERIA = ["isStatic", "noAnnotations", "hasJavadoc", "paramAndReturnOk", "locInRange", "allTypesJdk"]
+
+
 @dataclass
 class FilteringConfig:
     min_loc: int = 20
     max_loc: int = 30
+    # Which of the six §9.3 criteria a method must pass to be selected as a candidate
+    # (Stage C). Every manifest record already has all six computed individually, so
+    # changing this list changes what counts as a candidate without needing to regenerate
+    # the manifest - it just changes which of the already-computed fields select_candidates
+    # requires.
+    required_criteria: list[str] = field(default_factory=lambda: list(ALL_CRITERIA))
 
 
 @dataclass
@@ -166,6 +175,7 @@ def load_config(pipeline_yaml_path: str | Path) -> PipelineConfig:
     filtering = FilteringConfig(
         min_loc=filtering_raw.get("min_loc", 20),
         max_loc=filtering_raw.get("max_loc", 30),
+        required_criteria=filtering_raw.get("required_criteria", list(ALL_CRITERIA)),
     )
 
     cf_raw = raw.get("checker_framework", {})

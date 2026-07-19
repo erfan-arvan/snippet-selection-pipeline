@@ -6,7 +6,16 @@
 # the two flagged exceptions.
 
 output_dir: ./output
-gradle_command: gradle   # must be a Gradle 8.x on PATH (or point this at a wrapper script)
+
+# Fallback commands used ONLY when a target repo (in `repos:` below) doesn't ship its own
+# gradlew/mvnw wrapper - almost none of the 16 need this, since virtually every real-world
+# Gradle/Maven project on GitHub ships one. Every other gradle invocation in the pipeline
+# (building method-analyzer, running Specimin, building/checking a packaged snippet) always
+# uses that project's own bundled wrapper and never touches these two values - so on a
+# system with no system-wide `gradle`/`mvn` at all (e.g. an HPC cluster with only a Java
+# module), the pipeline still works as long as every target repo ships its own wrapper.
+gradle_command: gradle
+maven_command: mvn
 
 tools:
   method_analyzer_dir: ../tools/method-analyzer
@@ -17,6 +26,18 @@ tools:
 filtering:
   min_loc: 20
   max_loc: 30
+  # Which of the six §9.3 criteria a method must pass to be selected as a candidate
+  # (Stage C). Every manifest record already has all six computed individually
+  # (isStatic, noAnnotations, hasJavadoc, paramAndReturnOk, locInRange, allTypesJdk), so
+  # changing this list changes what counts as a candidate without needing to regenerate
+  # the manifest - just re-run the `select` stage.
+  required_criteria:
+    - isStatic
+    - noAnnotations
+    - hasJavadoc
+    - paramAndReturnOk
+    - locInRange
+    - allTypesJdk
 
 checker_framework:
   version: "4.2.1"            # verify: https://github.com/typetools/checker-framework/releases

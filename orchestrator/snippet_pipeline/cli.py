@@ -67,8 +67,9 @@ def cmd_select(args) -> None:
     manifest_path = run_dir / "manifest" / "manifest.jsonl"
     candidates_path = run_dir / "manifest" / "candidates.jsonl"
 
-    candidates = candidates_stage.select_candidates(manifest_path, candidates_path)
-    print(f"{len(candidates)} candidate(s) passing all six criteria -> {candidates_path}")
+    required = config.filtering.required_criteria
+    candidates = candidates_stage.select_candidates(manifest_path, candidates_path, required)
+    print(f"{len(candidates)} candidate(s) passing required criteria {required} -> {candidates_path}")
 
 
 def cmd_slice(args) -> None:
