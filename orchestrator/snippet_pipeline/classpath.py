@@ -21,6 +21,15 @@ Each target repo's own bundled wrapper (`gradlew`/`mvnw`) is always preferred ov
 `gradle_command`/`maven_command` when present - those config values are only a fallback for
 the rare repo that doesn't ship one, so this works on systems (e.g. an HPC cluster) with no
 system-wide `gradle`/`mvn` install at all.
+
+Classpath resolution is best-effort, not required: if a repo has neither its own wrapper nor
+a working fallback command (or the build itself fails), this logs a warning and proceeds with
+zero extra classpath jars for that repo rather than aborting the whole run. This doesn't loosen
+criterion (1) - JDK types resolve via reflection with no jars needed, and same-project types
+resolve via the source tree alone - it only means a genuine third-party dependency type can't
+be *confirmed* as such, and gets treated as unresolved (which fails criterion (1) anyway, since
+it isn't JDK either way). So a repo with no build tooling at all - e.g. a source-only checkout
+that was never a full git clone - still gets scanned, just slightly more conservatively.
 """
 from __future__ import annotations
 
@@ -93,23 +102,39 @@ def _maven_executable(repo_path: Path, fallback_command: str) -> str:
     return fallback_command
 
 
+_DEGRADED_CLASSPATH_NOTE = (
+    "proceeding with zero extra classpath jars for this repo. This only makes criterion (1) "
+    "more conservative, not less correct: JDK types still resolve fine (reflection needs no "
+    "jars) and same-project types still resolve fine (needs only the source tree, already "
+    "present) - the only thing this can miss is confirming a genuine third-party type, which "
+    "would fail criterion (1) anyway once confirmed, so the end result is rarely different."
+)
+
+
 def resolve_classpath_gradle(repo_path: Path, gradle_command: str) -> list[Path]:
     gradle = _gradle_executable(repo_path, gradle_command)
     with tempfile.NamedTemporaryFile("w", suffix=".init.gradle", delete=False) as f:
         f.write(_GRADLE_INIT_SCRIPT)
         init_script = f.name
     try:
-        result = subprocess.run(
-            [gradle, "--init-script", init_script, "-q", "snippetPipelinePrintClasspath"],
-            cwd=repo_path,
-            capture_output=True,
-            text=True,
-            timeout=1800,
-        )
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"Gradle classpath resolution failed for {repo_path} (exit {result.returncode}):\n{result.stderr[-4000:]}"
+        try:
+            result = subprocess.run(
+                [gradle, "--init-script", init_script, "-q", "snippetPipelinePrintClasspath"],
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                timeout=1800,
             )
+        except (FileNotFoundError, PermissionError) as e:
+            print(f"WARNING: no working gradle for {repo_path} (tried '{gradle}': {e}); {_DEGRADED_CLASSPATH_NOTE}")
+            return []
+
+        if result.returncode != 0:
+            print(
+                f"WARNING: gradle classpath resolution failed for {repo_path} (exit {result.returncode}); "
+                f"{_DEGRADED_CLASSPATH_NOTE}\n{result.stderr[-2000:]}"
+            )
+            return []
         return [Path(line.strip()) for line in result.stdout.splitlines() if line.strip()]
     finally:
         Path(init_script).unlink(missing_ok=True)
@@ -124,13 +149,17 @@ def resolve_classpath_maven(repo_path: Path, maven_command: str) -> list[Path]:
         with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
             out_file = f.name
         try:
-            result = subprocess.run(
-                [maven, "-q", "-DincludeScope=compile", f"-Dmdep.outputFile={out_file}", "dependency:build-classpath"],
-                cwd=module_dir,
-                capture_output=True,
-                text=True,
-                timeout=1800,
-            )
+            try:
+                result = subprocess.run(
+                    [maven, "-q", "-DincludeScope=compile", f"-Dmdep.outputFile={out_file}", "dependency:build-classpath"],
+                    cwd=module_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=1800,
+                )
+            except (FileNotFoundError, PermissionError) as e:
+                print(f"WARNING: no working maven for {module_dir} (tried '{maven}': {e}); {_DEGRADED_CLASSPATH_NOTE}")
+                continue  # best-effort across modules; a failing module just contributes no jars
             if result.returncode != 0:
                 continue  # best-effort across modules; a failing module just contributes no jars
             content = Path(out_file).read_text().strip()
