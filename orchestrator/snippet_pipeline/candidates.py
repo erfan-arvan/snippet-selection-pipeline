@@ -6,6 +6,7 @@ the 16 repos is visible).
 from __future__ import annotations
 
 import json
+import random
 from pathlib import Path
 
 from .config import ALL_CRITERIA
@@ -23,13 +24,23 @@ def _passes_required_criteria(record: MethodRecord, required_criteria: list[str]
 
 
 def select_candidates(
-    manifest_path: Path, candidates_path: Path, required_criteria: list[str] | None = None
+    manifest_path: Path,
+    candidates_path: Path,
+    required_criteria: list[str] | None = None,
+    limit: int | None = None,
+    seed: int | None = None,
 ) -> list[MethodRecord]:
     if required_criteria is None:
         required_criteria = ALL_CRITERIA
 
     records = load_manifest(manifest_path)
     candidates = [r for r in records if _passes_required_criteria(r, required_criteria)]
+
+    if limit is not None and len(candidates) > limit:
+        # Random, not "first N": candidates.jsonl's ordering reflects wherever the manifest
+        # came from (e.g. repo-by-repo), so the first N would skew toward one repo/file rather
+        # than being a representative sample for a small test run.
+        candidates = random.Random(seed).sample(candidates, limit)
 
     candidates_path.parent.mkdir(parents=True, exist_ok=True)
     with open(candidates_path, "w") as f:

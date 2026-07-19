@@ -68,8 +68,11 @@ def cmd_select(args) -> None:
     candidates_path = run_dir / "manifest" / "candidates.jsonl"
 
     required = config.filtering.required_criteria
-    candidates = candidates_stage.select_candidates(manifest_path, candidates_path, required)
-    print(f"{len(candidates)} candidate(s) passing required criteria {required} -> {candidates_path}")
+    candidates = candidates_stage.select_candidates(
+        manifest_path, candidates_path, required, limit=args.limit, seed=args.seed
+    )
+    limit_note = f" (limit={args.limit}, seed={args.seed}; randomly sampled if the passing set was larger)" if args.limit else ""
+    print(f"{len(candidates)} candidate(s) passing required criteria {required}{limit_note} -> {candidates_path}")
 
 
 def cmd_slice(args) -> None:
@@ -201,10 +204,21 @@ def main(argv: list[str] | None = None) -> int:
              "(required if you're running stages from different processes/machines without "
              "a shared output_dir, or want to re-run a stage against an older run).",
     )
+    parser.add_argument(
+        "--limit", type=int, default=None,
+        help="select stage only: cap the candidate set to this many, chosen at random (not "
+             "the first N, since candidates.jsonl's ordering isn't representative) - useful "
+             "for a quick sanity-check run of slice/package/check before committing to the "
+             "full candidate set.",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=None,
+        help="select stage only: random seed for --limit, for a reproducible sample.",
+    )
     subparsers = parser.add_subparsers(dest="stage", required=True)
 
     subparsers.add_parser("filter", help="Stage A+B: resolve classpaths, stage repos, run MethodAnalyzerApp").set_defaults(func=cmd_stage_and_filter)
-    subparsers.add_parser("select", help="Stage C: select candidates passing all six criteria").set_defaults(func=cmd_select)
+    subparsers.add_parser("select", help="Stage C: select candidates passing the configured required criteria").set_defaults(func=cmd_select)
     subparsers.add_parser("slice", help="Stage D: slice each candidate with Specimin").set_defaults(func=cmd_slice)
     subparsers.add_parser("package", help="Stage E: package each slice as a standalone Gradle module").set_defaults(func=cmd_package)
     subparsers.add_parser("check", help="Stage F+G: run Checker Framework checkers and print stats").set_defaults(func=cmd_check)

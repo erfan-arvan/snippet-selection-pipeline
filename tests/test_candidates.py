@@ -89,3 +89,40 @@ def test_missing_criteria_field_fails_closed(tmp_path):
     candidates = select_candidates(manifest_path, candidates_path)
 
     assert candidates == []
+
+
+def test_limit_samples_randomly_not_the_first_n(tmp_path):
+    manifest_path = tmp_path / "manifest.jsonl"
+    candidates_path = tmp_path / "candidates.jsonl"
+    _write_manifest(manifest_path, [_record(f"method{i}") for i in range(100)])
+
+    candidates_seed1 = select_candidates(manifest_path, candidates_path, limit=5, seed=1)
+    assert len(candidates_seed1) == 5
+    # Not just the first 5 in manifest order - a real (if not airtight) check that this is an
+    # actual sample rather than a silent "first N".
+    assert {c.method_name for c in candidates_seed1} != {f"method{i}" for i in range(5)}
+
+    with open(candidates_path) as f:
+        written = [json.loads(line) for line in f if line.strip()]
+    assert len(written) == 5
+
+
+def test_limit_is_reproducible_with_the_same_seed(tmp_path):
+    manifest_path = tmp_path / "manifest.jsonl"
+    candidates_path = tmp_path / "candidates.jsonl"
+    _write_manifest(manifest_path, [_record(f"method{i}") for i in range(100)])
+
+    first = select_candidates(manifest_path, candidates_path, limit=10, seed=42)
+    second = select_candidates(manifest_path, candidates_path, limit=10, seed=42)
+
+    assert {c.method_name for c in first} == {c.method_name for c in second}
+
+
+def test_limit_larger_than_candidate_set_returns_everything(tmp_path):
+    manifest_path = tmp_path / "manifest.jsonl"
+    candidates_path = tmp_path / "candidates.jsonl"
+    _write_manifest(manifest_path, [_record("a"), _record("b")])
+
+    candidates = select_candidates(manifest_path, candidates_path, limit=1000, seed=1)
+
+    assert {c.method_name for c in candidates} == {"a", "b"}
