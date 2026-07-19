@@ -85,7 +85,11 @@ def slice_candidate(
     )
     # Always use Specimin's own bundled wrapper - it ships one, so there's no reason to
     # depend on a system-wide `gradle` (which e.g. an HPC cluster may not have).
-    gradlew = str(specimin_dir / "gradlew")
+    gradlew_path = specimin_dir / "gradlew"
+    # Some filesystems (seen on an HPC /project mount) don't reliably preserve git's tracked
+    # executable bit on checkout - re-assert it rather than trust that git got it right.
+    gradlew_path.chmod(0o755)
+    gradlew = str(gradlew_path)
     result = subprocess.run(
         [gradlew, "run", f"--args={args}", "--console=plain"],
         cwd=specimin_dir,

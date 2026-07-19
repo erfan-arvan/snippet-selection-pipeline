@@ -21,8 +21,12 @@ def ensure_jar_built(tools: ToolsConfig) -> Path:
     # Always use this project's own bundled wrapper rather than a configurable command - it's
     # part of this repo, so it's guaranteed to be there, and there's no reason to depend on a
     # system-wide `gradle` (which e.g. an HPC cluster may not have) for a build we ship.
+    gradlew = method_analyzer_dir / "gradlew"
+    # Some filesystems (seen on an HPC /project mount) don't reliably preserve git's tracked
+    # executable bit on checkout - re-assert it rather than trust that git got it right.
+    gradlew.chmod(0o755)
     result = subprocess.run(
-        [str(method_analyzer_dir / "gradlew"), "shadowJar", "--console=plain"],
+        [str(gradlew), "shadowJar", "--console=plain"],
         cwd=method_analyzer_dir,
         capture_output=True,
         text=True,
