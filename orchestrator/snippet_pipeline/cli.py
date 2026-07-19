@@ -30,6 +30,17 @@ def _load_config_with_run_id_override(args) -> PipelineConfig:
     return config
 
 
+def repos_needed_by(candidates, all_repos):
+    """Filters `all_repos` down to only those referenced by at least one of `candidates`.
+
+    Used before staging/classpath-resolving repos for slice/package: a repo with zero
+    candidates in the current run has no work to do, regardless of what criteria produced
+    that candidate set - this holds for any candidate set, not just today's.
+    """
+    needed_names = {record.project for record in candidates}
+    return [r for r in all_repos if r.name in needed_names]
+
+
 def cmd_stage_and_filter(args) -> None:
     config = _load_config_with_run_id_override(args)
     run_id = config.start_new_run()
@@ -70,12 +81,16 @@ def cmd_slice(args) -> None:
     slices_root = run_dir / "slices"
     logs_root = run_dir / "logs" / "slice"
 
-    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command, config.maven_command)}
+    candidates = load_manifest(candidates_path)
+    repos_to_stage = repos_needed_by(candidates, config.repos)
+    print(f"Staging {len(repos_to_stage)} of {len(config.repos)} configured repo(s) - only those with candidates in this run.")
+
+    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(repos_to_stage, staging_root, config.gradle_command, config.maven_command)}
     specimin_dir = Path(config.tools.specimin_dir).expanduser().resolve()
 
     jar_dirs: dict[str, Path] = {}
     succeeded, failed = 0, 0
-    for record in load_manifest(candidates_path):
+    for record in candidates:
         resolved_repo = resolved_repos.get(record.project)
         if resolved_repo is None:
             print(f"  SKIP {record.snippet_id}: repo '{record.project}' not staged")
@@ -121,13 +136,16 @@ def cmd_package(args) -> None:
     slices_root = run_dir / "slices"
     snippets_root = run_dir / "snippets"
 
-    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command, config.maven_command)}
+    candidates = load_manifest(candidates_path)
+    repos_to_stage = repos_needed_by(candidates, config.repos)
+
+    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(repos_to_stage, staging_root, config.gradle_command, config.maven_command)}
     jar_path = config.tools.resolved_jar()
     method_analyzer_dir = Path(config.tools.method_analyzer_dir).expanduser().resolve()
     default_checker = config.checkers[0].processor if config.checkers else "org.checkerframework.checker.nullness.NullnessChecker"
 
     succeeded, failed = 0, 0
-    for record in load_manifest(candidates_path):
+    for record in candidates:
         slice_output_dir = slices_root / record.snippet_id
         if not slice_output_dir.is_dir() or not any(slice_output_dir.rglob("*.java")):
             continue  # slicing didn't succeed for this candidate; nothing to package
