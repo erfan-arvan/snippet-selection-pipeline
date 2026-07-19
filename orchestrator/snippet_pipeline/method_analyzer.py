@@ -12,14 +12,17 @@ from typing import Any
 from .config import ToolsConfig
 
 
-def ensure_jar_built(tools: ToolsConfig, gradle_command: str) -> Path:
+def ensure_jar_built(tools: ToolsConfig) -> Path:
     jar_path = tools.resolved_jar()
     if jar_path.exists():
         return jar_path
 
     method_analyzer_dir = Path(tools.method_analyzer_dir).expanduser().resolve()
+    # Always use this project's own bundled wrapper rather than a configurable command - it's
+    # part of this repo, so it's guaranteed to be there, and there's no reason to depend on a
+    # system-wide `gradle` (which e.g. an HPC cluster may not have) for a build we ship.
     result = subprocess.run(
-        [gradle_command, "shadowJar", "--console=plain"],
+        [str(method_analyzer_dir / "gradlew"), "shadowJar", "--console=plain"],
         cwd=method_analyzer_dir,
         capture_output=True,
         text=True,

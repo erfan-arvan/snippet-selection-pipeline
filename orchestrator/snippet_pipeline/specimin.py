@@ -66,7 +66,6 @@ class SliceResult:
 
 def slice_candidate(
     specimin_dir: Path,
-    gradle_command: str,
     source_root: Path,
     target_file: str,
     target_method_signature: str,
@@ -84,15 +83,18 @@ def slice_candidate(
         f'--targetMethod "{target_method_signature}" '
         f'--jarPath "{jar_dir}"'
     )
+    # Always use Specimin's own bundled wrapper - it ships one, so there's no reason to
+    # depend on a system-wide `gradle` (which e.g. an HPC cluster may not have).
+    gradlew = str(specimin_dir / "gradlew")
     result = subprocess.run(
-        [gradle_command, "run", f"--args={args}", "--console=plain"],
+        [gradlew, "run", f"--args={args}", "--console=plain"],
         cwd=specimin_dir,
         capture_output=True,
         text=True,
         timeout=600,
     )
     log_path.write_text(
-        f"$ {gradle_command} run --args='{args}'\n(cwd={specimin_dir})\n\n"
+        f"$ {gradlew} run --args='{args}'\n(cwd={specimin_dir})\n\n"
         f"--- stdout ---\n{result.stdout}\n--- stderr ---\n{result.stderr}\n"
     )
 

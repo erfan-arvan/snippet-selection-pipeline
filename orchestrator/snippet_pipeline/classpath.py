@@ -16,6 +16,11 @@ occasionally let an ambiguous symbol resolve that a precise per-module classpath
 but it never *removes* a jar a module actually needs, so it fails safe with respect to
 criterion (1)'s "unresolved => not JDK" rule. Repos with unusual build setups that this can't
 resolve at all should use `classpath_override` in pipeline.yaml.
+
+Each target repo's own bundled wrapper (`gradlew`/`mvnw`) is always preferred over
+`gradle_command`/`maven_command` when present - those config values are only a fallback for
+the rare repo that doesn't ship one, so this works on systems (e.g. an HPC cluster) with no
+system-wide `gradle`/`mvn` install at all.
 """
 from __future__ import annotations
 
@@ -70,13 +75,32 @@ def discover_source_roots(repo_path: Path) -> list[Path]:
     return roots or [repo_path]
 
 
+def _gradle_executable(repo_path: Path, fallback_command: str) -> str:
+    """Prefers the target repo's own bundled wrapper (virtually universal for real-world
+    Gradle projects, and the only thing guaranteed to work on a system with no system-wide
+    `gradle` - e.g. an HPC cluster with only a Java module) over a configurable fallback.
+    """
+    wrapper = repo_path / "gradlew"
+    if wrapper.is_file():
+        return str(wrapper)
+    return fallback_command
+
+
+def _maven_executable(repo_path: Path, fallback_command: str) -> str:
+    wrapper = repo_path / "mvnw"
+    if wrapper.is_file():
+        return str(wrapper)
+    return fallback_command
+
+
 def resolve_classpath_gradle(repo_path: Path, gradle_command: str) -> list[Path]:
+    gradle = _gradle_executable(repo_path, gradle_command)
     with tempfile.NamedTemporaryFile("w", suffix=".init.gradle", delete=False) as f:
         f.write(_GRADLE_INIT_SCRIPT)
         init_script = f.name
     try:
         result = subprocess.run(
-            [gradle_command, "--init-script", init_script, "-q", "snippetPipelinePrintClasspath"],
+            [gradle, "--init-script", init_script, "-q", "snippetPipelinePrintClasspath"],
             cwd=repo_path,
             capture_output=True,
             text=True,
@@ -91,7 +115,8 @@ def resolve_classpath_gradle(repo_path: Path, gradle_command: str) -> list[Path]
         Path(init_script).unlink(missing_ok=True)
 
 
-def resolve_classpath_maven(repo_path: Path) -> list[Path]:
+def resolve_classpath_maven(repo_path: Path, maven_command: str) -> list[Path]:
+    maven = _maven_executable(repo_path, maven_command)
     jars: set[Path] = set()
     # Union across every module's pom.xml, since a candidate method can live in any module.
     for pom in repo_path.glob("**/pom.xml"):
@@ -100,7 +125,7 @@ def resolve_classpath_maven(repo_path: Path) -> list[Path]:
             out_file = f.name
         try:
             result = subprocess.run(
-                ["mvn", "-q", "-DincludeScope=compile", f"-Dmdep.outputFile={out_file}", "dependency:build-classpath"],
+                [maven, "-q", "-DincludeScope=compile", f"-Dmdep.outputFile={out_file}", "dependency:build-classpath"],
                 cwd=module_dir,
                 capture_output=True,
                 text=True,
@@ -116,7 +141,7 @@ def resolve_classpath_maven(repo_path: Path) -> list[Path]:
     return sorted(jars)
 
 
-def resolve_classpath(repo: RepoConfig, gradle_command: str) -> list[Path]:
+def resolve_classpath(repo: RepoConfig, gradle_command: str, maven_command: str) -> list[Path]:
     if repo.classpath_override:
         override_path = Path(repo.classpath_override).expanduser().resolve()
         return [Path(line.strip()) for line in override_path.read_text().splitlines() if line.strip()]
@@ -125,12 +150,12 @@ def resolve_classpath(repo: RepoConfig, gradle_command: str) -> list[Path]:
     if repo.build_system == "gradle":
         return resolve_classpath_gradle(repo_path, gradle_command)
     elif repo.build_system == "maven":
-        return resolve_classpath_maven(repo_path)
+        return resolve_classpath_maven(repo_path, maven_command)
     else:
         raise ValueError(f"Unknown build_system '{repo.build_system}' for repo '{repo.name}'")
 
 
-def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str) -> ResolvedRepo:
+def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str, maven_command: str) -> ResolvedRepo:
     """Builds the staging directory MethodAnalyzerApp will treat as one "project": a symlink
     to the real repo plus the two convention files, so nothing is ever written into the
     user's actual checkout.
@@ -144,7 +169,7 @@ def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str) -> Res
         source_link.symlink_to(repo_path, target_is_directory=True)
 
     source_roots = [source_link / p.relative_to(repo_path) for p in discover_source_roots(repo_path)]
-    classpath_jars = resolve_classpath(repo, gradle_command)
+    classpath_jars = resolve_classpath(repo, gradle_command, maven_command)
 
     (staging_dir / ".pipeline-sourceroot.txt").write_text(
         "\n".join(str(p) for p in source_roots) + "\n"
@@ -156,6 +181,6 @@ def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str) -> Res
     return ResolvedRepo(repo=repo, staging_dir=staging_dir, source_roots=source_roots, classpath_jars=classpath_jars)
 
 
-def stage_all_repos(repos: list[RepoConfig], staging_root: Path, gradle_command: str) -> list[ResolvedRepo]:
+def stage_all_repos(repos: list[RepoConfig], staging_root: Path, gradle_command: str, maven_command: str) -> list[ResolvedRepo]:
     staging_root.mkdir(parents=True, exist_ok=True)
-    return [stage_repo(repo, staging_root, gradle_command) for repo in repos]
+    return [stage_repo(repo, staging_root, gradle_command, maven_command) for repo in repos]

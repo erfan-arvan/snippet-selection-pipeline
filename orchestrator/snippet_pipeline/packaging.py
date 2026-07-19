@@ -54,6 +54,26 @@ def locate_method_in_slice(
     return int(start_str), int(end_str)
 
 
+_WRAPPER_FILES = ["gradlew", "gradlew.bat", "gradle/wrapper/gradle-wrapper.jar", "gradle/wrapper/gradle-wrapper.properties"]
+
+
+def vendor_gradle_wrapper(method_analyzer_dir: Path, snippet_dir: Path) -> None:
+    """Copies the same Gradle wrapper tools/method-analyzer already ships into the snippet, so
+    every packaged snippet is a genuinely self-contained, runnable project - Stage F can build
+    it with `./gradlew` with no dependency on a system-wide `gradle` install (there isn't one
+    on, e.g., an HPC cluster with only a Java module). Reusing the exact same
+    gradle-wrapper.properties means every snippet requests the same Gradle version, so the
+    distribution itself is only downloaded once into the shared Gradle user home, not once per
+    snippet.
+    """
+    for relative in _WRAPPER_FILES:
+        src = method_analyzer_dir / relative
+        dst = snippet_dir / relative
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+    (snippet_dir / "gradlew").chmod(0o755)
+
+
 def check_for_stub_bodies(snippet_src_dir: Path) -> list[str]:
     """Specimin replaces non-target reachable methods' bodies with `throw new Error()`. If the
     target method's own logic ends up calling into a stubbed sibling (which criterion (1)
@@ -82,10 +102,10 @@ def package_snippet(
     slice_output_dir: Path,
     jar_paths: list[Path],
     method_analyzer_jar: Path,
+    method_analyzer_dir: Path,
     snippets_root: Path,
     checker_framework: CheckerFrameworkConfig,
     default_checker_processor: str,
-    gradle_command: str,
 ) -> PackagedSnippet:
     snippet_id = record.snippet_id
     snippet_dir = snippets_root / snippet_id
@@ -106,6 +126,8 @@ def package_snippet(
             except FileExistsError:
                 pass
 
+    vendor_gradle_wrapper(method_analyzer_dir, snippet_dir)
+
     sliced_relpath = expected_sliced_relpath(record)
     sliced_file = src_dir / sliced_relpath
     if not sliced_file.is_file():
@@ -123,7 +145,6 @@ def package_snippet(
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     build_gradle = env.get_template("snippet_build.gradle.kts.j2").render(
-        gradle_command=gradle_command,
         gradle_plugin_version=checker_framework.gradle_plugin_version,
         checker_framework_version=checker_framework.version,
         default_checker_processor=default_checker_processor,

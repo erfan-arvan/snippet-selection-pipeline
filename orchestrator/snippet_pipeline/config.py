@@ -74,7 +74,14 @@ class PipelineConfig:
     checkers: list[CheckerSpec]
     filtering: FilteringConfig = field(default_factory=FilteringConfig)
     checker_framework: CheckerFrameworkConfig = field(default_factory=CheckerFrameworkConfig)
+    # Fallback commands used ONLY for classpath resolution (Stage A) of a target repo that
+    # doesn't ship its own gradlew/mvnw wrapper. Every other gradle invocation in the pipeline
+    # (building method-analyzer, running Specimin, building/checking a packaged snippet)
+    # always uses that project's own bundled wrapper and never touches these - so on a system
+    # with no system-wide `gradle`/`mvn` at all (e.g. an HPC cluster with only a Java module),
+    # the pipeline still works as long as every target repo ships its own wrapper.
     gradle_command: str = "gradle"
+    maven_command: str = "mvn"
     run_id: Optional[str] = None
 
     def _last_run_marker(self) -> Path:
@@ -121,8 +128,9 @@ def _load_checkers(checkers_path: Path) -> list[CheckerSpec]:
 
 def _resolve_relative(base_dir: Path, value: Optional[str]) -> Optional[str]:
     """Resolves a possibly-relative path from the YAML against the YAML file's own
-    directory, not the process's current working directory - otherwise `gradle_command`
-    invocations from a different cwd than `config/` would silently point at the wrong place.
+    directory, not the process's current working directory - otherwise a `path`/`*_dir`
+    value would silently resolve wrong when the pipeline is invoked from somewhere other
+    than `config/`.
     """
     if not value:
         return value
@@ -180,5 +188,6 @@ def load_config(pipeline_yaml_path: str | Path) -> PipelineConfig:
         filtering=filtering,
         checker_framework=checker_framework,
         gradle_command=raw.get("gradle_command", "gradle"),
+        maven_command=raw.get("maven_command", "mvn"),
         run_id=raw.get("run_id"),
     )

@@ -38,11 +38,11 @@ def cmd_stage_and_filter(args) -> None:
 
     print(f"Run id: {run_id}")
     print(f"Staging {len(config.repos)} repo(s) into {staging_root} ...")
-    resolved_repos = stage_all_repos(config.repos, staging_root, config.gradle_command)
+    resolved_repos = stage_all_repos(config.repos, staging_root, config.gradle_command, config.maven_command)
     for rr in resolved_repos:
         print(f"  {rr.repo.name}: {len(rr.source_roots)} source root(s), {len(rr.classpath_jars)} classpath jar(s)")
 
-    jar_path = method_analyzer.ensure_jar_built(config.tools, config.gradle_command)
+    jar_path = method_analyzer.ensure_jar_built(config.tools)
     manifest_path = run_dir / "manifest" / "manifest.jsonl"
     log_path = run_dir / "logs" / "method_analyzer.log"
     print(f"Running MethodAnalyzerApp -> {manifest_path}")
@@ -70,7 +70,7 @@ def cmd_slice(args) -> None:
     slices_root = run_dir / "slices"
     logs_root = run_dir / "logs" / "slice"
 
-    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command)}
+    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command, config.maven_command)}
     specimin_dir = Path(config.tools.specimin_dir).expanduser().resolve()
 
     jar_dirs: dict[str, Path] = {}
@@ -99,7 +99,7 @@ def cmd_slice(args) -> None:
         output_dir = slices_root / record.snippet_id
         log_path = logs_root / f"{record.snippet_id}.log"
         result = specimin_stage.slice_candidate(
-            specimin_dir, config.gradle_command, source_root, target_file,
+            specimin_dir, source_root, target_file,
             record.target_method_signature, jar_dirs[record.project], output_dir, log_path,
         )
         if result.success:
@@ -121,8 +121,9 @@ def cmd_package(args) -> None:
     slices_root = run_dir / "slices"
     snippets_root = run_dir / "snippets"
 
-    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command)}
+    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(config.repos, staging_root, config.gradle_command, config.maven_command)}
     jar_path = config.tools.resolved_jar()
+    method_analyzer_dir = Path(config.tools.method_analyzer_dir).expanduser().resolve()
     default_checker = config.checkers[0].processor if config.checkers else "org.checkerframework.checker.nullness.NullnessChecker"
 
     succeeded, failed = 0, 0
@@ -135,7 +136,7 @@ def cmd_package(args) -> None:
         try:
             packaging_stage.package_snippet(
                 record, slice_output_dir, resolved_repo.classpath_jars if resolved_repo else [],
-                jar_path, snippets_root, config.checker_framework, default_checker, config.gradle_command,
+                jar_path, method_analyzer_dir, snippets_root, config.checker_framework, default_checker,
             )
             succeeded += 1
         except packaging_stage.PackagingError as e:
@@ -157,7 +158,7 @@ def cmd_check(args) -> None:
         if not (snippet_dir / "snippet.json").is_file():
             continue
         all_results.extend(
-            checkers_stage.run_checkers_on_snippet(snippet_dir, config.checkers, config.gradle_command, logs_root)
+            checkers_stage.run_checkers_on_snippet(snippet_dir, config.checkers, logs_root)
         )
 
     stats_paths = stats_stage.write_stats(all_results, stats_dir)

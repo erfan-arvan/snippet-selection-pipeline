@@ -88,20 +88,22 @@ def run_checker_on_snippet(
     snippet_dir: Path,
     metadata: dict,
     checker: CheckerSpec,
-    gradle_command: str,
     log_path: Path,
 ) -> CheckerRunResult:
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Always the snippet's own vendored wrapper (see packaging.vendor_gradle_wrapper) - never
+    # a system-wide `gradle`, which e.g. an HPC cluster may not have.
+    gradlew = str(snippet_dir / "gradlew")
     result = subprocess.run(
-        [gradle_command, "clean", "compileJava", f"-PcheckerClass={checker.processor}", "--console=plain"],
+        [gradlew, "clean", "compileJava", f"-PcheckerClass={checker.processor}", "--console=plain"],
         cwd=snippet_dir,
         capture_output=True,
         text=True,
         timeout=900,
     )
     combined_output = (
-        f"$ {gradle_command} clean compileJava -PcheckerClass={checker.processor}\n"
+        f"$ {gradlew} clean compileJava -PcheckerClass={checker.processor}\n"
         f"(cwd={snippet_dir})\n\n--- stdout ---\n{result.stdout}\n--- stderr ---\n{result.stderr}\n"
     )
     log_path.write_text(combined_output)
@@ -139,7 +141,6 @@ def run_checker_on_snippet(
 def run_checkers_on_snippet(
     snippet_dir: Path,
     checkers: list[CheckerSpec],
-    gradle_command: str,
     logs_root: Path,
 ) -> list[CheckerRunResult]:
     metadata = json.loads((snippet_dir / "snippet.json").read_text())
@@ -147,5 +148,5 @@ def run_checkers_on_snippet(
     results = []
     for checker in checkers:
         log_path = logs_root / snippet_id / f"{checker.id}.log"
-        results.append(run_checker_on_snippet(snippet_dir, metadata, checker, gradle_command, log_path))
+        results.append(run_checker_on_snippet(snippet_dir, metadata, checker, log_path))
     return results
