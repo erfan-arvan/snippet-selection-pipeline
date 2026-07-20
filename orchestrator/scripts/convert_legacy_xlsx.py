@@ -146,14 +146,16 @@ def convert(input_path: str, output_path: str) -> None:
             }
             passes_all = all(criteria.values())
 
-            param_types = None
-            target_method_signature = None
-            if passes_all:
-                param_types = parse_param_types(col("ParamTypes", row) or "", num_params)
-                if param_types is None:
-                    dropped_unparseable_params += 1
-                    continue
-                target_method_signature = f"{qualified_class_name}#{method_name}(" + ", ".join(param_types) + ")"
+            # Computed for every row, not just ones passing all six criteria: the signature is
+            # purely a function of the method's own shape (class/name/param types), and which
+            # criteria matter is a config choice (`required_criteria`) made later in `select` -
+            # a row can be a valid candidate under a looser required-criteria set without
+            # passing all six, and still needs a real signature to be sliceable.
+            param_types = parse_param_types(col("ParamTypes", row) or "", num_params)
+            if param_types is None:
+                dropped_unparseable_params += 1
+                continue
+            target_method_signature = f"{qualified_class_name}#{method_name}(" + ", ".join(param_types) + ")"
 
             # Recreate the staging-relative file path convention: strip the old "repos/<repo>/"
             # prefix and prepend "source/" (matching classpath.stage_repo's symlink layout).
@@ -187,9 +189,9 @@ def convert(input_path: str, output_path: str) -> None:
                 passed += 1
 
     print(f"Total rows read: {total}")
-    print(f"Rows passing all six criteria (pre-param-check): {passed + dropped_unparseable_params}")
-    print(f"  of which dropped for unrecoverable multi-param types: {dropped_unparseable_params}")
-    print(f"  final candidates written: {passed}")
+    print(f"Rows dropped for unrecoverable multi-param types (any row, pass or fail criteria): {dropped_unparseable_params}")
+    print(f"Rows written to manifest: {total - dropped_unparseable_params}")
+    print(f"  of which passing all six criteria: {passed}")
     print(f"Manifest written to: {output_path}")
 
 
