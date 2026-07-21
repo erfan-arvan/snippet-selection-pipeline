@@ -92,7 +92,6 @@ def cmd_slice(args) -> None:
     resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(repos_to_stage, staging_root, config.gradle_command, config.maven_command)}
     specimin_dir = Path(config.tools.specimin_dir).expanduser().resolve()
 
-    jar_dirs: dict[str, Path] = {}
     succeeded, failed = 0, 0
     for record in candidates:
         resolved_repo = resolved_repos.get(record.project)
@@ -100,11 +99,6 @@ def cmd_slice(args) -> None:
             print(f"  SKIP {record.snippet_id}: repo '{record.project}' not staged")
             failed += 1
             continue
-
-        if record.project not in jar_dirs:
-            jar_dirs[record.project] = specimin_stage.materialize_jar_dir(
-                resolved_repo, run_dir / "jar_dirs" / record.project
-            )
 
         try:
             source_root, target_file = specimin_stage.find_source_root_and_target_file(
@@ -119,7 +113,7 @@ def cmd_slice(args) -> None:
         log_path = logs_root / f"{record.snippet_id}.log"
         result = specimin_stage.slice_candidate(
             specimin_dir, source_root, target_file,
-            record.target_method_signature, jar_dirs[record.project], output_dir, log_path,
+            record.target_method_signature, output_dir, log_path,
         )
         if result.success:
             succeeded += 1

@@ -68,6 +68,16 @@ def _load_by_method(jsonl_path):
     return {json.loads(line)["methodName"]: json.loads(line) for line in open(jsonl_path)}
 
 
+@pytest.mark.parametrize("qualified,expected", [
+    ("java.lang.CharSequence", "CharSequence"),
+    ("int", "int"),
+    ("E", "E"),
+    ("java.util.List<java.lang.String>", "List<String>"),
+])
+def test_simple_type_name(qualified, expected):
+    assert convert_legacy_xlsx._simple_type_name(qualified) == expected
+
+
 def test_single_param_method_converts_and_passes(fixture_path, tmp_path):
     output = tmp_path / "manifest.jsonl"
     convert_legacy_xlsx.convert(str(fixture_path), str(output))
@@ -85,6 +95,18 @@ def test_cleanly_recoverable_multi_param_method_converts_and_passes(fixture_path
     records = _load_by_method(output)
     assert records["combine"]["passesAllCriteria"] is True
     assert records["combine"]["paramTypes"] == ["int", "java.lang.String"]
+
+
+def test_signature_uses_simple_type_names_not_fully_qualified(fixture_path, tmp_path):
+    # Specimin's --targetMethod matches type names as spelled in source (respecting imports),
+    # not fully-qualified names - the old xlsx's ParamTypes stored fully-qualified names, so the
+    # signature must strip them down, even though the stored `paramTypes` field itself keeps
+    # the fully-qualified form (see test_cleanly_recoverable_multi_param_method_converts_and_passes).
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    records = _load_by_method(output)
+    assert records["combine"]["targetMethodSignature"] == "com.example.util.MathUtil#combine(int, String)"
 
 
 def test_ambiguous_multi_param_method_is_dropped_not_guessed(fixture_path, tmp_path):

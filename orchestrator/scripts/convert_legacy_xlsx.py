@@ -43,6 +43,19 @@ _TOKEN_UNSANITIZE = [
 ]
 
 
+# Specimin matches --targetMethod against type names as they're spelled in the source (i.e.
+# respecting imports), not fully-qualified names - but the old xlsx's ParamTypes column stored
+# fully-resolved names from the original tool's symbol resolution. This strips any qualified
+# prefix down to the simple name (java.lang.CharSequence -> CharSequence), leaving primitives
+# and type variables (int, E) untouched, and works inside generics too (List<java.lang.String>
+# -> List<String>) since it just matches "lowercase.lowercase.Uppercase" anywhere in the string.
+_QUALIFIED_TYPE_RE = re.compile(r"\b(?:[a-z_][a-zA-Z0-9_]*\.)+([A-Z][a-zA-Z0-9_]*)\b")
+
+
+def _simple_type_name(qualified: str) -> str:
+    return _QUALIFIED_TYPE_RE.sub(r"\1", qualified)
+
+
 def _unsanitize_tokens(text: str) -> str:
     # Pad with a leading/trailing space before matching: the original sanitizer's substitution
     # (e.g. "[" -> " ob ") naturally produces a leading/trailing space when the bracket was at
@@ -155,7 +168,8 @@ def convert(input_path: str, output_path: str) -> None:
             if param_types is None:
                 dropped_unparseable_params += 1
                 continue
-            target_method_signature = f"{qualified_class_name}#{method_name}(" + ", ".join(param_types) + ")"
+            simple_param_types = [_simple_type_name(t) for t in param_types]
+            target_method_signature = f"{qualified_class_name}#{method_name}(" + ", ".join(simple_param_types) + ")"
 
             # Recreate the staging-relative file path convention: strip the old "repos/<repo>/"
             # prefix and prepend "source/" (matching classpath.stage_repo's symlink layout).

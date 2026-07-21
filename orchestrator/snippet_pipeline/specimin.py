@@ -42,20 +42,6 @@ def find_source_root_and_target_file(
     )
 
 
-def materialize_jar_dir(resolved_repo: ResolvedRepo, jar_dir: Path) -> Path:
-    """Specimin's --jarPath wants a directory of jars, not a list - symlink farm, built once
-    per repo and reused across all of that repo's candidates."""
-    jar_dir.mkdir(parents=True, exist_ok=True)
-    for jar in resolved_repo.classpath_jars:
-        link = jar_dir / jar.name
-        if not link.exists():
-            try:
-                link.symlink_to(jar)
-            except FileExistsError:
-                pass
-    return jar_dir
-
-
 @dataclass
 class SliceResult:
     snippet_id: str
@@ -69,19 +55,21 @@ def slice_candidate(
     source_root: Path,
     target_file: str,
     target_method_signature: str,
-    jar_dir: Path,
     output_dir: Path,
     log_path: Path,
 ) -> SliceResult:
     output_dir.mkdir(parents=True, exist_ok=True)
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # No --jarPath: per Specimin's own docs and its author's guidance, omitting the classpath
+    # makes it fall into approximate mode, synthesizing stand-ins for anything it can't resolve
+    # from the source tree alone - this avoids depending on this repo's build system/dependency
+    # resolution working at all, which has been the source of most HPC portability trouble.
     args = (
         f'--outputDirectory "{output_dir}" '
         f'--root "{source_root}" '
         f'--targetFile "{target_file}" '
-        f'--targetMethod "{target_method_signature}" '
-        f'--jarPath "{jar_dir}"'
+        f'--targetMethod "{target_method_signature}"'
     )
     # Always use Specimin's own bundled wrapper - it ships one, so there's no reason to
     # depend on a system-wide `gradle` (which e.g. an HPC cluster may not have).
