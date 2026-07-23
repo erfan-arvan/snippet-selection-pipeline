@@ -67,12 +67,20 @@ def _unsanitize_tokens(text: str) -> str:
     return result.strip()
 
 
+# The old tool wrote this literal placeholder into ParamTypes for any parameter whose type it
+# couldn't resolve (tracked separately via its parNumUnresolvedTypes column) - there's no way
+# to recover the real type name from this data source, so a row containing it can never get a
+# working Specimin signature and must be dropped, regardless of which criteria are required.
+_UNRESOLVED_PLACEHOLDER = "Unresolved"
+
+
 def parse_param_types(raw_param_types: str, num_params: int) -> list[str] | None:
     """Recovers the parameter type list from the old sanitized ParamTypes field.
 
     Returns None (meaning: drop this row) if the split can't be validated - e.g. any case
     where the recovered token count doesn't match num_params, since that means the original
-    comma-separated boundaries can't be reliably reconstructed from the sanitized text.
+    comma-separated boundaries can't be reliably reconstructed from the sanitized text - or if
+    any recovered type is the unresolved-type placeholder (see _UNRESOLVED_PLACEHOLDER).
     """
     if num_params == 0:
         return []
@@ -89,16 +97,20 @@ def parse_param_types(raw_param_types: str, num_params: int) -> list[str] | None
     if num_params == 1:
         # A single parameter's type may itself contain spaces (e.g. "int []", generics with
         # nested types), so don't split on whitespace here - the whole bracket contents is it.
-        return [inner]
+        result = [inner]
+    else:
+        # 2+ params: the original comma separators are gone, so all we can do is split on
+        # whitespace and check the token count matches. This only works because any row that
+        # reaches this function already passed the AllCustomAndUnresolved == 0 check, so its
+        # types should be plain (no generics/spaces) - see module docstring.
+        tokens = inner.split()
+        if len(tokens) != num_params:
+            return None
+        result = tokens
 
-    # 2+ params: the original comma separators are gone, so all we can do is split on
-    # whitespace and check the token count matches. This only works because any row that
-    # reaches this function already passed the AllCustomAndUnresolved == 0 check, so its
-    # types should be plain (no generics/spaces) - see module docstring.
-    tokens = inner.split()
-    if len(tokens) != num_params:
+    if _UNRESOLVED_PLACEHOLDER in result:
         return None
-    return tokens
+    return result
 
 
 def convert(input_path: str, output_path: str) -> None:

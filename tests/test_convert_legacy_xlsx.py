@@ -54,6 +54,13 @@ def fixture_path(tmp_path):
              True, "int", "Too long.", "", 0, 50, 45),
         _row("usesCustom", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob CustomType cb",
              True, "int", "Uses a custom type.", "", 1, 22, 18),
+        # Reproduces the real bug: a param type the old tool couldn't resolve, recorded as the
+        # literal placeholder "Unresolved" rather than a real type name. Fails allTypesJdk (so
+        # it wouldn't have been selected under the original all-six-criteria requirement), but
+        # under a looser required_criteria set it could still be selected - except there's no
+        # way to build a working Specimin signature for it, so it must be dropped outright.
+        _row("unresolvedParam", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob Unresolved cb",
+             True, "int", "Has an unresolved param type.", "", 1, 22, 18),
         # Reproduces the real "ghost row" bug: no method name at all (empty string, like a
         # blank Excel row inside a formatting-bloated used range), but with a stray non-null
         # value in some other column so an "all cells are None" check wouldn't catch it.
@@ -115,6 +122,18 @@ def test_ambiguous_multi_param_method_is_dropped_not_guessed(fixture_path, tmp_p
 
     records = _load_by_method(output)
     assert "mapify" not in records  # dropped entirely, not written with a guessed/wrong signature
+
+
+def test_unresolved_param_type_is_dropped_even_though_other_criteria_pass(fixture_path, tmp_path):
+    # This row fails allTypesJdk (so wouldn't be a candidate under the full six-criteria set),
+    # but passes paramAndReturnOk/locInRange/noAnnotations - a looser required_criteria could
+    # select it, yet the "Unresolved" placeholder means no real signature can be built, so it
+    # must be dropped from the manifest outright rather than written with a broken signature.
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    records = _load_by_method(output)
+    assert "unresolvedParam" not in records
 
 
 def test_failing_criteria_rows_are_still_written_with_passes_false(fixture_path, tmp_path):
