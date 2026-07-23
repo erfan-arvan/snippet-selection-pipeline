@@ -77,6 +77,10 @@ class MethodRecord:
         return self.raw["qualifiedClassName"]
 
     @property
+    def num_params(self) -> int:
+        return self.raw.get("numParams", len(self.raw.get("paramTypes", [])))
+
+    @property
     def target_method_signature(self) -> str:
         return self.raw["targetMethodSignature"]
 

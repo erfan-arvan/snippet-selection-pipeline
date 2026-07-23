@@ -91,6 +91,7 @@ def cmd_slice(args) -> None:
 
     resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(repos_to_stage, staging_root, config.gradle_command, config.maven_command)}
     specimin_dir = Path(config.tools.specimin_dir).expanduser().resolve()
+    jar_path = method_analyzer.ensure_jar_built(config.tools)
 
     succeeded, failed = 0, 0
     for record in candidates:
@@ -109,11 +110,26 @@ def cmd_slice(args) -> None:
             failed += 1
             continue
 
+        # Never trust the manifest's own qualifiedClassName/targetMethodSignature for slicing -
+        # re-derive it from the actual source file (as-written types, correct nested-class
+        # chain) since manifest values imported from the legacy xlsx can be wrong in ways that
+        # produce an unusable --targetMethod (see specimin.resolve_method_signature).
+        simple_class_name = record.qualified_class_name.rsplit(".", 1)[-1]
+        try:
+            qualified_class_name, param_types = specimin_stage.resolve_method_signature(
+                jar_path, source_root / target_file, simple_class_name, record.method_name, record.num_params
+            )
+        except specimin_stage.SignatureResolutionError as e:
+            print(f"  SKIP {record.snippet_id}: could not resolve real signature from source - {e}")
+            failed += 1
+            continue
+        target_method_signature = f"{qualified_class_name}#{record.method_name}(" + ", ".join(param_types) + ")"
+
         output_dir = slices_root / record.snippet_id
         log_path = logs_root / f"{record.snippet_id}.log"
         result = specimin_stage.slice_candidate(
             specimin_dir, source_root, target_file,
-            record.target_method_signature, output_dir, log_path,
+            target_method_signature, output_dir, log_path,
         )
         if result.success:
             succeeded += 1

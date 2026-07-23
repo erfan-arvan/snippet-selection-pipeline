@@ -9,6 +9,7 @@ packaging step still checks for stub bodies as a safety net (see packaging.py).
 """
 from __future__ import annotations
 
+import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -19,6 +20,37 @@ from .method_analyzer import MethodRecord
 
 class SourceRootNotFoundError(RuntimeError):
     pass
+
+
+class SignatureResolutionError(RuntimeError):
+    pass
+
+
+def resolve_method_signature(
+    method_analyzer_jar: Path, file_path: Path, simple_class_name: str, method_name: str, num_params: int
+) -> tuple[str, list[str]]:
+    """Recovers a Specimin-correct (qualifiedClassName, paramTypes) by parsing the method's
+    actual source file - never resolving types, just reading them as written - rather than
+    trusting the manifest's own qualifiedClassName/paramTypes, which for legacy-imported
+    candidates can be wrong in ways that make the manifest's own targetMethodSignature
+    unusable: fully-qualified type names Specimin won't match against source, the literal
+    "Unresolved" placeholder for types the old tool couldn't resolve, or (independent of either
+    of those) a nested class's bare simple name with nothing indicating it's nested.
+
+    Raises SignatureResolutionError if the method can't be found unambiguously in the file -
+    never guesses at a signature.
+    """
+    result = subprocess.run(
+        ["java", "-cp", str(method_analyzer_jar), "com.github.erfanarvan.methodanalyzerapp.ResolveMethodSignature",
+         str(file_path), simple_class_name, method_name, str(num_params)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if result.returncode != 0:
+        raise SignatureResolutionError(result.stderr.strip())
+    data = json.loads(result.stdout)
+    return data["qualifiedClassName"], data["paramTypes"]
 
 
 def find_source_root_and_target_file(
