@@ -46,4 +46,23 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("10000")
     options.compilerArgs.add("-Xmaxwarns")
     options.compilerArgs.add("10000")
+
+    // Checker Framework needs these javac internal packages opened on JDK 9+ (module system
+    // strong encapsulation) - without them, any checker whose analysis parses a Java
+    // expression string from an annotation (e.g. Index checker's @SameLen/@UpperBound
+    // handling) crashes with IllegalAccessError instead of reporting real diagnostics.
+    // See https://checkerframework.org/manual/#javac-jdk11
+    options.forkOptions.jvmArgs = listOf(
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+        "--add-opens", "jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED"
+    )
 }
