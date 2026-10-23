@@ -99,7 +99,8 @@ def cmd_slice(args) -> None:
     jar_path = method_analyzer.ensure_jar_built(config.tools)
 
     succeeded, failed = 0, 0
-    for record in candidates:
+    for i, record in enumerate(candidates, 1):
+        print(f"Slicing candidate {i}/{len(candidates)}: {record.snippet_id} ...", flush=True)
         resolved_repo = resolved_repos.get(record.project)
         if resolved_repo is None:
             print(f"  SKIP {record.snippet_id}: repo '{record.project}' not staged")
