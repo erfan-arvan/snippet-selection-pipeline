@@ -222,4 +222,8 @@ def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str, maven_
 
 def stage_all_repos(repos: list[RepoConfig], staging_root: Path, gradle_command: str, maven_command: str) -> list[ResolvedRepo]:
     staging_root.mkdir(parents=True, exist_ok=True)
-    return [stage_repo(repo, staging_root, gradle_command, maven_command) for repo in repos]
+    resolved = []
+    for i, repo in enumerate(repos, 1):
+        print(f"Staging repo {i}/{len(repos)}: {repo.name} ...", flush=True)
+        resolved.append(stage_repo(repo, staging_root, gradle_command, maven_command))
+    return resolved
