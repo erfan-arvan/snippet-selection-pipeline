@@ -50,17 +50,19 @@ def print_summary(results: list[CheckerRunResult], logs_root: Path, stats_paths:
     for r in results:
         by_checker.setdefault(r.checker_id, Counter())[r.status] += 1
 
-    lines.append(f"{'checker':<15} {'passed':>8} {'flagged':>8} {'slice_suspect':>14} {'run_error':>10}")
+    lines.append(
+        f"{'checker':<15} {'passed':>8} {'flagged':>8} {'slice_suspect':>14} {'slice_broken':>13} {'run_error':>10}"
+    )
     for checker_id, counts in sorted(by_checker.items()):
         lines.append(
             f"{checker_id:<15} {counts.get('passed', 0):>8} {counts.get('flagged', 0):>8} "
-            f"{counts.get('slice_suspect', 0):>14} {counts.get('run_error', 0):>10}"
+            f"{counts.get('slice_suspect', 0):>14} {counts.get('slice_broken', 0):>13} {counts.get('run_error', 0):>10}"
         )
 
     lines.append("")
-    lines.append("Rows needing manual triage (flagged) or slice review (slice_suspect):")
+    lines.append("Rows needing manual triage (flagged) or slice review (slice_suspect/slice_broken):")
     for r in results:
-        if r.status in ("flagged", "slice_suspect"):
+        if r.status in ("flagged", "slice_suspect", "slice_broken"):
             lines.append(f"  [{r.status}] {r.snippet_id} / {r.checker_id} -> log: {r.log_path}")
 
     summary = "\n".join(lines)

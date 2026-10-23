@@ -37,7 +37,7 @@ class Diagnostic:
 class CheckerRunResult:
     snippet_id: str
     checker_id: str
-    status: str  # "passed" | "flagged" | "slice_suspect" | "run_error"
+    status: str  # "passed" | "flagged" | "slice_suspect" | "slice_broken" | "run_error"
     on_target_count: int
     elsewhere_count: int
     diagnostics: list[Diagnostic]
@@ -77,9 +77,21 @@ def classify_diagnostics(raw_diagnostics: list[dict], sliced_file_suffix: str, s
 
 
 def status_for(diagnostics: list[Diagnostic]) -> str:
+    """"flagged" is reserved for a real Checker Framework finding on the target method - always
+    identifiable by its bracketed message key (e.g. "[array.access.unsafe.high]"), which every
+    CF diagnostic carries regardless of whether CF reports it as a javac "error" (the default)
+    or "warning" (with -Awarns). A keyless diagnostic there is a plain javac error (e.g. "cannot
+    find symbol") - meaning the slice doesn't even compile, usually because Specimin's stub for
+    some referenced type (e.g. a superclass) dropped generic parameters or members the target
+    method actually needs. That's a broken slice, not a type-system finding about the method,
+    so it gets its own "slice_broken" bucket instead of being conflated with "flagged".
+    """
     if not diagnostics:
         return "passed"
-    if any(d.on_target for d in diagnostics):
+    on_target = [d for d in diagnostics if d.on_target]
+    if any(d.key is None for d in on_target):
+        return "slice_broken"
+    if on_target:
         return "flagged"
     return "slice_suspect"
 
