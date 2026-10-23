@@ -89,7 +89,12 @@ def cmd_slice(args) -> None:
     repos_to_stage = repos_needed_by(candidates, config.repos)
     print(f"Staging {len(repos_to_stage)} of {len(config.repos)} configured repo(s) - only those with candidates in this run.")
 
-    resolved_repos = {rr.repo.name: rr for rr in stage_all_repos(repos_to_stage, staging_root, config.gradle_command, config.maven_command)}
+    resolved_repos = {
+        rr.repo.name: rr
+        for rr in stage_all_repos(
+            repos_to_stage, staging_root, config.gradle_command, config.maven_command, resolve_jars=False
+        )
+    }
     specimin_dir = Path(config.tools.specimin_dir).expanduser().resolve()
     jar_path = method_analyzer.ensure_jar_built(config.tools)
 

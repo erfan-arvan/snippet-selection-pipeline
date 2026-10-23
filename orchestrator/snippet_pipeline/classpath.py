@@ -194,10 +194,18 @@ def resolve_classpath(repo: RepoConfig, gradle_command: str, maven_command: str)
         raise ValueError(f"Unknown build_system '{repo.build_system}' for repo '{repo.name}'")
 
 
-def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str, maven_command: str) -> ResolvedRepo:
+def stage_repo(
+    repo: RepoConfig, staging_root: Path, gradle_command: str, maven_command: str, resolve_jars: bool = True
+) -> ResolvedRepo:
     """Builds the staging directory MethodAnalyzerApp will treat as one "project": a symlink
     to the real repo plus the two convention files, so nothing is ever written into the
     user's actual checkout.
+
+    `resolve_jars=False` skips the gradle/maven classpath subprocess calls entirely (they can
+    take a very long time on large multi-module repos) for callers that only need source_roots
+    - e.g. the `slice` stage, which never reads classpath_jars (Specimin runs without
+    --jarPath) or the written classpath file. `package` and `filter` still need real jars, so
+    they keep resolve_jars=True.
     """
     repo_path = repo.resolved_path()
     staging_dir = staging_root / repo.name
@@ -208,7 +216,7 @@ def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str, maven_
         source_link.symlink_to(repo_path, target_is_directory=True)
 
     source_roots = [source_link / p.relative_to(repo_path) for p in discover_source_roots(repo_path)]
-    classpath_jars = resolve_classpath(repo, gradle_command, maven_command)
+    classpath_jars = resolve_classpath(repo, gradle_command, maven_command) if resolve_jars else []
 
     (staging_dir / ".pipeline-sourceroot.txt").write_text(
         "\n".join(str(p) for p in source_roots) + "\n"
@@ -220,10 +228,12 @@ def stage_repo(repo: RepoConfig, staging_root: Path, gradle_command: str, maven_
     return ResolvedRepo(repo=repo, staging_dir=staging_dir, source_roots=source_roots, classpath_jars=classpath_jars)
 
 
-def stage_all_repos(repos: list[RepoConfig], staging_root: Path, gradle_command: str, maven_command: str) -> list[ResolvedRepo]:
+def stage_all_repos(
+    repos: list[RepoConfig], staging_root: Path, gradle_command: str, maven_command: str, resolve_jars: bool = True
+) -> list[ResolvedRepo]:
     staging_root.mkdir(parents=True, exist_ok=True)
     resolved = []
     for i, repo in enumerate(repos, 1):
         print(f"Staging repo {i}/{len(repos)}: {repo.name} ...", flush=True)
-        resolved.append(stage_repo(repo, staging_root, gradle_command, maven_command))
+        resolved.append(stage_repo(repo, staging_root, gradle_command, maven_command, resolve_jars))
     return resolved
