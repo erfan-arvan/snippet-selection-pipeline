@@ -132,6 +132,9 @@ def resolve_classpath_gradle(repo_path: Path, gradle_command: str) -> list[Path]
         except (FileNotFoundError, PermissionError) as e:
             print(f"WARNING: no working gradle for {repo_path} (tried '{gradle}': {e}); {_DEGRADED_CLASSPATH_NOTE}")
             return []
+        except subprocess.TimeoutExpired:
+            print(f"WARNING: gradle classpath resolution timed out for {repo_path}; {_DEGRADED_CLASSPATH_NOTE}")
+            return []
 
         if result.returncode != 0:
             print(
@@ -164,6 +167,9 @@ def resolve_classpath_maven(repo_path: Path, maven_command: str) -> list[Path]:
             except (FileNotFoundError, PermissionError) as e:
                 print(f"WARNING: no working maven for {module_dir} (tried '{maven}': {e}); {_DEGRADED_CLASSPATH_NOTE}")
                 continue  # best-effort across modules; a failing module just contributes no jars
+            except subprocess.TimeoutExpired:
+                print(f"WARNING: maven classpath resolution timed out for {module_dir}; {_DEGRADED_CLASSPATH_NOTE}")
+                continue
             if result.returncode != 0:
                 continue  # best-effort across modules; a failing module just contributes no jars
             content = Path(out_file).read_text().strip()
