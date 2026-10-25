@@ -27,6 +27,13 @@ import java.util.stream.Collectors;
  * simple name and method arity is used, and its enclosing-type chain (via
  * {@link QualifiedNameUtils}) gives the correct nested-qualified class name for free.
  * <p>
+ * The legacy manifest's recorded class can itself be wrong for a deeply-nested method - e.g.
+ * Guava's {@code MinMaxPriorityQueue.Heap#crossOverUp}, where the old scan recorded the
+ * *enclosing* class ("MinMaxPriorityQueue") rather than the method's actual declaring class
+ * ("Heap"). If nothing directly named {@code className} has a matching method, this also
+ * searches types nested anywhere inside a type named {@code className} (not the whole file -
+ * that would risk picking an unrelated class's same-named method).
+ * <p>
  * Usage: {@code java -cp method-analyzer-all.jar com.github.erfanarvan.methodanalyzerapp.ResolveMethodSignature <file> <simpleClassName> <methodName> <paramCount>}
  * Prints a JSON object {@code {"qualifiedClassName": ..., "paramTypes": [...]}} to stdout and
  * exits 0 on an unambiguous match, or prints an error to stderr and exits 1 if the method isn't
@@ -71,6 +78,23 @@ public class ResolveMethodSignature {
                 }
             }
 
+            // Fallback: className matched nothing directly - try types nested inside a type
+            // named className, in case the manifest recorded the enclosing class instead of
+            // the method's actual declaring (nested) class.
+            if (matches.isEmpty()) {
+                for (TypeDeclaration<?> type : cu.findAll(TypeDeclaration.class)) {
+                    if (type.getNameAsString().equals(className) || !hasAncestorNamed(type, className)) {
+                        continue;
+                    }
+                    for (MethodDeclaration method : type.getMethods()) {
+                        if (method.getNameAsString().equals(methodName) && method.getParameters().size() == paramCount) {
+                            matches.add(method);
+                            matchedType = type;
+                        }
+                    }
+                }
+            }
+
             if (matches.isEmpty()) {
                 System.err.println("No method '" + methodName + "' with " + paramCount
                         + " parameter(s) found in class '" + className + "' in " + file);
@@ -102,5 +126,17 @@ public class ResolveMethodSignature {
             System.err.println("Error parsing " + file + ": " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    /** True if some enclosing type of {@code type} (at any depth, not just the immediate
+     * parent) is named {@code name} - used to find a method under the class the legacy
+     * manifest actually recorded, even when it only named an ancestor of the real declaring
+     * (nested) type. */
+    static boolean hasAncestorNamed(TypeDeclaration<?> type, String name) {
+        return type.getParentNode()
+                .filter(TypeDeclaration.class::isInstance)
+                .map(TypeDeclaration.class::cast)
+                .map(parent -> parent.getNameAsString().equals(name) || hasAncestorNamed(parent, name))
+                .orElse(false);
     }
 }

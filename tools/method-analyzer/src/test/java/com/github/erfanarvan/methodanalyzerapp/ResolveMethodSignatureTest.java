@@ -24,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class ResolveMethodSignatureTest {
 
-    /** Mirrors main()'s search: find the unique (type, method) match, or null if none/ambiguous. */
+    /** Mirrors main()'s search (including the nested-class fallback - reuses
+     * ResolveMethodSignature.hasAncestorNamed directly, same package, rather than duplicating
+     * it): find the unique (type, method) match, or null if none/ambiguous. */
     private static MethodDeclaration findUnique(CompilationUnit cu, String className, String methodName, int paramCount,
                                                  TypeDeclaration<?>[] matchedTypeOut) {
         List<MethodDeclaration> matches = new ArrayList<>();
@@ -35,6 +37,17 @@ public class ResolveMethodSignatureTest {
                 if (method.getNameAsString().equals(methodName) && method.getParameters().size() == paramCount) {
                     matches.add(method);
                     matchedType = type;
+                }
+            }
+        }
+        if (matches.isEmpty()) {
+            for (TypeDeclaration<?> type : cu.findAll(TypeDeclaration.class)) {
+                if (type.getNameAsString().equals(className) || !ResolveMethodSignature.hasAncestorNamed(type, className)) continue;
+                for (MethodDeclaration method : type.getMethods()) {
+                    if (method.getNameAsString().equals(methodName) && method.getParameters().size() == paramCount) {
+                        matches.add(method);
+                        matchedType = type;
+                    }
                 }
             }
         }
@@ -88,6 +101,57 @@ public class ResolveMethodSignatureTest {
                 QualifiedNameUtils.fullyQualifiedName("com.google.common.collect", matchedType[0]));
         assertEquals("int", method.getParameters().get(0).getType().asString());
         assertEquals("E", method.getParameters().get(1).getType().asString());
+    }
+
+    @Test
+    void findsMethodViaNestedFallbackWhenOnlyTheEnclosingClassWasRecorded(@TempDir Path tempDir) throws IOException {
+        // The real failure this fix addresses: the legacy manifest recorded "MinMaxPriorityQueue"
+        // (the *enclosing* class), not "Heap" (crossOverUp's actual declaring class) - confirmed
+        // directly against google/guava's current source. No match exists directly under
+        // "MinMaxPriorityQueue" itself, so the nested-class fallback must find it in Heap.
+        String source = String.join("\n",
+                "package com.google.common.collect;",
+                "public class MinMaxPriorityQueue<E> {",
+                "    private class Heap {",
+                "        void crossOverUp(int x, E y) {",
+                "        }",
+                "    }",
+                "}");
+        Path file = tempDir.resolve("MinMaxPriorityQueue.java");
+        Files.writeString(file, source);
+
+        CompilationUnit cu = StaticJavaParser.parse(file);
+        TypeDeclaration<?>[] matchedType = new TypeDeclaration<?>[1];
+        MethodDeclaration method = findUnique(cu, "MinMaxPriorityQueue", "crossOverUp", 2, matchedType);
+
+        assertEquals("com.google.common.collect.MinMaxPriorityQueue.Heap",
+                QualifiedNameUtils.fullyQualifiedName("com.google.common.collect", matchedType[0]));
+        assertEquals("int", method.getParameters().get(0).getType().asString());
+        assertEquals("E", method.getParameters().get(1).getType().asString());
+    }
+
+    @Test
+    void nestedFallbackStillRefusesAmbiguousMatch(@TempDir Path tempDir) throws IOException {
+        // Two different nested classes under the same named ancestor, both with a matching
+        // method - the fallback must still refuse rather than guess which one was meant.
+        String source = String.join("\n",
+                "package com.example;",
+                "public class Outer {",
+                "    class A {",
+                "        void run(int x) { }",
+                "    }",
+                "    class B {",
+                "        void run(int x) { }",
+                "    }",
+                "}");
+        Path file = tempDir.resolve("Outer.java");
+        Files.writeString(file, source);
+
+        CompilationUnit cu = StaticJavaParser.parse(file);
+        TypeDeclaration<?>[] matchedType = new TypeDeclaration<?>[1];
+        MethodDeclaration method = findUnique(cu, "Outer", "run", 1, matchedType);
+
+        assertNull(method);
     }
 
     @Test
