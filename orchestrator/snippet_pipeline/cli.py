@@ -13,6 +13,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from . import auto_batch as auto_batch_stage
 from . import candidates as candidates_stage
 from . import checkers as checkers_stage
 from . import method_analyzer
@@ -223,6 +224,24 @@ def cmd_all(args) -> None:
     cmd_check(args)
 
 
+def cmd_auto(args) -> None:
+    config = _load_config_with_run_id_override(args)
+    run_dir = config.run_output_dir(config.resolve_existing_run_id())
+    included_path = run_dir / "manifest" / "included.jsonl"
+    if not included_path.is_file():
+        raise RuntimeError(
+            f"{included_path} doesn't exist - run `select` at least once first (it writes "
+            "the eligible pool this stage samples batches from)."
+        )
+    auto_batch_stage.run_auto_batch(
+        config, run_dir, included_path,
+        batch_size=args.batch_size,
+        min_total_flagged=args.min_total_flagged,
+        min_non_nullness_flagged=args.min_non_nullness_flagged,
+        seed=args.auto_seed,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snippet-pipeline")
     parser.add_argument("-c", "--config", default="config/pipeline.yaml", help="Path to pipeline.yaml")
@@ -251,6 +270,25 @@ def main(argv: list[str] | None = None) -> int:
              "not the required criteria - omit it (or change required_criteria first) to "
              "regenerate included.jsonl from the manifest.",
     )
+    parser.add_argument(
+        "--batch-size", type=int, default=1000,
+        help="auto stage only: how many eligible methods to pull per batch.",
+    )
+    parser.add_argument(
+        "--min-total-flagged", type=int, default=100,
+        help="auto stage only: stop once cumulative flagged findings (across all checkers) "
+             "reach at least this many.",
+    )
+    parser.add_argument(
+        "--min-non-nullness-flagged", type=int, default=50,
+        help="auto stage only: stop once cumulative flagged findings from checkers other than "
+             "nullness exceed this many (both this and --min-total-flagged must hold).",
+    )
+    parser.add_argument(
+        "--auto-seed", type=int, default=1,
+        help="auto stage only: seed for shuffling the eligible pool into batches. Keep this "
+             "the same across resumed runs - changing it is rejected (see auto_batch_state.json).",
+    )
     subparsers = parser.add_subparsers(dest="stage", required=True)
 
     subparsers.add_parser("filter", help="Stage A+B: resolve classpaths, stage repos, run MethodAnalyzerApp").set_defaults(func=cmd_stage_and_filter)
@@ -259,6 +297,13 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("package", help="Stage E: package each slice as a standalone Gradle module").set_defaults(func=cmd_package)
     subparsers.add_parser("check", help="Stage F+G: run Checker Framework checkers and print stats").set_defaults(func=cmd_check)
     subparsers.add_parser("all", help="Run every stage in sequence").set_defaults(func=cmd_all)
+    subparsers.add_parser(
+        "auto",
+        help="Stage H: repeatedly batch-sample from manifest/included.jsonl, running slice/"
+             "package/check on each batch, until cumulative flagged findings hit the target "
+             "counts (or the pool runs out). Resumable - re-run the same command to continue "
+             "after a timeout/interruption.",
+    ).set_defaults(func=cmd_auto)
 
     args = parser.parse_args(argv)
     args.func(args)
