@@ -65,14 +65,26 @@ def cmd_select(args) -> None:
     config = _load_config_with_run_id_override(args)
     run_dir = config.run_output_dir(config.resolve_existing_run_id())
     manifest_path = run_dir / "manifest" / "manifest.jsonl"
+    included_path = run_dir / "manifest" / "included.jsonl"
     candidates_path = run_dir / "manifest" / "candidates.jsonl"
 
     required = config.filtering.required_criteria
-    candidates = candidates_stage.select_candidates(
-        manifest_path, candidates_path, required, limit=args.limit, seed=args.seed
-    )
-    limit_note = f" (limit={args.limit}, seed={args.seed}; randomly sampled if the passing set was larger)" if args.limit else ""
-    print(f"{len(candidates)} candidate(s) passing required criteria {required}{limit_note} -> {candidates_path}")
+    if args.resample_only:
+        # Re-sample from the already-filtered pool without re-scanning the (potentially huge)
+        # manifest - use this when only --limit/--seed changed, not the required criteria.
+        if not included_path.is_file():
+            raise RuntimeError(
+                f"--resample-only given but {included_path} doesn't exist yet - run `select` "
+                "at least once without it first."
+            )
+        print(f"Resampling from existing {included_path} (not re-filtering the manifest)")
+    else:
+        included = candidates_stage.write_included(manifest_path, included_path, required)
+        print(f"{len(included)} method(s) passing required criteria {required} -> {included_path}")
+
+    candidates = candidates_stage.sample_candidates(included_path, candidates_path, limit=args.limit, seed=args.seed)
+    limit_note = f" (limit={args.limit}, seed={args.seed}; randomly sampled if the pool was larger)" if args.limit else ""
+    print(f"{len(candidates)} candidate(s) selected{limit_note} -> {candidates_path}")
 
 
 def cmd_slice(args) -> None:
@@ -230,6 +242,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--seed", type=int, default=None,
         help="select stage only: random seed for --limit, for a reproducible sample.",
+    )
+    parser.add_argument(
+        "--resample-only", action="store_true",
+        help="select stage only: skip re-filtering the manifest (which can have hundreds of "
+             "thousands of rows) and just draw a new --limit/--seed sample from the existing "
+             "manifest/included.jsonl pool. Use this when only the sample size/seed changed, "
+             "not the required criteria - omit it (or change required_criteria first) to "
+             "regenerate included.jsonl from the manifest.",
     )
     subparsers = parser.add_subparsers(dest="stage", required=True)
 

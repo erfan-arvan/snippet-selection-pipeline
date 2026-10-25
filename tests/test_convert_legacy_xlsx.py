@@ -51,7 +51,11 @@ def fixture_path(tmp_path):
         _row("notStatic", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob int cb",
              False, "int", "Not static.", "", 0, 25, 20),
         _row("tooLong", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob int cb",
-             True, "int", "Too long.", "", 0, 50, 45),
+             True, "int", "Too long.", "", 0, 55, 45),
+        # No minimum LOC anymore (2026-10-25 decision) - a very short method must still pass
+        # locInRange, where it would have failed under the old 20-line floor.
+        _row("veryShort", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob int cb",
+             True, "int", "Very short.", "", 0, 3, 2),
         _row("usesCustom", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob CustomType cb",
              True, "int", "Uses a custom type.", "", 1, 22, 18),
         # Reproduces the real bug: a param type the old tool couldn't resolve, recorded as the
@@ -151,6 +155,14 @@ def test_failing_criteria_rows_are_still_written_with_passes_false(fixture_path,
     assert records["usesCustom"]["criteria"]["allTypesJdk"] is False
 
 
+def test_no_minimum_loc_a_very_short_method_still_passes_locInRange(fixture_path, tmp_path):
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    records = _load_by_method(output)
+    assert records["veryShort"]["criteria"]["locInRange"] is True
+
+
 def test_uses_first_cleanloc_column_not_the_duplicate(fixture_path, tmp_path):
     # Both CleanLoc columns exist in the fixture with different values (25/20 for sumValues) -
     # the first (25, in range) must be the one used, matching the user's confirmation.
@@ -180,9 +192,9 @@ def test_ghost_rows_with_no_method_name_are_excluded_even_with_stray_values(fixt
     with open(output) as f:
         lines = [json.loads(line) for line in f]
 
-    # Fixture has 6 real methods + 1 ghost row. Of the 6 real ones, "mapify" is intentionally
+    # Fixture has 7 real methods + 1 ghost row. Of the 7 real ones, "mapify" is intentionally
     # dropped (unparseable multi-param types, by design - see the dedicated test for that), so
-    # 5 lines is correct here: what matters for *this* test is that the ghost row contributed
+    # 6 lines is correct here: what matters for *this* test is that the ghost row contributed
     # zero of them, and every line that was written has a real method name.
-    assert len(lines) == 5
+    assert len(lines) == 6
     assert all(record["methodName"] for record in lines)

@@ -29,8 +29,8 @@ import sys
 
 import openpyxl
 
-MIN_LOC = 20
-MAX_LOC = 30
+# No minimum - per 2026-10-25 decision, only an upper bound on method length matters.
+MAX_LOC = 50
 
 # Reverses the token substitutions the old CSVWriter.sanitizeForCSV applied to bracket-like
 # characters (commas were also replaced with spaces, but that's not reversible - see module
@@ -166,7 +166,7 @@ def convert(input_path: str, output_path: str) -> None:
                 "noAnnotations": not str(annotations_raw).strip(),
                 "hasJavadoc": bool(str(javadoc).strip()),
                 "paramAndReturnOk": num_params >= 1 and str(return_type).strip() != "void",
-                "locInRange": clean_loc is not None and MIN_LOC <= clean_loc <= MAX_LOC,
+                "locInRange": clean_loc is not None and clean_loc <= MAX_LOC,
                 "allTypesJdk": all_custom_and_unresolved == 0,
             }
             passes_all = all(criteria.values())
