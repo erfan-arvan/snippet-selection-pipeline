@@ -58,6 +58,14 @@ def fixture_path(tmp_path):
              True, "int", "Very short.", "", 0, 3, 2),
         _row("usesCustom", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob CustomType cb",
              True, "int", "Uses a custom type.", "", 1, 22, 18),
+        # Only allow-listed annotations (2026-10-25 decision) - must still pass noAnnotations,
+        # despite carrying an annotation.
+        _row("allowedAnnotationOnly", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob int cb",
+             True, "int", "Just an override.", "Override", 0, 22, 18),
+        # Mix of an allowed and a disallowed annotation - must fail noAnnotations because of
+        # the disallowed one (Nullable is checker-relevant, not on the allow list).
+        _row("disallowedAnnotation", "repos/demo/src/com/example/util/MathUtil.java", 1, "ob int cb",
+             True, "int", "Nullness-annotated.", "Override  Nullable", 0, 22, 18),
         # Reproduces the real bug: a param type the old tool couldn't resolve, recorded as the
         # literal placeholder "Unresolved" rather than a real type name. Fails allTypesJdk (so
         # it wouldn't have been selected under the original all-six-criteria requirement), but
@@ -192,9 +200,27 @@ def test_ghost_rows_with_no_method_name_are_excluded_even_with_stray_values(fixt
     with open(output) as f:
         lines = [json.loads(line) for line in f]
 
-    # Fixture has 7 real methods + 1 ghost row. Of the 7 real ones, "mapify" is intentionally
+    # Fixture has 9 real methods + 1 ghost row. Of the 9 real ones, "mapify" is intentionally
     # dropped (unparseable multi-param types, by design - see the dedicated test for that), so
-    # 6 lines is correct here: what matters for *this* test is that the ghost row contributed
+    # 8 lines is correct here: what matters for *this* test is that the ghost row contributed
     # zero of them, and every line that was written has a real method name.
-    assert len(lines) == 6
+    assert len(lines) == 8
     assert all(record["methodName"] for record in lines)
+
+
+def test_allowlisted_annotations_still_pass_noAnnotations(fixture_path, tmp_path):
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    records = _load_by_method(output)
+    assert records["allowedAnnotationOnly"]["annotations"] == ["Override"]
+    assert records["allowedAnnotationOnly"]["criteria"]["noAnnotations"] is True
+
+
+def test_disallowed_annotation_fails_noAnnotations_even_mixed_with_an_allowed_one(fixture_path, tmp_path):
+    output = tmp_path / "manifest.jsonl"
+    convert_legacy_xlsx.convert(str(fixture_path), str(output))
+
+    records = _load_by_method(output)
+    assert records["disallowedAnnotation"]["annotations"] == ["Override", "Nullable"]
+    assert records["disallowedAnnotation"]["criteria"]["noAnnotations"] is False

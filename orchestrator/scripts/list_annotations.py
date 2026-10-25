@@ -3,23 +3,20 @@
 Annotations column, with counts, so a whitelist of "acceptable" annotations can be decided
 instead of the current blanket noAnnotations requirement.
 
-The Annotations column is free text (possibly holding several annotations per method, in
-whatever list-like format the old tool's sanitizeForCSV left it in) - rather than guess at and
-depend on that exact format, this extracts every "@AnnotationName" substring via regex, which
-is robust to however the individual annotations are separated/bracketed.
+The Annotations column holds a whitespace-separated list of plain annotation simple names -
+confirmed against the real export (e.g. "Override  Nullable" for a method carrying both); no
+leading "@", no brackets. The double space seen in practice is the old sanitizer turning ", "
+into two spaces; `.split()` handles any run of whitespace regardless.
 
 Usage:
     python3 list_annotations.py <input.xlsx>
 """
 from __future__ import annotations
 
-import re
 import sys
 from collections import Counter
 
 import openpyxl
-
-_ANNOTATION_NAME_RE = re.compile(r"@([A-Za-z_][A-Za-z0-9_.]*)")
 
 
 def main(input_path: str) -> None:
@@ -53,13 +50,7 @@ def main(input_path: str) -> None:
         if len(raw_samples) < 25:
             raw_samples.append(raw)
 
-        names = _ANNOTATION_NAME_RE.findall(raw)
-        if names:
-            name_counts.update(names)
-        else:
-            # Didn't match "@Name" at all - log the raw value itself so nothing is silently
-            # dropped from the tally.
-            name_counts[f"<unparsed: {raw[:60]!r}>"] += 1
+        name_counts.update(raw.split())
 
     print(f"Total methods: {total_rows}")
     print(f"Methods with a non-empty Annotations field: {rows_with_annotations}")

@@ -18,6 +18,15 @@ the pipeline in general - it inherits the old schema's known limitations:
     as null - purely informational fields the rest of the pipeline doesn't actually need to
     function (Specimin slicing only needs the file path + target method signature).
 
+The "noAnnotations" criterion is not literally "zero annotations" (see ALLOWED_ANNOTATIONS) -
+a method may carry any number of purely structural/informational annotations (e.g. @Override,
+@Deprecated) and still pass; it only fails for annotations that actually change what the
+checkers are evaluating (nullness-type annotations), aren't representative application logic
+(JMH benchmark harness code), or depend on framework-reflection wiring not visible in a
+standalone slice (Spring @Bean-style wiring). The field name is kept as-is (not renamed to
+e.g. "annotationsAllowed") to avoid touching `required_criteria` config and the live-scan
+path's Java side.
+
 Usage:
     python3 convert_legacy_xlsx.py <input.xlsx> <output_manifest.jsonl>
 """
@@ -31,6 +40,35 @@ import openpyxl
 
 # No minimum - per 2026-10-25 decision, only an upper bound on method length matters.
 MAX_LOC = 50
+
+# Per 2026-10-25 decision: a method isn't disqualified just for having *some* annotation -
+# only ones that actually change what the checkers are evaluating (nullness-type annotations
+# like @Nullable/@NonNull), aren't representative application logic (@Benchmark/@Setup JMH
+# harness code), or depend on framework-reflection wiring not visible in a standalone slice
+# (@Bean/@ConditionalOnMissingBean/@GetMapping/@ShellMethod), or are stub-only (@DoNotCall).
+# Everything else - purely structural/informational annotations - is fine. The `criteria`
+# field is still called "noAnnotations" (not renamed) to avoid touching `required_criteria`
+# config and the live-scan path's Java side; here it means "no *disallowed* annotations".
+ALLOWED_ANNOTATIONS = frozenset({
+    "Override",
+    "Deprecated",
+    "SafeVarargs",
+    "VisibleForTesting",
+    "GwtIncompatible",
+    "J2ktIncompatible",
+    "IgnoreJRERequirement",
+    "GuardedBy",
+    "CanIgnoreReturnValue",
+})
+
+
+def parse_annotation_names(raw_annotations: str) -> list[str]:
+    """The Annotations column is a whitespace-separated list of plain annotation simple names
+    (no leading "@", no brackets - confirmed against the real export, e.g. "Override  Nullable"
+    for a method carrying both). `.split()` handles any run of whitespace (the double space
+    seen in practice comes from the old sanitizer turning ", " into two spaces).
+    """
+    return raw_annotations.split()
 
 # Reverses the token substitutions the old CSVWriter.sanitizeForCSV applied to bracket-like
 # characters (commas were also replaced with spaces, but that's not reversible - see module
@@ -160,10 +198,11 @@ def convert(input_path: str, output_path: str) -> None:
             project = col("project", row) or ""
 
             qualified_class_name = f"{package_name}.{class_name}" if package_name else str(class_name)
+            annotation_names = parse_annotation_names(str(annotations_raw).strip())
 
             criteria = {
                 "isStatic": is_static,
-                "noAnnotations": not str(annotations_raw).strip(),
+                "noAnnotations": all(name in ALLOWED_ANNOTATIONS for name in annotation_names),
                 "hasJavadoc": bool(str(javadoc).strip()),
                 "paramAndReturnOk": num_params >= 1 and str(return_type).strip() != "void",
                 "locInRange": clean_loc is not None and clean_loc <= MAX_LOC,
@@ -197,7 +236,7 @@ def convert(input_path: str, output_path: str) -> None:
                 "paramTypes": param_types if param_types is not None else [],
                 "numParams": num_params,
                 "isStatic": is_static,
-                "annotations": [] if criteria["noAnnotations"] else [str(annotations_raw)],
+                "annotations": annotation_names,
                 "hasJavadoc": criteria["hasJavadoc"],
                 "javadoc": str(javadoc),
                 "rawLoc": clean_loc,
