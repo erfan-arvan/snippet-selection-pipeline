@@ -19,6 +19,13 @@ class RepoConfig:
     path: Optional[str]
     commit: Optional[str]
     build_system: str  # "gradle" or "maven"
+    # The exact GitHub clone URL this repo's data was scanned from. Not read by any pipeline
+    # code (cloning is still on you - see `path`) - it exists so "which repo is this really"
+    # is answered by the config itself, not by guessing from the short `name`. That guess went
+    # wrong once already: `druid` is alibaba/druid (a JDBC pool/SQL-parser, com.alibaba.druid)
+    # but was re-cloned as apache/druid (the OLAP engine, org.apache.druid) during an HPC
+    # /scratch recovery - two unrelated projects that happen to share a short name.
+    url: Optional[str] = None
     # Escape hatch: a pre-computed, colon/newline-separated classpath file, for repos whose
     # build can't be auto-resolved generically (see classpath.py's limitations).
     classpath_override: Optional[str] = None
@@ -166,6 +173,7 @@ def load_config(pipeline_yaml_path: str | Path) -> PipelineConfig:
             path=_resolve_relative(base_dir, r.get("path")),
             commit=r.get("commit"),
             build_system=r.get("build_system", "gradle"),
+            url=r.get("url"),
             classpath_override=_resolve_relative(base_dir, r.get("classpath_override")),
         )
         for r in raw.get("repos", [])
