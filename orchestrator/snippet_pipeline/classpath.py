@@ -55,6 +55,15 @@ allprojects {
 
 MAX_MODULE_SEARCH_DEPTH = 6
 
+# Gradle's default production source set is "main" ("src/main/java"); this covers virtually
+# every module across the 16 target repos. The one confirmed exception (not a guess - checked
+# directly against the repo): ghidra's GPL/DMG module uses "src/dmg/java" instead, a genuinely
+# production (non-test, non-benchmark) source set under a non-standard name. Extend this list
+# only for other *confirmed* cases, not speculatively - a blanket "any non-test source set
+# name" would also pull in things like src/jmh/java (benchmark code) or src/testFixtures/java
+# as if they were production sources, which is a correctness regression, not a fix.
+EXTRA_SOURCE_SET_NAMES = ("dmg",)
+
 
 @dataclass
 class ResolvedRepo:
@@ -65,21 +74,23 @@ class ResolvedRepo:
 
 
 def discover_source_roots(repo_path: Path) -> list[Path]:
-    """Finds every `src/main/java` under the repo root, up to a bounded depth, so
-    multi-module repos (most of the 16 target projects) get all their modules' sources.
-    Falls back to the repo root itself if none is found (e.g. a flat/non-conventional layout).
+    """Finds every `src/<source-set>/java` under the repo root, up to a bounded depth, for
+    "main" plus any name in EXTRA_SOURCE_SET_NAMES, so multi-module repos (most of the 16
+    target projects) get all their modules' production sources. Falls back to the repo root
+    itself if none is found (e.g. a flat/non-conventional layout).
     """
     roots = []
-    for candidate in repo_path.glob("*/src/main/java"):
-        roots.append(candidate)
-    if repo_path.joinpath("src/main/java").is_dir():
-        roots.append(repo_path / "src/main/java")
-    # Deeper modules, e.g. kafka/streams/src/main/java, dubbo/dubbo-common/src/main/java
-    for depth in range(2, MAX_MODULE_SEARCH_DEPTH):
-        pattern = "/".join(["*"] * depth) + "/src/main/java"
-        for candidate in repo_path.glob(pattern):
-            if "/test/" not in str(candidate) and "build" not in candidate.parts:
-                roots.append(candidate)
+    for source_set in ("main",) + EXTRA_SOURCE_SET_NAMES:
+        for candidate in repo_path.glob(f"*/src/{source_set}/java"):
+            roots.append(candidate)
+        if repo_path.joinpath(f"src/{source_set}/java").is_dir():
+            roots.append(repo_path / "src" / source_set / "java")
+        # Deeper modules, e.g. kafka/streams/src/main/java, dubbo/dubbo-common/src/main/java
+        for depth in range(2, MAX_MODULE_SEARCH_DEPTH):
+            pattern = "/".join(["*"] * depth) + f"/src/{source_set}/java"
+            for candidate in repo_path.glob(pattern):
+                if "/test/" not in str(candidate) and "build" not in candidate.parts:
+                    roots.append(candidate)
     roots = sorted(set(roots))
     return roots or [repo_path]
 
