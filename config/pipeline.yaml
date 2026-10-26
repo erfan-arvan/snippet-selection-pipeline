@@ -1,11 +1,13 @@
 # snippet-selection-pipeline configuration.
 #
-# Fill in each repo's `path` (and ideally `commit`, for reproducibility) after you've cloned
-# it locally - the pipeline does not clone anything itself. `build_system` values below are
-# my best knowledge of each project's primary build tool; VERIFY before running, especially
-# the two flagged exceptions.
+# This is the real, deployed config for this project's one environment (NJIT Wulver,
+# ea442/mjk76) - not a portable template with blanks to fill in. `path` values point at
+# /scratch/mjk76/ea442/repos-pinned, populated by
+# orchestrator/scripts/clone_repos_at_pinned_commits.py (the pipeline itself still never
+# clones anything). `build_system` values below are best knowledge of each project's primary
+# build tool; VERIFY before running, especially the one flagged exception (selenium).
 
-output_dir: ./output
+output_dir: /project/mjk76/ea442/snippet-selection-pipeline-output
 
 # Fallback commands used ONLY when a target repo (in `repos:` below) doesn't ship its own
 # gradlew/mvnw wrapper - almost none of the 16 need this, since virtually every real-world
@@ -19,7 +21,7 @@ maven_command: mvn
 
 tools:
   method_analyzer_dir: ../tools/method-analyzer
-  specimin_dir: null   # REQUIRED: set to your local clone of https://github.com/njit-jerse/specimin
+  specimin_dir: /scratch/mjk76/ea442/specimin
   # method_analyzer_jar: optional override; defaults to
   #   <method_analyzer_dir>/build/libs/method-analyzer-all.jar (built automatically if missing)
 
@@ -36,12 +38,9 @@ filtering:
   # changing this list changes what counts as a candidate without needing to regenerate
   # the manifest - just re-run the `select` stage.
   required_criteria:
-    - isStatic
     - noAnnotations
-    - hasJavadoc
     - paramAndReturnOk
     - locInRange
-    - allTypesJdk
 
 checker_framework:
   version: "4.2.1"            # verify: https://github.com/typetools/checker-framework/releases
@@ -52,23 +51,22 @@ checkers_file: checkers.yaml
 repos:
   # Each `url` + `commit` pair below was supplied directly by the user (2026-10-25) from their
   # own repository metadata, matching the exact commits the original §9.3 scan was run
-  # against - these are authoritative, not guessed. `path` is still local-environment-only
-  # and must be filled in (or left to the clone script) after cloning.
+  # against - these are authoritative, not guessed.
   - name: netty
     url: https://github.com/netty/netty
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/netty
     commit: f0a546dffa0d8644eb6c1f23433601cf464c0882
     build_system: maven
 
   - name: spring-framework
     url: https://github.com/spring-projects/spring-framework
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/spring-framework
     commit: 75329e6d9d93180d9edceb81838b0d96a145d665
     build_system: gradle
 
   - name: kafka
     url: https://github.com/apache/kafka
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/kafka
     commit: d23a61738ac44b8ecc6a7f69a83f3d94edaa8f90
     build_system: gradle
 
@@ -77,31 +75,31 @@ repos:
   # apache/druid once already during an HPC /scratch recovery; that was wrong.
   - name: druid
     url: https://github.com/alibaba/druid
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/druid
     commit: a52319fc8aa9c2181604c1c90b7f0fe4655baac7
     build_system: maven
 
   - name: dubbo
     url: https://github.com/apache/dubbo
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/dubbo
     commit: a5604cd2632471b46f66ed0217e84a68dc84a374
     build_system: maven
 
   - name: libgdx
     url: https://github.com/libgdx/libgdx
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/libgdx
     commit: 648f9b070fd76e374ff9a578527a82c155332a14
     build_system: gradle
 
   - name: spring-boot
     url: https://github.com/spring-projects/spring-boot
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/spring-boot
     commit: 5e57f1bb7b145db735fb2e6634f52896907db0ce
     build_system: gradle
 
   - name: rxjava
     url: https://github.com/ReactiveX/RxJava
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/rxjava
     commit: e0b2a69fec9f06ae1af1aa99547cbd1158b10c6b
     build_system: gradle
 
@@ -110,20 +108,20 @@ repos:
   # file (a pre-computed classpath, one jar per line) or exclude this repo from the run.
   - name: selenium
     url: https://github.com/SeleniumHQ/selenium
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/selenium
     commit: 9524fc8351a154febdeeed0e723f0d6679f2ec02
     build_system: maven  # placeholder only - see note above; will fail until overridden
     classpath_override: null
 
   - name: mybatis-3
     url: https://github.com/mybatis/mybatis-3
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/mybatis-3
     commit: ed5512752c2a744202574345631b59a6b0d0ba1e
     build_system: maven
 
   - name: guava
     url: https://github.com/google/guava
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/guava
     commit: f4b6ef015c5a8febe407e0ba8e1ee17753d26bc8
     build_system: maven
 
@@ -131,30 +129,30 @@ repos:
   # project - expect few or no candidate methods (and no dependency jars to resolve) from it.
   - name: javaguide
     url: https://github.com/Snailclimb/JavaGuide
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/javaguide
     commit: c143377a0225227d80511345dce03aef7f816bac
     build_system: maven
 
   - name: ghidra
     url: https://github.com/NationalSecurityAgency/ghidra
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/ghidra
     commit: 93c19e3cc6733fab119ace63a39be2aec89208b3
     build_system: gradle
 
   - name: hudi
     url: https://github.com/apache/hudi
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/hudi
     commit: cb32e5e1bac58cbccba8c92c91e7bed4780e9858
     build_system: maven
 
   - name: apollo
     url: https://github.com/apolloconfig/apollo
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/apollo
     commit: 5eb320f7fdf0c183904e9aff501392c878fec62f
     build_system: maven
 
   - name: WxJava
     url: https://github.com/binarywang/WxJava
-    path: null
+    path: /scratch/mjk76/ea442/repos-pinned/WxJava
     commit: 5da939647cea3c88e8ee9071f81a1efdca4c8ff4
     build_system: maven
