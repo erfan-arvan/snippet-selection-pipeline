@@ -9,7 +9,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=128G
-#SBATCH --time=2-00:00:00
+#SBATCH --time=3-00:00:00
 
 set -uo pipefail
 cd "$SLURM_SUBMIT_DIR"
