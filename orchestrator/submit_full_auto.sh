@@ -26,6 +26,11 @@ module load Java/17.0.15
 module load GCCcore/13.3.0
 module load Python/3.12.3
 source .venv/bin/activate
+
+# Gradle caches its distributions/dependency cache in ~/.gradle by default - with dozens of
+# repos each pinning a different Gradle version, that fills a 50GB home quota fast (it already
+# has once). Redirect it to /scratch instead, which has real headroom.
+export GRADLE_USER_HOME=/scratch/mjk76/ea442/.gradle-home
 export PYTHONUNBUFFERED=1
 
 echo "=== Stage: convert (legacy xlsx -> manifest.jsonl) ==="
