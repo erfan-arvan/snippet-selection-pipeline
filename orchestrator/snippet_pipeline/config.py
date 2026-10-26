@@ -56,8 +56,10 @@ ALL_CRITERIA = ["isStatic", "noAnnotations", "hasJavadoc", "paramAndReturnOk", "
 
 @dataclass
 class FilteringConfig:
-    min_loc: int = 20
-    max_loc: int = 30
+    # Only consumed by a live MethodAnalyzerApp scan (the `filter` stage) - the legacy-import
+    # workflow has its own hardcoded bound in convert_legacy_xlsx.py instead.
+    min_loc: Optional[int] = None
+    max_loc: int = 50
     # Which of the six §9.3 criteria a method must pass to be selected as a candidate
     # (Stage C). Every manifest record already has all six computed individually, so
     # changing this list changes what counts as a candidate without needing to regenerate
@@ -181,8 +183,8 @@ def load_config(pipeline_yaml_path: str | Path) -> PipelineConfig:
 
     filtering_raw = raw.get("filtering", {})
     filtering = FilteringConfig(
-        min_loc=filtering_raw.get("min_loc", 20),
-        max_loc=filtering_raw.get("max_loc", 30),
+        min_loc=filtering_raw.get("min_loc"),
+        max_loc=filtering_raw.get("max_loc", 50),
         required_criteria=filtering_raw.get("required_criteria", list(ALL_CRITERIA)),
     )
 

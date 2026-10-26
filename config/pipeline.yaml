@@ -24,8 +24,12 @@ tools:
   #   <method_analyzer_dir>/build/libs/method-analyzer-all.jar (built automatically if missing)
 
 filtering:
-  min_loc: 20
-  max_loc: 30
+  # NOT read by the legacy-import workflow (convert_legacy_xlsx.py has its own hardcoded
+  # MAX_LOC, currently 50, no minimum) - these only apply to a live MethodAnalyzerApp scan via
+  # the `filter` stage. Kept in sync with that script's current bound for anyone reading this
+  # file as documentation, not because code depends on it.
+  min_loc: null
+  max_loc: 50
   # Which of the six §9.3 criteria a method must pass to be selected as a candidate
   # (Stage C). Every manifest record already has all six computed individually
   # (isStatic, noAnnotations, hasJavadoc, paramAndReturnOk, locInRange, allTypesJdk), so
