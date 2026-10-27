@@ -46,6 +46,12 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("10000")
     options.compilerArgs.add("-Xmaxwarns")
     options.compilerArgs.add("10000")
+    // Report Checker Framework findings as javac warnings instead of its default of errors -
+    // purely a severity label change. classify_diagnostics/status_for in checkers.py never
+    // keyed off severity or the compile task's exit code (only off each diagnostic's bracketed
+    // message key and whether it's on-target), so this changes nothing about which snippets
+    // get classified "flagged"/"slice_broken"/"slice_suspect" - only how each line reads.
+    options.compilerArgs.add("-Awarns")
 
     // Checker Framework needs these javac internal packages opened on JDK 9+ (module system
     // strong encapsulation) - without them, any checker whose analysis parses a Java
