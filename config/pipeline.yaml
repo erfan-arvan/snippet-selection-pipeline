@@ -38,6 +38,7 @@ filtering:
   # changing this list changes what counts as a candidate without needing to regenerate
   # the manifest - just re-run the `select` stage.
   required_criteria:
+    - isStatic
     - noAnnotations
     - paramAndReturnOk
     - locInRange
