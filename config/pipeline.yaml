@@ -37,8 +37,10 @@ filtering:
   # (isStatic, noAnnotations, hasJavadoc, paramAndReturnOk, locInRange, allTypesJdk), so
   # changing this list changes what counts as a candidate without needing to regenerate
   # the manifest - just re-run the `select` stage.
+  # NOT currently isStatic/hasJavadoc/allTypesJdk - the completed legacy-import run (708 checked
+  # snippets, 146 flagged) used exactly these 3. Keep this in sync with whatever criteria set
+  # actually produced the results being reported - change it only deliberately, not by habit.
   required_criteria:
-    - isStatic
     - noAnnotations
     - paramAndReturnOk
     - locInRange
