@@ -71,7 +71,7 @@ fi
 
 echo "Running: mvn -pl $MODULES -am clean compile   (log: $LOG)"
 set +e
-(cd "$REPO" && mvn -B -pl "$MODULES" -am clean compile \
+(cd "$REPO" && mvn -B -fae -pl "$MODULES" -am clean compile \
     -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true) 2>&1 | tee "$LOG"
 rc=${PIPESTATUS[0]}
 set -e

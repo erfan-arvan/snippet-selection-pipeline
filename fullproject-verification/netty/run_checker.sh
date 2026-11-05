@@ -32,7 +32,7 @@ for m in ${MODS//,/ }; do
 done
 git diff --stat
 # clean: so patched modules are really recompiled (maven-compiler-plugin 3.8.0 does not detect pom changes)
-mvn -B -pl "$MODS" -am clean "$GOAL" -DskipTests -Dcheckstyle.skip=true -Danimal.sniffer.skip=true \
+mvn -B -fae -pl "$MODS" -am clean "$GOAL" -DskipTests -Dcheckstyle.skip=true -Danimal.sniffer.skip=true \
   2>&1 | tee "$CLONE/cf_${CHECKER}.log"
 rc=${PIPESTATUS[0]}
 echo "mvn rc=$rc  log: $CLONE/cf_${CHECKER}.log"

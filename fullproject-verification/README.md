@@ -21,6 +21,30 @@ with that repo's own gotchas.
 | ghidra | 5 (1 per checker) | Only regex + resourceleak confirmed; index/nullness/interning unrun | 2/114 — `ghidra/validated_results_partial.csv` |
 | hudi | 4 (formatter, index, nullness, regex) | **Not validated at all** — treat first HPC run as the real first test | none |
 
+## No diagnostics are truncated or silently dropped
+
+Two separate javac-level caps could otherwise lose diagnostics needed for the diff, and both
+are already overridden in every checker patch for every repo:
+
+- **`-Xmaxerrs 100` / `-Xmaxwarns 100`** — javac's own built-in default caps on how many errors
+  or warnings it will print, regardless of build tool. Every patch (`apollo`, `mybatis-3`,
+  `netty`, `dubbo`, `ghidra`, `hudi`) sets both to `10000` explicitly in `compilerArgs`/
+  `compilerArgs +=`, so no diagnostic past the 100th is ever dropped.
+- **Maven/Gradle reactor abort on first module failure** — in a multi-submodule build
+  (`-pl A,B,C -am`), if one module hard-fails, Maven/Gradle by default stops before building
+  the rest, silently losing every diagnostic in the modules after it. `-Awarns` (already set
+  everywhere except mybatis-3, which is single-module and doesn't need it) turns checker
+  findings into warnings so they don't trigger this at all; `run_*.sh`'s `mvn` calls now also
+  pass `-fae` (fail-at-end) as a second safety net, and `run_ghidra_checker.sh`'s gradle call
+  already used `--continue` — so even an unrelated real failure in one module won't cut off
+  diagnostics from the rest of the set.
+
+Maven does print each warning twice in its summary (see each repo's own README for the
+`sort -u` note) — a cosmetic duplication in the console output, not a loss — and the full,
+untruncated text of every diagnostic is always in the log file this script writes, which is
+what the actual diff should be run against, not the printed "N diagnostics" one-line count
+(that count's regex can undercount; the log file is authoritative).
+
 ## Watching progress while it runs
 
 Every build command in every `run_*.sh` streams Maven/Gradle's real output live (via `tee`),

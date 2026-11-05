@@ -41,7 +41,7 @@ git apply "$PATCH" || { echo "patch failed to apply"; exit 2; }
 # Without these flags the checker would analyze modified source rather than the pinned commit,
 # which can shift line numbers and taints the "same program" comparison. With them, the clone
 # stays clean (`git status` shows only pom.xml, which this script restores at the end).
-mvn -B clean compile \
+mvn -B -fae clean compile \
   -Dlicense.skip=true \
   -Dformatter.skip=true \
   -Dimpsort.skip=true \
