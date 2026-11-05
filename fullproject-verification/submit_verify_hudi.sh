@@ -62,17 +62,32 @@ else
   rm -rf "$WORK"
   mkdir -p "$WORK"
   git init -q "$WORK"
+  # Disable any checkout-time normalization (CRLF conversion, file-mode tracking) that
+  # could make a byte-for-byte fresh checkout look "dirty" to git before anything has
+  # even touched it - which would otherwise trip run_hudi_checker.sh's own
+  # modified-tree safety guard on every single invocation (confirmed: this happened).
+  git -C "$WORK" config core.autocrlf false
+  git -C "$WORK" config core.filemode false
   git -C "$WORK" remote add origin https://github.com/apache/hudi
   git -C "$WORK" fetch --depth 1 origin cb32e5e1bac58cbccba8c92c91e7bed4780e9858
   git -C "$WORK" checkout -q cb32e5e1bac58cbccba8c92c91e7bed4780e9858
 fi
+dirty="$(git -C "$WORK" status --porcelain --untracked-files=no)"
+if [ -n "$dirty" ]; then
+  echo "WARNING: clone reported dirty before any patch was applied; resetting: $dirty"
+  git -C "$WORK" checkout -- .
+fi
 
+FAIL=0
 step "prep (one-time: mvn install -DskipTests)"
-bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" prep
+bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" prep || FAIL=1
 
 for c in formatter index nullness regex; do
   step "hudi checker: $c"
-  bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" "$c" "$OUT"
+  bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" "$c" "$OUT" || FAIL=1
 done
 
 step "Done. Logs under $OUT"
+# Propagate any step's failure into this job's own exit code/sacct state - otherwise
+# the job shows COMPLETED even if every single checker step failed (confirmed: this happened).
+exit $FAIL

@@ -48,47 +48,61 @@ clone_at() {  # clone_at <url> <commit> <dest>
   local url="$1" commit="$2" dest="$3"
   if [ -d "$dest/.git" ] && [ "$(git -C "$dest" rev-parse HEAD 2>/dev/null)" = "$commit" ]; then
     echo "  $dest already at $commit"
-    return
+  else
+    rm -rf "$dest"
+    mkdir -p "$dest"
+    git init -q "$dest"
+    # Disable checkout-time normalization (CRLF conversion, file-mode tracking) that
+    # can make a byte-for-byte fresh checkout look "dirty" to git before anything has
+    # even touched it, which would trip each run_checker.sh's own modified-tree guard
+    # (confirmed this happened for hudi under the equivalent clone in submit_verify_hudi.sh).
+    git -C "$dest" config core.autocrlf false
+    git -C "$dest" config core.filemode false
+    git -C "$dest" remote add origin "$url"
+    git -C "$dest" fetch --depth 1 origin "$commit"
+    git -C "$dest" checkout -q "$commit"
   fi
-  rm -rf "$dest"
-  mkdir -p "$dest"
-  git init -q "$dest"
-  git -C "$dest" remote add origin "$url"
-  git -C "$dest" fetch --depth 1 origin "$commit"
-  git -C "$dest" checkout -q "$commit"
+  local dirty; dirty="$(git -C "$dest" status --porcelain --untracked-files=no)"
+  if [ -n "$dirty" ]; then
+    echo "  WARNING: $dest reported dirty before any patch was applied; resetting: $dirty"
+    git -C "$dest" checkout -- .
+  fi
 }
+
+FAIL=0
 
 step "apollo (nullness)"
 clone_at https://github.com/apolloconfig/apollo 5eb320f7fdf0c183904e9aff501392c878fec62f "$WORK/apollo"
 mkdir -p "$OUT/apollo"
-bash fullproject-verification/apollo/run_nullness.sh "$WORK/apollo" "$OUT/apollo/nullness.log"
+bash fullproject-verification/apollo/run_nullness.sh "$WORK/apollo" "$OUT/apollo/nullness.log" || FAIL=1
 
 step "mybatis-3 (interning, nullness)"
 clone_at https://github.com/mybatis/mybatis-3 ed5512752c2a744202574345631b59a6b0d0ba1e "$WORK/mybatis-3"
 mkdir -p "$OUT/mybatis-3"
 for c in interning nullness; do
   step "mybatis-3: $c"
-  bash fullproject-verification/mybatis-3/run_checker.sh "$c" "$WORK/mybatis-3" "$OUT/mybatis-3/$c.log"
+  bash fullproject-verification/mybatis-3/run_checker.sh "$c" "$WORK/mybatis-3" "$OUT/mybatis-3/$c.log" || FAIL=1
 done
 
 step "netty (index, interning, resourceleak, nullness)"
 clone_at https://github.com/netty/netty f0a546dffa0d8644eb6c1f23433601cf464c0882 "$WORK/netty"
 mkdir -p "$OUT/netty"
 step "netty: index"
-bash fullproject-verification/netty/run_checker.sh "$WORK/netty" index common,resolver-dns,codec-http "$OUT/netty/index.log"
+bash fullproject-verification/netty/run_checker.sh "$WORK/netty" index common,resolver-dns,codec-http "$OUT/netty/index.log" || FAIL=1
 step "netty: interning"
-bash fullproject-verification/netty/run_checker.sh "$WORK/netty" interning common "$OUT/netty/interning.log"
+bash fullproject-verification/netty/run_checker.sh "$WORK/netty" interning common "$OUT/netty/interning.log" || FAIL=1
 step "netty: resourceleak"
-bash fullproject-verification/netty/run_checker.sh "$WORK/netty" resourceleak transport "$OUT/netty/resourceleak.log"
+bash fullproject-verification/netty/run_checker.sh "$WORK/netty" resourceleak transport "$OUT/netty/resourceleak.log" || FAIL=1
 step "netty: nullness"
-bash fullproject-verification/netty/run_checker.sh "$WORK/netty" nullness common,handler,codec-http,codec-http2,resolver-dns,transport-native-unix-common "$OUT/netty/nullness.log"
+bash fullproject-verification/netty/run_checker.sh "$WORK/netty" nullness common,handler,codec-http,codec-http2,resolver-dns,transport-native-unix-common "$OUT/netty/nullness.log" || FAIL=1
 
 step "dubbo (index, nullness)"
 clone_at https://github.com/apache/dubbo a5604cd2632471b46f66ed0217e84a68dc84a374 "$WORK/dubbo"
 mkdir -p "$OUT/dubbo"
 step "dubbo: index"
-bash fullproject-verification/dubbo/run_checker.sh "$WORK/dubbo" index dubbo-common,dubbo-metadata/dubbo-metadata-processor,dubbo-plugin/dubbo-qos,dubbo-rpc/dubbo-rpc-api,dubbo-remoting/dubbo-remoting-netty,dubbo-rpc/dubbo-rpc-triple "$OUT/dubbo/index.log"
+bash fullproject-verification/dubbo/run_checker.sh "$WORK/dubbo" index dubbo-common,dubbo-metadata/dubbo-metadata-processor,dubbo-plugin/dubbo-qos,dubbo-rpc/dubbo-rpc-api,dubbo-remoting/dubbo-remoting-netty,dubbo-rpc/dubbo-rpc-triple "$OUT/dubbo/index.log" || FAIL=1
 step "dubbo: nullness"
-bash fullproject-verification/dubbo/run_checker.sh "$WORK/dubbo" nullness dubbo-common,dubbo-metadata/dubbo-metadata-processor,dubbo-plugin/dubbo-qos,dubbo-rpc/dubbo-rpc-api,dubbo-remoting/dubbo-remoting-netty,dubbo-rpc/dubbo-rpc-triple "$OUT/dubbo/nullness.log"
+bash fullproject-verification/dubbo/run_checker.sh "$WORK/dubbo" nullness dubbo-common,dubbo-metadata/dubbo-metadata-processor,dubbo-plugin/dubbo-qos,dubbo-rpc/dubbo-rpc-api,dubbo-remoting/dubbo-remoting-netty,dubbo-rpc/dubbo-rpc-triple "$OUT/dubbo/nullness.log" || FAIL=1
 
 step "Done. Logs under $OUT"
+exit $FAIL

@@ -61,14 +61,27 @@ else
   rm -rf "$WORK"
   mkdir -p "$WORK"
   git init -q "$WORK"
+  # Disable checkout-time normalization (CRLF conversion, file-mode tracking) that can
+  # make a byte-for-byte fresh checkout look "dirty" to git before anything has even
+  # touched it, which would trip run_ghidra_checker.sh's own modified-tree guard
+  # (confirmed this happened for hudi under the equivalent clone in submit_verify_hudi.sh).
+  git -C "$WORK" config core.autocrlf false
+  git -C "$WORK" config core.filemode false
   git -C "$WORK" remote add origin https://github.com/NationalSecurityAgency/ghidra
   git -C "$WORK" fetch --depth 1 origin 93c19e3cc6733fab119ace63a39be2aec89208b3
   git -C "$WORK" checkout -q 93c19e3cc6733fab119ace63a39be2aec89208b3
 fi
+dirty="$(git -C "$WORK" status --porcelain --untracked-files=no)"
+if [ -n "$dirty" ]; then
+  echo "WARNING: clone reported dirty before any patch was applied; resetting: $dirty"
+  git -C "$WORK" checkout -- .
+fi
 
+FAIL=0
 for c in index interning nullness regex resourceleak; do
   step "ghidra checker: $c"
-  bash fullproject-verification/ghidra/run_ghidra_checker.sh --init "$WORK" "$c" "$OUT/$c.log"
+  bash fullproject-verification/ghidra/run_ghidra_checker.sh --init "$WORK" "$c" "$OUT/$c.log" || FAIL=1
 done
 
 step "Done. Logs under $OUT"
+exit $FAIL
