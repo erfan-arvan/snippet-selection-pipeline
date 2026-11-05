@@ -72,7 +72,8 @@ for line in open(os.path.join(run, "stats", "results.jsonl")):
         m = json.load(open(p))
         if m.get("repo") == repo and m.get("qualified_class_name"):
             cls.add(m["qualified_class_name"].replace("$", "."))
-print("|".join(re.escape(c) for c in sorted(cls)))
+# [.] instead of \. so the regex survives Groovy/XML quoting unchanged
+print("|".join(c.replace(".", "[.]") for c in sorted(cls)))
 PY
 }
 

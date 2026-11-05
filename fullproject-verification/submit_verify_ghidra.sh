@@ -47,6 +47,11 @@ echo "Using: $(java -version 2>&1 | head -1)"
 # distribution/dependency cache off the 50GB home quota.
 export GRADLE_USER_HOME=/scratch/mjk76/ea442/.gradle-home
 
+# Type-check only the ghidra classes that have flagged rows (see lib.sh only_defs_regex).
+export ONLY_DEFS="$(only_defs_regex ghidra)"
+[ -n "$ONLY_DEFS" ] || { echo "FATAL: no flagged ghidra classes found in results.jsonl" >&2; exit 1; }
+echo "Checking only: $ONLY_DEFS"
+
 WORK=/scratch/mjk76/ea442/fullproject-verify-work/ghidra
 OUT=/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/ghidra
 mkdir -p "$OUT"

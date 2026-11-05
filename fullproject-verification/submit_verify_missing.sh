@@ -55,7 +55,10 @@ export ONLY_DEFS="$(only_defs_regex hudi)"
 [ -n "$ONLY_DEFS" ] || { echo "FATAL: no flagged hudi classes found in results.jsonl" >&2; exit 1; }
 echo "Checking only: $ONLY_DEFS"
 export APPTAINER_CACHEDIR=/scratch/mjk76/ea442/.apptainer-cache SINGULARITY_CACHEDIR=/scratch/mjk76/ea442/.apptainer-cache
-export PATH="$SLURM_SUBMIT_DIR/fullproject-verification/hudi/docker-shim:$PATH"
+# The repo checkout on /project does not keep exec bits: copy the docker stand-in to scratch.
+SHIM=/scratch/mjk76/ea442/fullproject-verify-work/docker-shim
+mkdir -p "$SHIM" && cp fullproject-verification/hudi/docker-shim/docker "$SHIM/docker" && chmod +x "$SHIM/docker"
+export PATH="$SHIM:$PATH"
 HR=fullproject-verification/hudi/run_hudi_checker.sh
 hclone() { prepare_clone https://github.com/apache/hudi cb32e5e1bac58cbccba8c92c91e7bed4780e9858 "$HW"; }
 # prep installs (no checker) everything upstream of hudi-kafka-connect, incl. hudi-common's

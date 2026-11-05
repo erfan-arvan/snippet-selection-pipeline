@@ -158,6 +158,19 @@ revert() { git -C "$G" checkout -- "${PATCHED[@]}" && echo "== reverted ${#PATCH
 trap revert EXIT
 git -C "$G" apply "$PATCH"
 echo "== applied $CHECKER patch to: ${PATCHED[*]}"
+# ONLY_DEFS=<regex>: type-check only the matching classes (-AonlyDefs); everything is still compiled.
+if [[ -n "${ONLY_DEFS:-}" ]]; then
+  for f in "${PATCHED[@]}"; do
+    python3 -I - "$G/$f" "$ONLY_DEFS" <<'PY'
+import sys
+p, rx = sys.argv[1], sys.argv[2]
+s = open(p).read()
+assert "'-Awarns'" in s, p
+open(p, "w").write(s.replace("'-Awarns'", "'-Awarns', '-AonlyDefs=" + rx + "'"))
+PY
+  done
+  echo "== -AonlyDefs=$ONLY_DEFS"
+fi
 
 # ---------------------------------------------------------------- build
 read -r -a T0 < "$TASKFILE"
@@ -167,7 +180,8 @@ read -r -a T0 < "$TASKFILE"
 TASKS=(); for t in "${T0[@]}"; do TASKS+=("$t" --rerun); done
 OFF=(); [[ "${GRADLE_OFFLINE:-0}" == 1 ]] && OFF=(--offline)
 build() {
-  ( cd "$G" && "$GRADLE" --no-daemon --continue "${OFF[@]}" "${TASKS[@]}" ) 2>&1 | tee "$LOG"
+  ( cd "$G" && "$GRADLE" --no-daemon --continue "-Dorg.gradle.jvmargs=-Xmx8G -Duser.language=en -Duser.country=US" \
+      ${OFF[@]+"${OFF[@]}"} "${TASKS[@]}" ) 2>&1 | tee "$LOG"
   return "${PIPESTATUS[0]}"
 }
 echo "== gradle ${TASKS[*]}  (log: $LOG)"
