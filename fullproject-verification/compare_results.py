@@ -76,19 +76,33 @@ def load_repo_links(path=PIPELINE_YAML):
             continue
         if re.match(r"^\S", line):
             cur = None; continue
-        m = re.match(r"^\s*(url|commit):\s*(\S+)", line)
+        m = re.match(r"^\s*(url|commit|path):\s*(\S+)", line)
         if m:
             repos[cur][m.group(1)] = m.group(2)
+    global REPO_PATHS
+    REPO_PATHS = {k: v["path"] for k, v in repos.items() if "path" in v}
     return {k: (v["url"].rstrip("/").removesuffix(".git"), v["commit"]) for k, v in repos.items() if "url" in v and "commit" in v}
 
 
+REPO_PATHS = {}
 REPO_LINKS = load_repo_links()
 
 
+def repo_root(clones_root, repo):
+    """Checkout used to read original sources: the verification clone, else the pipeline's own
+    pinned checkout from config/pipeline.yaml (e.g. WxJava, which has no verification run)."""
+    p = os.path.join(clones_root, str(repo))
+    if os.path.isdir(p):
+        return p
+    return REPO_PATHS.get(repo, p)
+
+
 def gh_url(repo, path, a, b=None):
-    if repo not in REPO_LINKS or not path or a is None:
+    if repo not in REPO_LINKS or not path:
         return ""
     url, commit = REPO_LINKS[repo]
+    if a is None:   # method lines unknown (e.g. no local clone): link the whole file
+        return f"{url}/blob/{commit}/{path}"
     return f"{url}/blob/{commit}/{path}#L{a}" + (f"-L{b}" if b is not None and b != a else "")
 
 
@@ -189,7 +203,7 @@ def normalize_paths(rows, clones_root):
         if (repo, f) not in cache:
             parts = f.replace("\\", "/").split("/")
             hit = next(("/".join(parts[i:]) for i in range(len(parts))
-                        if os.path.isfile(os.path.join(clones_root, repo, *parts[i:]))), None)
+                        if os.path.isfile(os.path.join(repo_root(clones_root, repo), *parts[i:]))), None)
             if hit is None and parts[0] == "source":
                 hit = "/".join(parts[1:])
             cache[(repo, f)] = hit or f
@@ -206,7 +220,7 @@ def locate_ranges(rows, clones_root):
             need[r["repo"]].add(r["original_file"])
     found = collections.defaultdict(list)   # (repo, original_file) -> [(cls, name, n, types, s, e)]
     for repo, files in need.items():
-        root = os.path.join(clones_root, repo)
+        root = repo_root(clones_root, repo)
         paths = [os.path.join(root, f) for f in sorted(files) if os.path.isfile(os.path.join(root, f))]
         if not paths:
             continue
@@ -222,8 +236,8 @@ def locate_ranges(rows, clones_root):
         if r.get("range_source"):
             continue
         key = (r.get("repo"), r.get("original_file"))
-        if not os.path.isfile(os.path.join(clones_root, str(key[0]), str(key[1]))):
-            r["range_source"] = f"not found: no {clones_root}/{key[0]}/{key[1]}"
+        if not os.path.isfile(os.path.join(repo_root(clones_root, key[0]), str(key[1]))):
+            r["range_source"] = f"not found: no {repo_root(clones_root, key[0])}/{key[1]}"
             continue
         q = (r.get("qualified_class_name") or "").replace("$", ".")
         cands = [c for c in found[key] if c[0] == q and c[1] == r.get("method_name")]
@@ -417,11 +431,12 @@ def write_xlsx(path, out, tab, cols, by_slice=()):
     summ += [[]] + [["verdict", "meaning"]] + [[k, v] for k, v in MEANING.items()]
     summ += [[]] + [["by-slice status", "meaning"]] + [[k, v] for k, v in SLICE_MEANING.items()]
     sheets.append(("Summary", summ, None))
-    if by_slice:
-        k = list(by_slice[0].keys())
-        sheets.append(("By slice", [k] + [[r.get(x) for x in k] for r in by_slice], k))
-    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
     k = list(out[0].keys()) if out else []
+    sheets.append(("All warnings", [k] + [[o.get(x) for x in k] for o in out], k))
+    if by_slice:
+        kb = list(by_slice[0].keys())
+        sheets.append(("By slice", [kb] + [[r.get(x) for x in kb] for r in by_slice], kb))
+    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
     res = sorted((o for o in out if o["verdict"] != "not_compared"),
                  key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))
     sheets.append(("Results", [k] + [[o.get(x) for x in k] for o in res], k))
@@ -512,7 +527,7 @@ def main():
     rows, not_compared, dup_records = load_sliced(a.run_dir)
     normalize_paths(rows, a.clones)
     normalize_paths(not_compared, a.clones)
-    locate_ranges(rows, a.clones)
+    locate_ranges(rows + not_compared, a.clones)
 
     groups = collections.OrderedDict()
     for r in rows:
@@ -545,7 +560,7 @@ def main():
             else:
                 verdict = "absent" if ran else "unverified"
         fname = os.path.basename(of or "")
-        murl = gh_url(repo, of, s, e) if s is not None else ""
+        murl = gh_url(repo, of, s, e)
         hurls = [gh_url(repo, of, h[1]) for h in hits]
         out.append({"repo": repo, "snippet_id": sid, "checker_id": cid, "key": key,
                     "verdict": verdict, "verdict_meaning": MEANING[verdict],
@@ -566,11 +581,13 @@ def main():
     for r in not_compared:
         out.append({"repo": r["repo"], "snippet_id": r["snippet_id"], "checker_id": r["checker_id"],
                     "key": r.get("key"), "verdict": "not_compared", "verdict_meaning": MEANING["not_compared"],
-                    "method_link": "", "original_match_link": "", "original_match_urls": "",
+                    "method_link": gh_url(r["repo"], r["original_file"], r.get("start"), r.get("end")),
+                    "original_match_link": "", "original_match_urls": "",
                     "sliced_count": 1, "full_count": "",
                     "method": f"{r['qualified_class_name']}.{r['method_name']}",
-                    "original_file": r["original_file"], "original_method_lines": "",
-                    "method_lines_source": "", "sliced_lines": str(r.get("sliced_line") or ""),
+                    "original_file": r["original_file"],
+                    "original_method_lines": f"{r.get('start')}-{r.get('end')}" if r.get("start") is not None else "",
+                    "method_lines_source": r.get("range_source") or "", "sliced_lines": str(r.get("sliced_line") or ""),
                     "sliced_messages": r.get("sliced_message") or "", "full_project_lines": "",
                     "full_project_messages": "", "module_check": r["reason"], "full_project_log": "",
                     "sliced_log": r.get("sliced_log") or ""})
