@@ -122,7 +122,8 @@ JAVAC_RE = re.compile(r"^(/\S+?\.java):(\d+):\s+(?:warning|error):\s+\[([\w.]+)\
 GRADLE_TASK_RE = re.compile(r"^> Task :([\w.-]+):(compile\w*Java)(?:\s+(\S.*))?$")
 
 MEANING = {
-    "persists": "Same checker + key reported inside this method in the original project at least as many times as in the slice.",
+    "persists": "Every occurrence of this warning in the slice is matched, one-to-one, to the same checker + key in the original method ON THE SAME STATEMENT (source text compared).",
+    "persists_count_only": "The original method has this checker + key at least as often, but not every slice occurrence could be matched to the same statement - check by hand.",
     "persists_partial": "Reported in the original project, but fewer times than in the slice - check by hand.",
     "absent": "Not reported in the original project although the checker ran on this module - the warning exists only in the slice.",
     "unverified": "Not found, but there is no evidence the checker ran over this module (or the method's lines are unknown) - no conclusion.",
@@ -166,7 +167,8 @@ def load_sliced(run_dir):
                 "repo": m and m.get("repo"), "original_file": m and m.get("original_file"),
                 "start": m and m.get("original_start_line"), "end": m and m.get("original_end_line"),
                 "qualified_class_name": m and m.get("qualified_class_name"),
-                "method_name": m and m.get("method_name")}
+                "method_name": m and m.get("method_name"),
+                "sliced_path": m and m.get("sliced_file") and os.path.join(run_dir, "snippets", sid, m["sliced_file"])}
         diags = r.get("diagnostics") or []
         if m is None:
             not_compared.append({**base, "key": None, "reason": "no snippet.json"})
@@ -253,6 +255,75 @@ def locate_ranges(rows, clones_root):
             continue
         r["start"], r["end"] = min(c[4] for c in cands), max(c[5] for c in cands)
         r["range_source"] = "located in original" + ("" if len(cands) == 1 else f" (AMBIGUOUS: {len(cands)} overloads, union of their ranges)")
+
+
+_SRC = {}
+
+
+def _lines(path):
+    if path not in _SRC:
+        try:
+            _SRC[path] = open(path, errors="replace").read().splitlines()
+        except (OSError, TypeError):
+            _SRC[path] = None
+    return _SRC[path]
+
+
+def _norm(t):
+    t = re.sub(r"//.*$", "", t)            # line comment
+    return re.sub(r"\s+", "", t)
+
+
+def _src(lines, ln):
+    return lines[ln - 1].strip() if lines and 1 <= ln <= len(lines) else ""
+
+
+def _window(lines, ln, k=3):
+    if not lines:
+        return ""
+    return "".join(_norm(x) for x in lines[max(0, ln - 1 - k): ln + k])
+
+
+def pair_by_statement(sliced_rows, hits, sliced_lines, orig_lines):
+    """One-to-one pairing of sliced occurrences with original diagnostics that sit on the same
+    statement: whitespace/comments ignored; Specimin may reflow a statement over different
+    lines, so a line also matches when it is contained in the other side's +-3 line window.
+    -> list of (sliced_row, hit or None, how)"""
+    cand = []
+    for i, r in enumerate(sliced_rows):
+        st = _norm(_src(sliced_lines, r.get("sliced_line") or 0))
+        for j, h in enumerate(hits):
+            ot = _norm(_src(orig_lines, h[1]))
+            if not st or not ot:
+                continue
+            if st == ot:
+                score = 3
+            elif len(st) >= 6 and st in _window(orig_lines, h[1]):
+                score = 2
+            elif len(ot) >= 6 and ot in _window(sliced_lines, r.get("sliced_line") or 0):
+                score = 2
+            else:
+                continue
+            if (r.get("sliced_message") or "").strip() == (h[4] or "").strip():
+                score += 1
+            cand.append((-score, i, j))
+    cand.sort()
+    used_i, used_j, pair = set(), set(), {}
+    for neg, i, j in cand:
+        if i in used_i or j in used_j:
+            continue
+        used_i.add(i); used_j.add(j); pair[i] = (j, "same line text" if -neg >= 3 else "same statement (reflowed)")
+    return [(r, hits[pair[i][0]] if i in pair else None, pair[i][1] if i in pair else "") for i, r in enumerate(sliced_rows)]
+
+
+def _orig_source(hits, pairs, orig_src):
+    if not (orig_src and hits):
+        return ""
+    out = []
+    for h in hits:
+        tag = next((f"   <= slice L{r.get('sliced_line')} ({how})" for r, hh, how in pairs if hh is h), "   (not paired)")
+        out.append(f"orig L{h[1]}: {_src(orig_src, h[1])}{tag}")
+    return "\n".join(out)
 
 
 def log_files(logs_root, repo, checker):
@@ -345,7 +416,8 @@ class FullLog:
 
 
 SLICE_MEANING = {
-    "identical": "Every warning of the slice is in the original method, and the original method has no other warnings from this checker (same keys, same counts).",
+    "identical": "Every warning of the slice is matched to the same statement in the original method, and the original method has no other warnings from this checker (same keys, same counts).",
+    "count_only": "Same keys and counts as the original method, but at least one warning could not be matched to the same statement - check by hand.",
     "slice_warnings_all_in_original": "Every warning of the slice is in the original method, but the original method has additional warnings from this checker.",
     "differs": "At least one warning of the slice is missing (or occurs fewer times) in the original method.",
     "incomplete": "At least one warning could not be checked yet (no full-project log, or the checker did not demonstrably run on this module).",
@@ -379,8 +451,10 @@ def per_slice(out, groups, logs):
             status = "incomplete"
         elif verdicts & {"absent", "persists_partial"}:
             status = "differs"
-        elif orig == sliced:
+        elif orig == sliced and verdicts == {"persists"}:
             status = "identical"
+        elif orig == sliced:
+            status = "count_only"
         else:
             status = "slice_warnings_all_in_original"
         res.append({"repo": o0["repo"], "snippet_id": sid, "checker_id": cid, "status": status,
@@ -436,7 +510,7 @@ def write_xlsx(path, out, tab, cols, by_slice=()):
     if by_slice:
         kb = list(by_slice[0].keys())
         sheets.append(("By slice", [kb] + [[r.get(x) for x in kb] for r in by_slice], kb))
-    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
+    order = {v: i for i, v in enumerate(["absent", "persists_partial", "persists_count_only", "unverified", "no_log", "persists"])}
     res = sorted((o for o in out if o["verdict"] != "not_compared"),
                  key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))
     sheets.append(("Results", [k] + [[o.get(x) for x in k] for o in res], k))
@@ -444,7 +518,8 @@ def write_xlsx(path, out, tab, cols, by_slice=()):
     widths = {"verdict_meaning": 50, "status_meaning": 50, "sliced_messages": 70, "full_project_messages": 70,
               "method": 55, "original_file": 55, "snippet_id": 55, "module_check": 40, "method_link": 30,
               "original_match_link": 30, "original_match_urls": 40, "full_project_log": 45, "sliced_log": 45,
-              "slice_warnings": 35, "original_method_warnings": 35}
+              "slice_warnings": 35, "original_method_warnings": 35,
+              "sliced_source": 70, "original_source": 80, "statement_match": 30}
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         ct = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
               '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">',
@@ -543,7 +618,7 @@ def main():
             logs[(repo, cid)] = FullLog(fs) if fs else None
         fl = logs[(repo, cid)]
         n = len(rs)
-        hits = []
+        hits, pairs, sl_src, orig_src = [], [], None, None
         if fl is None:
             verdict, m, evidence, mod_note = "no_log", 0, "", f"no log under {a.logs}/{repo}/ for {cid}"
         elif s is None or e is None:
@@ -553,8 +628,14 @@ def main():
             m = len(hits)
             ran, mod_note = fl.module_evidence(of)
             evidence = " | ".join(f"{os.path.basename(h[0])}:{h[1]}{'' if h[2] is None else ','+str(h[2])} [{h[3]}] {h[4][:120]}" for h in hits)
-            if m >= n:
+            orig_src = _lines(os.path.join(repo_root(a.clones, repo), of)) if of else None
+            sl_src = _lines(r0.get("sliced_path"))
+            pairs = pair_by_statement(rs, hits, sl_src, orig_src)
+            k = sum(1 for _, h, _ in pairs if h is not None)
+            if m >= n and k == n:
                 verdict = "persists"
+            elif m >= n:
+                verdict = "persists_count_only"
             elif m > 0:
                 verdict = "persists_partial"
             else:
@@ -575,6 +656,11 @@ def main():
                     "sliced_messages": "\n".join(f"line {x.get('sliced_line')}: {x.get('sliced_message') or ''}" for x in rs),
                     "full_project_lines": ", ".join(f"{h[1]}" + ("" if h[2] is None else f":{h[2]}") for h in hits) if fl is not None and s is not None else "",
                     "full_project_messages": "\n".join(f"{h[1]}{'' if h[2] is None else ':'+str(h[2])} [{h[3]}] {h[4]}" for h in hits) if fl is not None and s is not None else "",
+                    "statement_match": (f"{sum(1 for _, h, _ in pairs if h is not None)} of {n} matched to the same statement"
+                                        + ("" if sl_src else " (sliced source file not found)") + ("" if orig_src else " (original source file not found)"))
+                                       if pairs else "",
+                    "sliced_source": "\n".join(f"slice L{x.get('sliced_line')}: {_src(sl_src, x.get('sliced_line') or 0)}" for x in rs) if sl_src else "",
+                    "original_source": _orig_source(hits, pairs, orig_src),
                     "module_check": mod_note,
                     "full_project_log": ", ".join(fl.files) if fl is not None else "",
                     "sliced_log": r0.get("sliced_log") or ""})
@@ -589,7 +675,8 @@ def main():
                     "original_method_lines": f"{r.get('start')}-{r.get('end')}" if r.get("start") is not None else "",
                     "method_lines_source": r.get("range_source") or "", "sliced_lines": str(r.get("sliced_line") or ""),
                     "sliced_messages": r.get("sliced_message") or "", "full_project_lines": "",
-                    "full_project_messages": "", "module_check": r["reason"], "full_project_log": "",
+                    "full_project_messages": "", "statement_match": "", "sliced_source": "", "original_source": "",
+                    "module_check": r["reason"], "full_project_log": "",
                     "sliced_log": r.get("sliced_log") or ""})
 
     by_slice = per_slice(out, groups, logs)
@@ -623,12 +710,12 @@ def main():
     tab = collections.defaultdict(collections.Counter)
     for o in out:
         tab[o["repo"]][o["verdict"]] += 1
-    cols = ["persists", "persists_partial", "absent", "unverified", "no_log", "not_compared"]
+    cols = ["persists", "persists_count_only", "persists_partial", "absent", "unverified", "no_log", "not_compared"]
     print(f"  {'repo':12}" + "".join(f"{c:>17}" for c in cols))
     for repo in sorted(tab, key=str):
         print(f"  {str(repo):12}" + "".join(f"{tab[repo][c]:>17}" for c in cols))
     print(f"  {'TOTAL':12}" + "".join(f"{sum(t[c] for t in tab.values()):>17}" for c in cols))
-    attention = [o for o in out if o["verdict"] in ("persists_partial", "unverified", "no_log")]
+    attention = [o for o in out if o["verdict"] in ("persists_partial", "persists_count_only", "unverified", "no_log")]
     if attention:
         print("\nNeeds attention (missing / partial):")
         for o in attention:
