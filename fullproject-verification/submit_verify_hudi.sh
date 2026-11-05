@@ -71,12 +71,13 @@ run() {  # run <label> <run_hudi_checker.sh args...>; always starts from a clean
 
 # 1. everything except hudi-utilities
 export SKIP_UTILITIES=1 SKIP_METASERVER=1
-for c in formatter regex index nullness; do
+# CHECKERS="index" sbatch ... reruns only those (default: all four); SKIP_UTILITIES_STEP=1 skips step 2.
+for c in ${CHECKERS:-formatter regex index nullness}; do
   run "hudi: $c" "$c" "$OUT"
 done
 
 # 2. hudi-utilities (optional; see header)
-if run "hudi: prep for hudi-utilities (mvn install, no checker)" prep "$OUT"; then
+if [ -z "${SKIP_UTILITIES_STEP:-}" ] && run "hudi: prep for hudi-utilities (mvn install, no checker)" prep "$OUT"; then
   run "hudi: nullness on hudi-utilities" nullness-utilities "$OUT"
 else
   echo "Skipping nullness on hudi-utilities: prep failed (see $OUT/prep_install.log)."

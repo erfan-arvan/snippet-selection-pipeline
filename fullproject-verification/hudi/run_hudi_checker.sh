@@ -64,7 +64,7 @@ case "$CHK" in
                        PROFILE=(-Phudi-platform-service) ;;
   formatter) MODS="hudi-common" ;;
   regex)     MODS="hudi-common" ;;
-  index)     MODS="hudi-io,hudi-common" ;;
+  index)     MODS="hudi-io,hudi-common,hudi-examples/hudi-examples-common" ;;
   nullness)  MODS="hudi-io,hudi-common,hudi-hadoop-common,hudi-client/hudi-client-common,hudi-hadoop-mr,hudi-examples/hudi-examples-common"
              [ "${SKIP_UTILITIES:-0}" = 1 ] || MODS="$MODS,hudi-utilities" ;;
   *) echo "unknown checker: $CHK" >&2; exit 2 ;;
