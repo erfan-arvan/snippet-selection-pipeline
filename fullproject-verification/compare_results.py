@@ -58,6 +58,47 @@ import sys
 DEFAULT_LOGS = "/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification"
 DEFAULT_CLONES = "/scratch/mjk76/ea442/fullproject-verify-work"
 HERE = os.path.dirname(os.path.abspath(__file__))
+PIPELINE_YAML = os.path.join(HERE, "..", "config", "pipeline.yaml")
+
+
+def load_repo_links(path=PIPELINE_YAML):
+    """name -> (github url, pinned commit), from config/pipeline.yaml (no PyYAML needed)."""
+    repos, cur = {}, None
+    try:
+        lines = open(path).read().splitlines()
+    except OSError:
+        return repos
+    for line in lines:
+        m = re.match(r"^\s*-\s*name:\s*(\S+)", line)
+        if m:
+            cur = m.group(1); repos[cur] = {}; continue
+        if cur is None:
+            continue
+        if re.match(r"^\S", line):
+            cur = None; continue
+        m = re.match(r"^\s*(url|commit):\s*(\S+)", line)
+        if m:
+            repos[cur][m.group(1)] = m.group(2)
+    return {k: (v["url"].rstrip("/").removesuffix(".git"), v["commit"]) for k, v in repos.items() if "url" in v and "commit" in v}
+
+
+REPO_LINKS = load_repo_links()
+
+
+def gh_url(repo, path, a, b=None):
+    if repo not in REPO_LINKS or not path or a is None:
+        return ""
+    url, commit = REPO_LINKS[repo]
+    return f"{url}/blob/{commit}/{path}#L{a}" + (f"-L{b}" if b is not None and b != a else "")
+
+
+def xl_link(url, label):
+    """Excel turns =HYPERLINK(...) into a clickable cell when it opens the CSV (URL limit 255)."""
+    if not url:
+        return ""
+    if len(url) > 255:
+        return url
+    return '=HYPERLINK("' + url + '","' + label.replace('"', "'") + '")'
 
 # [WARNING] /abs/File.java:[12,34] [key] msg   (Maven; mybatis-3 prints [ERROR] ... error: [key];
 #                                                some summary lines have no [LEVEL] prefix)
@@ -329,7 +370,7 @@ def per_slice(out, groups, logs):
         else:
             status = "slice_warnings_all_in_original"
         res.append({"repo": o0["repo"], "snippet_id": sid, "checker_id": cid, "status": status,
-                    "status_meaning": SLICE_MEANING[status], "method": o0["method"],
+                    "status_meaning": SLICE_MEANING[status], "method_link": o0["method_link"], "method": o0["method"],
                     "original_file": o0["original_file"], "original_method_lines": lines,
                     "slice_warnings": _fmt(sliced),
                     "original_method_warnings": _fmt(orig) if status != "incomplete" else "",
@@ -449,8 +490,14 @@ def main():
                 verdict = "persists_partial"
             else:
                 verdict = "absent" if ran else "unverified"
+        fname = os.path.basename(of or "")
+        murl = gh_url(repo, of, s, e) if s is not None else ""
+        hurls = [gh_url(repo, of, h[1]) for h in hits]
         out.append({"repo": repo, "snippet_id": sid, "checker_id": cid, "key": key,
                     "verdict": verdict, "verdict_meaning": MEANING[verdict],
+                    "method_link": xl_link(murl, f"{fname}#L{s}-{e}"),
+                    "original_match_link": xl_link(hurls[0], f"{fname}#L{hits[0][1]}") if hurls else "",
+                    "original_match_urls": "\n".join(hurls),
                     "sliced_count": n, "full_count": m,
                     "method": f"{r0['qualified_class_name']}.{r0['method_name']}",
                     "original_file": of, "original_method_lines": f"{s}-{e}",
@@ -465,6 +512,7 @@ def main():
     for r in not_compared:
         out.append({"repo": r["repo"], "snippet_id": r["snippet_id"], "checker_id": r["checker_id"],
                     "key": r.get("key"), "verdict": "not_compared", "verdict_meaning": MEANING["not_compared"],
+                    "method_link": "", "original_match_link": "", "original_match_urls": "",
                     "sliced_count": 1, "full_count": "",
                     "method": f"{r['qualified_class_name']}.{r['method_name']}",
                     "original_file": r["original_file"], "original_method_lines": "",
