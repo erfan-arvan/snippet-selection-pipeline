@@ -31,6 +31,9 @@ git apply "$HERE/apollo-nullness-pom.patch"
 # Use apollo's own bundled wrapper, same convention as the rest of this pipeline
 # (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
 chmod +x ./mvnw
+# Keep Maven's local repo on scratch, not $HOME (same reason GRADLE_USER_HOME is
+# redirected to scratch everywhere else in this project - avoids the home quota).
+export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
 
 set +e
 ./mvnw -B -fae -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"

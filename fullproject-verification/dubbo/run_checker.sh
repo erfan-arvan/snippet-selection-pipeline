@@ -46,19 +46,26 @@ trap revert EXIT
 # (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
 chmod +x "$REPO/mvnw"
 
+# Keep Maven's local repo on scratch, not $HOME (same reason GRADLE_USER_HOME is
+# redirected to scratch everywhere else in this project - avoids the home quota, and
+# avoids inheriting any stale/unrelated state from a real $HOME/.m2).
+export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
+
 # --- Gotcha 1: dubbo-maven-plugin must be installed first --------------------------------
 # dubbo-rpc-triple (and anything downstream of it, e.g. dubbo-qos, dubbo-metadata-processor)
 # uses org.apache.dubbo:dubbo-maven-plugin:3.3.4-SNAPSHOT to run protoc in generate-sources.
 # That plugin is built in the same reactor, but at the `compile` phase its plugin descriptor
 # (META-INF/maven/plugin.xml) has not been generated yet, so the build fails with
-# "No plugin descriptor found". Installing it once into ~/.m2 (no checker) fixes that.
-if [[ ! -d "$HOME/.m2/repository/org/apache/dubbo/dubbo-maven-plugin/3.3.4-SNAPSHOT" ]]; then
-  echo "Installing dubbo-maven-plugin (one-time, no checker) ..."
+# "No plugin descriptor found". Installing it once (no checker) fixes that. Always run it -
+# a directory-existence check here previously skipped this when stale/incomplete (confirmed:
+# this caused a real build failure), and a clean re-install is fast and idempotent anyway.
+{
+  echo "Installing dubbo-maven-plugin (no checker) ..."
   (cd "$REPO" && ./mvnw -B -pl dubbo-maven-plugin -am install -DskipTests \
       -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip) \
       2>&1 | tee "$LOG.plugin-install"
   [[ ${PIPESTATUS[0]} -eq 0 ]] || { echo "plugin install failed, see $LOG.plugin-install" >&2; exit 1; }
-fi
+}
 
 python3 -I "$HERE/patch_pom.py" "$REPO" "$CHECKER" "${MODS[@]}"
 
