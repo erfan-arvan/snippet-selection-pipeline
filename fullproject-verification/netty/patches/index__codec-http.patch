@@ -1,0 +1,70 @@
+diff --git a/codec-http/pom.xml b/codec-http/pom.xml
+index 06b6ebf..4ed7b16 100644
+--- a/codec-http/pom.xml
++++ b/codec-http/pom.xml
+@@ -33,6 +33,16 @@
+   </properties>
+ 
+   <dependencies>
++    <dependency>
++      <groupId>org.checkerframework</groupId>
++      <artifactId>checker-qual</artifactId>
++      <version>4.2.1</version>
++    </dependency>
++    <dependency>
++      <groupId>org.checkerframework</groupId>
++      <artifactId>checker</artifactId>
++      <version>4.2.1</version>
++    </dependency>
+     <dependency>
+       <groupId>${project.groupId}</groupId>
+       <artifactId>netty-common</artifactId>
+@@ -129,5 +139,48 @@
+       <scope>test</scope>
+     </dependency>
+   </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <executions>
++          <execution>
++            <id>default-compile</id>
++            <configuration>
++              <fork>true</fork>
++              <maxmem>6g</maxmem>
++              <annotationProcessorPaths>
++                <path>
++                  <groupId>org.checkerframework</groupId>
++                  <artifactId>checker</artifactId>
++                  <version>4.2.1</version>
++                </path>
++              </annotationProcessorPaths>
++              <compilerArgs>
++                <arg>-processor</arg>
++                <arg>org.checkerframework.checker.index.IndexChecker</arg>
++                <arg>-Awarns</arg>
++                <arg>-Xmaxerrs</arg>
++                <arg>10000</arg>
++                <arg>-Xmaxwarns</arg>
++                <arg>10000</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
++                <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
++              </compilerArgs>
++            </configuration>
++          </execution>
++        </executions>
++      </plugin>
++    </plugins>
++  </build>
+ </project>
+ 

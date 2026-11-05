@@ -1,0 +1,87 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45071 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+Java: 21
+Gradle: 8.14.3
+Python3 command: [python3.13] (3.13, /usr/bin/python3.13)
+Python3 pip version: 24.0
+OS: Linux
+Arch: amd64 (gradle: x86-64)
+Using platform: linux_x86_64
+
+> Task :Base:buildCPPParser UP-TO-DATE
+> Task :Base:buildCParser UP-TO-DATE
+> Task :Base:buildJavacc UP-TO-DATE
+> Task :Utility:compileJava UP-TO-DATE
+> Task :Generic:compileJava UP-TO-DATE
+> Task :DB:compileJava UP-TO-DATE
+> Task :Gui:compileJava UP-TO-DATE
+> Task :Help:compileJava UP-TO-DATE
+> Task :Docking:compileJava UP-TO-DATE
+> Task :FileSystem:compileJava UP-TO-DATE
+> Task :Graph:compileJava UP-TO-DATE
+> Task :Project:compileJava UP-TO-DATE
+> Task :SoftwareModeling:generateGrammarSource UP-TO-DATE
+> Task :SoftwareModeling:compileJava UP-TO-DATE
+> Task :Emulation:compileJava UP-TO-DATE
+> Task :Base:compileJava UP-TO-DATE
+> Task :Debugger-isf:createCheckerFrameworkManifest
+> Task :Debugger-isf:generateProto UP-TO-DATE
+> Task :ProposedUtils:compileJava UP-TO-DATE
+> Task :Framework-AsyncComm:compileJava UP-TO-DATE
+
+> Task :Debugger-isf:compileJava
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45071 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/app/plugin/core/datamgr/actions/ExportToIsfAction.java:212: warning: [required.method.not.called] [required.method.not.called]
+					new IsfDataTypeWriter(programDataTypeMgr, dataTypeList, new FileWriter(file));
+					                                                        ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/app/plugin/core/datamgr/actions/DataTypeWriterTask.java:53: warning: [required.method.not.called] [required.method.not.called]
+			FileWriter baseWriter = file == null ? null : new FileWriter(file);
+			           ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/program/model/data/ISF/AbstractIsfWriter.java:48: warning: [required.method.not.called] [required.method.not.called]
+			this.writer = new JsonWriter(baseWriter);
+			              ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfServer.java:61: warning: [required.method.not.called] [required.method.not.called]
+			server = new ServerSocket(port);
+			         ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfServer.java:84: warning: [required.method.not.called] [required.method.not.called]
+				Socket socket = server.accept();
+				       ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfServer.java:132: warning: [return] incompatible types in return.
+		return FileDataTypeManager.openFileArchive(gdt, false);
+		                                          ^
+  type of expression: @MustCall("close") FileDataTypeManager
+  method return type: @MustCall DataTypeManager
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:117: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:131: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:147: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:163: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:179: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java:194: warning: [required.method.not.called] [required.method.not.called]
+		IsfDataTypeWriter isfWriter = createDataTypeWriter(server.getDataTypeManager(ns));
+		                  ^
+12 warnings
+
+[Incubating] Problems report is available at: file:///tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/reaudit/fullproject/work_ghidra/ghidra/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 2m 16s
+20 actionable tasks: 2 executed, 18 up-to-date
+gradle exit=0

@@ -1,0 +1,58 @@
+diff --git a/Ghidra/Debug/ProposedUtils/build.gradle b/Ghidra/Debug/ProposedUtils/build.gradle
+index 3a9482f0..b62eefbc 100644
+--- a/Ghidra/Debug/ProposedUtils/build.gradle
++++ b/Ghidra/Debug/ProposedUtils/build.gradle
+@@ -1,3 +1,4 @@
++plugins { id 'org.checkerframework' version '0.6.42' }
+ /* ###
+  * IP: GHIDRA
+  *
+@@ -37,3 +38,19 @@ dependencies {
+ 
+ 	testImplementation project(':Base')
+ }
++
++// ---- injected for Checker Framework re-audit ----
++dependencies {
++	compileOnly 'org.checkerframework:checker-qual:4.2.1'
++	checkerFramework 'org.checkerframework:checker:4.2.1'
++}
++checkerFramework {
++	checkers = ['org.checkerframework.checker.interning.InterningChecker']
++}
++tasks.withType(JavaCompile).configureEach {
++	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
++	options.warnings = true
++	options.fork = true
++	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
++}
+diff --git a/Ghidra/Features/Base/build.gradle b/Ghidra/Features/Base/build.gradle
+index 43d646d8..30a96d8e 100644
+--- a/Ghidra/Features/Base/build.gradle
++++ b/Ghidra/Features/Base/build.gradle
+@@ -1,3 +1,4 @@
++plugins { id 'org.checkerframework' version '0.6.42' }
+ /* ###
+  * IP: GHIDRA
+  *
+@@ -199,3 +200,19 @@ indexHelp.dependsOn generateExtraHelpFiles
+ zipSourceSubproject.dependsOn buildCPPParser
+ zipSourceSubproject.dependsOn buildCParser
+ 
++
++// ---- injected for Checker Framework re-audit ----
++dependencies {
++	compileOnly 'org.checkerframework:checker-qual:4.2.1'
++	checkerFramework 'org.checkerframework:checker:4.2.1'
++}
++checkerFramework {
++	checkers = ['org.checkerframework.checker.interning.InterningChecker']
++}
++tasks.withType(JavaCompile).configureEach {
++	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
++	options.warnings = true
++	options.fork = true
++	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
++}

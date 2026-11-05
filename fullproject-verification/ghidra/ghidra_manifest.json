@@ -1,0 +1,1171 @@
+{
+ "repo": "ghidra",
+ "url": "https://github.com/NationalSecurityAgency/ghidra",
+ "commit": "93c19e3cc6733fab119ace63a39be2aec89208b3",
+ "build_system": "gradle",
+ "checkers_needed": [
+  {
+   "checker_id": "index",
+   "processor_class": "org.checkerframework.checker.index.IndexChecker"
+  },
+  {
+   "checker_id": "interning",
+   "processor_class": "org.checkerframework.checker.interning.InterningChecker"
+  },
+  {
+   "checker_id": "nullness",
+   "processor_class": "org.checkerframework.checker.nullness.NullnessChecker"
+  },
+  {
+   "checker_id": "regex",
+   "processor_class": "org.checkerframework.checker.regex.RegexChecker"
+  },
+  {
+   "checker_id": "resourceleak",
+   "processor_class": "org.checkerframework.checker.resourceleak.ResourceLeakChecker"
+  }
+ ],
+ "checker_framework_version": "4.2.1",
+ "target_diagnostics": [
+  {
+   "snippet_id": "ghidra__ghidra_app_util_headless_AnalyzeHeadless__getSubArguments__2",
+   "qualified_class_name": "ghidra.app.util.headless.AnalyzeHeadless",
+   "method_name": "getSubArguments",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/headless/AnalyzeHeadless.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_menu_MenuManager__getAction__1",
+   "qualified_class_name": "docking.menu.MenuManager",
+   "method_name": "getAction",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/menu/MenuManager.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_ChainedBuffer__putBytes__5",
+   "qualified_class_name": "db.ChainedBuffer",
+   "method_name": "putBytes",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/ChainedBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.range",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_ChainedBuffer__putBytes__5",
+   "qualified_class_name": "db.ChainedBuffer",
+   "method_name": "putBytes",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/ChainedBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_ChainedBuffer__putBytes__5",
+   "qualified_class_name": "db.ChainedBuffer",
+   "method_name": "putBytes",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/ChainedBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_gui_filters_NotMd5BSimFilterType__normalizeValue__1",
+   "qualified_class_name": "ghidra.features.bsim.gui.filters.NotMd5BSimFilterType",
+   "method_name": "normalizeValue",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/gui/filters/NotMd5BSimFilterType.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_gui_filters_NotMd5BSimFilterType__normalizeValue__1",
+   "qualified_class_name": "ghidra.features.bsim.gui.filters.NotMd5BSimFilterType",
+   "method_name": "normalizeValue",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/gui/filters/NotMd5BSimFilterType.java",
+   "checker_id": "regex",
+   "key": "argument",
+   "message": "incompatible argument for parameter regex of String.matches.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_bin_format_pe_cli_streams_CliStreamBlob__getBlob__1",
+   "qualified_class_name": "ghidra.app.util.bin.format.pe.cli.streams.CliStreamBlob",
+   "method_name": "getBlob",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/cli/streams/CliStreamBlob.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_closedpatternmining_FrequentSequenceItem__equals__1",
+   "qualified_class_name": "ghidra.closedpatternmining.FrequentSequenceItem",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/BytePatterns/src/main/java/ghidra/closedpatternmining/FrequentSequenceItem.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_util_RepeatableCommentFieldLocation__equals__1",
+   "qualified_class_name": "ghidra.program.util.RepeatableCommentFieldLocation",
+   "method_name": "equals",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/RepeatableCommentFieldLocation.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_client_tables_OptionalTable__getSQLType__1",
+   "qualified_class_name": "ghidra.features.bsim.query.client.tables.OptionalTable",
+   "method_name": "getSQLType",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/client/tables/OptionalTable.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_model_pcode_LocalSymbolMap__getParam__1",
+   "qualified_class_name": "ghidra.program.model.pcode.LocalSymbolMap",
+   "method_name": "getParam",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/pcode/LocalSymbolMap.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_model_pcode_LocalSymbolMap__getParam__1",
+   "qualified_class_name": "ghidra.program.model.pcode.LocalSymbolMap",
+   "method_name": "getParam",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/pcode/LocalSymbolMap.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_DBRecord__getByteValue__1",
+   "qualified_class_name": "db.DBRecord",
+   "method_name": "getByteValue",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/DBRecord.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_DBRecord__getByteValue__1",
+   "qualified_class_name": "db.DBRecord",
+   "method_name": "getByteValue",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/DBRecord.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_fieldpanel_field_SimpleTextField__getCursorBounds__2",
+   "qualified_class_name": "docking.widgets.fieldpanel.field.SimpleTextField",
+   "method_name": "getCursorBounds",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/field/SimpleTextField.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__utilities_util_reflection_ReflectionUtilities__locateStaticFieldObjectOnClass__2",
+   "qualified_class_name": "utilities.util.reflection.ReflectionUtilities",
+   "method_name": "locateStaticFieldObjectOnClass",
+   "original_file": "Ghidra/Framework/Utility/src/main/java/utilities/util/reflection/ReflectionUtilities.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_processors_sleigh_symbol_SymbolTable__getUserDefinedOpName__1",
+   "qualified_class_name": "ghidra.app.plugin.processors.sleigh.symbol.SymbolTable",
+   "method_name": "getUserDefinedOpName",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/symbol/SymbolTable.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_features_bsim_query_elastic_RowKeyElastic__parseFunctionId__1",
+   "qualified_class_name": "ghidra.features.bsim.query.elastic.RowKeyElastic",
+   "method_name": "parseFunctionId",
+   "original_file": "Ghidra/Features/BSim/src/main/java/ghidra/features/bsim/query/elastic/RowKeyElastic.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symtable_SymbolRowObject__equals__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symtable.SymbolRowObject",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symtable/SymbolRowObject.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symtable_SymbolRowObject__equals__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symtable.SymbolRowObject",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symtable/SymbolRowObject.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symtable_SymbolRowObject__equals__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symtable.SymbolRowObject",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symtable/SymbolRowObject.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_ShortArray__get__1",
+   "qualified_class_name": "ghidra.util.datastruct.ShortArray",
+   "method_name": "get",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ShortArray.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_dbg_isf_IsfClientHandler__fullExport__1",
+   "qualified_class_name": "ghidra.dbg.isf.IsfClientHandler",
+   "method_name": "fullExport",
+   "original_file": "Ghidra/Debug/Debugger-isf/src/main/java/ghidra/dbg/isf/IsfClientHandler.java",
+   "checker_id": "resourceleak",
+   "key": "required.method.not.called",
+   "message": "[required.method.not.called]",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_exceptionhandlers_gcc_GccExceptionAnalyzer__getCatchParamInfo__1",
+   "qualified_class_name": "ghidra.app.plugin.exceptionhandlers.gcc.GccExceptionAnalyzer",
+   "method_name": "getCatchParamInfo",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/exceptionhandlers/gcc/GccExceptionAnalyzer.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_exceptionhandlers_gcc_GccExceptionAnalyzer__getCatchParamInfo__1",
+   "qualified_class_name": "ghidra.app.plugin.exceptionhandlers.gcc.GccExceptionAnalyzer",
+   "method_name": "getCatchParamInfo",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/exceptionhandlers/gcc/GccExceptionAnalyzer.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_project_extensions_ExtensionInstaller__install__1",
+   "qualified_class_name": "ghidra.framework.project.extensions.ExtensionInstaller",
+   "method_name": "install",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/project/extensions/ExtensionInstaller.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter parameter1 of Msg.showError.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_ByteArray__get__1",
+   "qualified_class_name": "ghidra.util.datastruct.ByteArray",
+   "method_name": "get",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_spatial_hyper_EuclideanHyperSpace__collectBounds__1",
+   "qualified_class_name": "ghidra.util.database.spatial.hyper.EuclideanHyperSpace",
+   "method_name": "collectBounds",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java",
+   "checker_id": "nullness",
+   "key": "assignment",
+   "message": "incompatible types in assignment.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_spatial_hyper_EuclideanHyperSpace__collectBounds__1",
+   "qualified_class_name": "ghidra.util.database.spatial.hyper.EuclideanHyperSpace",
+   "method_name": "collectBounds",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java",
+   "checker_id": "nullness",
+   "key": "assignment",
+   "message": "incompatible types in assignment.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_spatial_hyper_EuclideanHyperSpace__collectBounds__1",
+   "qualified_class_name": "ghidra.util.database.spatial.hyper.EuclideanHyperSpace",
+   "method_name": "collectBounds",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_spatial_hyper_EuclideanHyperSpace__collectBounds__1",
+   "qualified_class_name": "ghidra.util.database.spatial.hyper.EuclideanHyperSpace",
+   "method_name": "collectBounds",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_file_formats_ios_dmg_DmgDecryptorStream__read__3",
+   "qualified_class_name": "ghidra.file.formats.ios.dmg.DmgDecryptorStream",
+   "method_name": "read",
+   "original_file": "Ghidra/Features/FileFormats/src/main/java/ghidra/file/formats/ios/dmg/DmgDecryptorStream.java",
+   "checker_id": "index",
+   "key": "override.return",
+   "message": "Incompatible return type.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_file_formats_ios_dmg_DmgDecryptorStream__read__3",
+   "qualified_class_name": "ghidra.file.formats.ios.dmg.DmgDecryptorStream",
+   "method_name": "read",
+   "original_file": "Ghidra/Features/FileFormats/src/main/java/ghidra/file/formats/ios/dmg/DmgDecryptorStream.java",
+   "checker_id": "index",
+   "key": "override.return",
+   "message": "Incompatible return type.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_file_formats_ios_dmg_DmgDecryptorStream__read__3",
+   "qualified_class_name": "ghidra.file.formats.ios.dmg.DmgDecryptorStream",
+   "method_name": "read",
+   "original_file": "Ghidra/Features/FileFormats/src/main/java/ghidra/file/formats/ios/dmg/DmgDecryptorStream.java",
+   "checker_id": "index",
+   "key": "argument",
+   "message": "incompatible argument for parameter arg1 of System.arraycopy.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_fieldpanel_FieldPanel__findLayoutAt__1",
+   "qualified_class_name": "docking.widgets.fieldpanel.FieldPanel",
+   "method_name": "findLayoutAt",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/FieldPanel.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_formats_gfilesystem_crypto_CryptoProviders__getCryptoProviderInstance__1",
+   "qualified_class_name": "ghidra.formats.gfilesystem.crypto.CryptoProviders",
+   "method_name": "getCryptoProviderInstance",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/formats/gfilesystem/crypto/CryptoProviders.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_data_SynchronizedTransaction__endAll__1",
+   "qualified_class_name": "ghidra.framework.data.SynchronizedTransaction",
+   "method_name": "endAll",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/data/SynchronizedTransaction.java",
+   "checker_id": "nullness",
+   "key": "assignment",
+   "message": "incompatible types in assignment.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_data_SynchronizedTransaction__endAll__1",
+   "qualified_class_name": "ghidra.framework.data.SynchronizedTransaction",
+   "method_name": "endAll",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/data/SynchronizedTransaction.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_data_SynchronizedTransaction__endAll__1",
+   "qualified_class_name": "ghidra.framework.data.SynchronizedTransaction",
+   "method_name": "endAll",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/data/SynchronizedTransaction.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_data_SynchronizedTransaction__endAll__1",
+   "qualified_class_name": "ghidra.framework.data.SynchronizedTransaction",
+   "method_name": "endAll",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/data/SynchronizedTransaction.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_values_GValuesMap__defineFile__2",
+   "qualified_class_name": "docking.widgets.values.GValuesMap",
+   "method_name": "defineFile",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/values/GValuesMap.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter startingDir of GValuesMap.defineFile.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__help_validator_links_MissingTOCTargetIDInvalidLink__equals__1",
+   "qualified_class_name": "help.validator.links.MissingTOCTargetIDInvalidLink",
+   "method_name": "equals",
+   "original_file": "Ghidra/Framework/Help/src/main/java/help/validator/links/MissingTOCTargetIDInvalidLink.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_ObjectKey__compareTo__1",
+   "qualified_class_name": "ghidra.util.database.ObjectKey",
+   "method_name": "compareTo",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/ObjectKey.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_database_ObjectKey__compareTo__1",
+   "qualified_class_name": "ghidra.util.database.ObjectKey",
+   "method_name": "compareTo",
+   "original_file": "Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/ObjectKey.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_bin_format_macho_MachHeaderFlags__getFlags__1",
+   "qualified_class_name": "ghidra.app.util.bin.format.macho.MachHeaderFlags",
+   "method_name": "getFlags",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter obj of Field.get.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_bin_format_macho_MachHeaderFlags__getFlags__1",
+   "qualified_class_name": "ghidra.app.util.bin.format.macho.MachHeaderFlags",
+   "method_name": "getFlags",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java",
+   "checker_id": "nullness",
+   "key": "unboxing.of.nullable",
+   "message": "unboxing a possibly-null reference value",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_bin_format_macho_MachHeaderFlags__getFlags__1",
+   "qualified_class_name": "ghidra.app.util.bin.format.macho.MachHeaderFlags",
+   "method_name": "getFlags",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java",
+   "checker_id": "index",
+   "key": "argument",
+   "message": "incompatible argument for parameter beginIndex of String.substring.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_IntListIndexer__getListSize__1",
+   "qualified_class_name": "ghidra.util.datastruct.IntListIndexer",
+   "method_name": "getListSize",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/IntListIndexer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.range",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_IntListIndexer__getListSize__1",
+   "qualified_class_name": "ghidra.util.datastruct.IntListIndexer",
+   "method_name": "getListSize",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/IntListIndexer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_IntListIndexer__getListSize__1",
+   "qualified_class_name": "ghidra.util.datastruct.IntListIndexer",
+   "method_name": "getListSize",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/IntListIndexer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_feature_fid_db_FidDB__getFunctionByID__1",
+   "qualified_class_name": "ghidra.feature.fid.db.FidDB",
+   "method_name": "getFunctionByID",
+   "original_file": "Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/db/FidDB.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_bin_format_pe_cli_blobs_CliBlob__getDataTypeForBytes__1",
+   "qualified_class_name": "ghidra.app.util.bin.format.pe.cli.blobs.CliBlob",
+   "method_name": "getDataTypeForBytes",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/cli/blobs/CliBlob.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_graph_GraphToTreeAlgorithm__topolocigalSort__1",
+   "qualified_class_name": "ghidra.graph.GraphToTreeAlgorithm",
+   "method_name": "topolocigalSort",
+   "original_file": "Ghidra/Framework/Graph/src/main/java/ghidra/graph/GraphToTreeAlgorithm.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter arg0 of Set.contains.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_graph_visualization_mouse_AbstractJgtGraphMousePlugin__checkForEdge__1",
+   "qualified_class_name": "ghidra.graph.visualization.mouse.AbstractJgtGraphMousePlugin",
+   "method_name": "checkForEdge",
+   "original_file": "Ghidra/Features/GraphServices/src/main/java/ghidra/graph/visualization/mouse/AbstractJgtGraphMousePlugin.java",
+   "checker_id": "nullness",
+   "key": "assignment",
+   "message": "incompatible types in assignment.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__mobiledevices_dmg_reader_DmgFileReader__getFileByPath__1",
+   "qualified_class_name": "mobiledevices.dmg.reader.DmgFileReader",
+   "method_name": "getFileByPath",
+   "original_file": "GPL/DMG/src/dmg/java/mobiledevices/dmg/reader/DmgFileReader.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__mobiledevices_dmg_reader_DmgFileReader__getFileByPath__1",
+   "qualified_class_name": "mobiledevices.dmg.reader.DmgFileReader",
+   "method_name": "getFileByPath",
+   "original_file": "GPL/DMG/src/dmg/java/mobiledevices/dmg/reader/DmgFileReader.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_graph_viewer_layout_GridLocationMap__row__1",
+   "qualified_class_name": "ghidra.graph.viewer.layout.GridLocationMap",
+   "method_name": "row",
+   "original_file": "Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/layout/GridLocationMap.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter arg0 of Map.get.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_decompile_actions_CreatePointerRelative__testNameValidity__1",
+   "qualified_class_name": "ghidra.app.plugin.core.decompile.actions.CreatePointerRelative",
+   "method_name": "testNameValidity",
+   "original_file": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/decompile/actions/CreatePointerRelative.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_values_ChoiceValue__fromString__1",
+   "qualified_class_name": "docking.widgets.values.ChoiceValue",
+   "method_name": "fromString",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/values/ChoiceValue.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_util_InstructionUtils__getFormatedInstructionObjects__1",
+   "qualified_class_name": "ghidra.program.util.InstructionUtils",
+   "method_name": "getFormatedInstructionObjects",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_util_InstructionUtils__getFormatedInstructionObjects__1",
+   "qualified_class_name": "ghidra.program.util.InstructionUtils",
+   "method_name": "getFormatedInstructionObjects",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java",
+   "checker_id": "nullness",
+   "key": "toarray.nullable.elements.not.newarray",
+   "message": "call of toArray on collection of non-null elements yields an array of possibly-null elements; omit the argument to toArray or make it an explicit array constructor",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_feature_vt_api_main_VTScore__equals__1",
+   "qualified_class_name": "ghidra.feature.vt.api.main.VTScore",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/VersionTracking/src/main/java/ghidra/feature/vt/api/main/VTScore.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_StringUtilities__mergeStrings__2",
+   "qualified_class_name": "ghidra.util.StringUtilities",
+   "method_name": "mergeStrings",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/StringUtilities.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_generic_util_datastruct_TreeValueSortedMap__headMapByValue__2",
+   "qualified_class_name": "ghidra.generic.util.datastruct.TreeValueSortedMap",
+   "method_name": "headMapByValue",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/generic/util/datastruct/TreeValueSortedMap.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter fromValue of RestrictedValueSortedMap constructor.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_feature_vt_api_db_VTMatchTagDB__equals__1",
+   "qualified_class_name": "ghidra.feature.vt.api.db.VTMatchTagDB",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/VersionTracking/src/main/java/ghidra/feature/vt/api/db/VTMatchTagDB.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_framework_main_datatable_DomainFileInfo__getMetaDataValue__1",
+   "qualified_class_name": "ghidra.framework.main.datatable.DomainFileInfo",
+   "method_name": "getMetaDataValue",
+   "original_file": "Ghidra/Framework/Project/src/main/java/ghidra/framework/main/datatable/DomainFileInfo.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_recognizer_PpmdRecognizer__recognize__1",
+   "qualified_class_name": "ghidra.app.util.recognizer.PpmdRecognizer",
+   "method_name": "recognize",
+   "original_file": "Ghidra/Features/Recognizers/src/main/java/ghidra/app/util/recognizer/PpmdRecognizer.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_recognizer_PpmdRecognizer__recognize__1",
+   "qualified_class_name": "ghidra.app.util.recognizer.PpmdRecognizer",
+   "method_name": "recognize",
+   "original_file": "Ghidra/Features/Recognizers/src/main/java/ghidra/app/util/recognizer/PpmdRecognizer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_recognizer_PpmdRecognizer__recognize__1",
+   "qualified_class_name": "ghidra.app.util.recognizer.PpmdRecognizer",
+   "method_name": "recognize",
+   "original_file": "Ghidra/Features/Recognizers/src/main/java/ghidra/app/util/recognizer/PpmdRecognizer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_recognizer_PpmdRecognizer__recognize__1",
+   "qualified_class_name": "ghidra.app.util.recognizer.PpmdRecognizer",
+   "method_name": "recognize",
+   "original_file": "Ghidra/Features/Recognizers/src/main/java/ghidra/app/util/recognizer/PpmdRecognizer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_recognizer_PpmdRecognizer__recognize__1",
+   "qualified_class_name": "ghidra.app.util.recognizer.PpmdRecognizer",
+   "method_name": "recognize",
+   "original_file": "Ghidra/Features/Recognizers/src/main/java/ghidra/app/util/recognizer/PpmdRecognizer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__db_buffers_DataBuffer__unsignedCompareTo__3",
+   "qualified_class_name": "db.buffers.DataBuffer",
+   "method_name": "unsignedCompareTo",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/buffers/DataBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_buffers_DataBuffer__unsignedCompareTo__3",
+   "qualified_class_name": "db.buffers.DataBuffer",
+   "method_name": "unsignedCompareTo",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/buffers/DataBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__db_buffers_DataBuffer__unsignedCompareTo__3",
+   "qualified_class_name": "db.buffers.DataBuffer",
+   "method_name": "unsignedCompareTo",
+   "original_file": "Ghidra/Framework/DB/src/main/java/db/buffers/DataBuffer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_table_CombinedTableFilter__equals__1",
+   "qualified_class_name": "docking.widgets.table.CombinedTableFilter",
+   "method_name": "equals",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/table/CombinedTableFilter.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_model_listing_VariableImpl__equals__1",
+   "qualified_class_name": "ghidra.program.model.listing.VariableImpl",
+   "method_name": "equals",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/listing/VariableImpl.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_table_GTableToCSV__getColumnValue__4",
+   "qualified_class_name": "docking.widgets.table.GTableToCSV",
+   "method_name": "getColumnValue",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableToCSV.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_table_GTableToCSV__getColumnValue__4",
+   "qualified_class_name": "docking.widgets.table.GTableToCSV",
+   "method_name": "getColumnValue",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableToCSV.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_byteviewer_ByteViewerLayoutModel__getIndexAfter__1",
+   "qualified_class_name": "ghidra.app.plugin.core.byteviewer.ByteViewerLayoutModel",
+   "method_name": "getIndexAfter",
+   "original_file": "Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerLayoutModel.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_table_GTableToCSV__lookForTextInsideOfComponent__1",
+   "qualified_class_name": "docking.widgets.table.GTableToCSV",
+   "method_name": "lookForTextInsideOfComponent",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableToCSV.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_table_GTableToCSV__lookForTextInsideOfComponent__1",
+   "qualified_class_name": "docking.widgets.table.GTableToCSV",
+   "method_name": "lookForTextInsideOfComponent",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableToCSV.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_navigation_locationreferences_GenericCompositeDataTypeLocationDescriptor__equals__1",
+   "qualified_class_name": "ghidra.app.plugin.core.navigation.locationreferences.GenericCompositeDataTypeLocationDescriptor",
+   "method_name": "equals",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/navigation/locationreferences/GenericCompositeDataTypeLocationDescriptor.java",
+   "checker_id": "nullness",
+   "key": "override.param",
+   "message": "Incompatible parameter type for obj.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_ShortListIndexer__next__1",
+   "qualified_class_name": "ghidra.util.datastruct.ShortListIndexer",
+   "method_name": "next",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ShortListIndexer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_util_datastruct_ShortListIndexer__next__1",
+   "qualified_class_name": "ghidra.util.datastruct.ShortListIndexer",
+   "method_name": "next",
+   "original_file": "Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ShortListIndexer.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_terminal_TerminalLayoutModel__getLayout__1",
+   "qualified_class_name": "ghidra.app.plugin.core.terminal.TerminalLayoutModel",
+   "method_name": "getLayout",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_terminal_TerminalLayoutModel__getLayout__1",
+   "qualified_class_name": "ghidra.app.plugin.core.terminal.TerminalLayoutModel",
+   "method_name": "getLayout",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java",
+   "checker_id": "index",
+   "key": "argument",
+   "message": "incompatible argument for parameter index of ArrayList.get.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_datatype_microsoft_NewGuid__toString__2",
+   "qualified_class_name": "ghidra.app.util.datatype.microsoft.NewGuid",
+   "method_name": "toString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/datatype/microsoft/NewGuid.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_datatype_microsoft_NewGuid__toString__2",
+   "qualified_class_name": "ghidra.app.util.datatype.microsoft.NewGuid",
+   "method_name": "toString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/datatype/microsoft/NewGuid.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_datatype_microsoft_NewGuid__toString__2",
+   "qualified_class_name": "ghidra.app.util.datatype.microsoft.NewGuid",
+   "method_name": "toString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/datatype/microsoft/NewGuid.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_datatype_microsoft_NewGuid__toString__2",
+   "qualified_class_name": "ghidra.app.util.datatype.microsoft.NewGuid",
+   "method_name": "toString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/datatype/microsoft/NewGuid.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_util_datatype_microsoft_NewGuid__toString__2",
+   "qualified_class_name": "ghidra.app.util.datatype.microsoft.NewGuid",
+   "method_name": "toString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/util/datatype/microsoft/NewGuid.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high.constant",
+   "message": "Potentially unsafe array access: the constant index 0 could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_functiongraph_graph_layout_flowchart_OrthogonalGridSizer__getGridCoordinates__1",
+   "qualified_class_name": "ghidra.app.plugin.core.functiongraph.graph.layout.flowchart.OrthogonalGridSizer",
+   "method_name": "getGridCoordinates",
+   "original_file": "Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/layout/flowchart/OrthogonalGridSizer.java",
+   "checker_id": "index",
+   "key": "array.length.negative",
+   "message": "Variable used in array creation could be negative.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_functiongraph_graph_layout_flowchart_OrthogonalGridSizer__getGridCoordinates__1",
+   "qualified_class_name": "ghidra.app.plugin.core.functiongraph.graph.layout.flowchart.OrthogonalGridSizer",
+   "method_name": "getGridCoordinates",
+   "original_file": "Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/layout/flowchart/OrthogonalGridSizer.java",
+   "checker_id": "index",
+   "key": "array.length.negative",
+   "message": "Variable used in array creation could be negative.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_fieldpanel_field_CompositeFieldElement__charAt__1",
+   "qualified_class_name": "docking.widgets.fieldpanel.field.CompositeFieldElement",
+   "method_name": "charAt",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/field/CompositeFieldElement.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.low",
+   "message": "Potentially unsafe array access: the index could be negative.",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__docking_widgets_fieldpanel_field_CompositeFieldElement__charAt__1",
+   "qualified_class_name": "docking.widgets.fieldpanel.field.CompositeFieldElement",
+   "method_name": "charAt",
+   "original_file": "Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/field/CompositeFieldElement.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "uncertain"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_symboltree_nodes_SymbolCategoryNode__isLocalDataFlavor__1",
+   "qualified_class_name": "ghidra.app.plugin.core.symboltree.nodes.SymbolCategoryNode",
+   "method_name": "isLocalDataFlavor",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/symboltree/nodes/SymbolCategoryNode.java",
+   "checker_id": "interning",
+   "key": "not.interned",
+   "message": "attempting to use a non-@Interned comparison operand",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_model_lang_RegisterValue__clearBitValues__1",
+   "qualified_class_name": "ghidra.program.model.lang.RegisterValue",
+   "method_name": "clearBitValues",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/lang/RegisterValue.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_program_model_lang_RegisterValue__clearBitValues__1",
+   "qualified_class_name": "ghidra.program.model.lang.RegisterValue",
+   "method_name": "clearBitValues",
+   "original_file": "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/lang/RegisterValue.java",
+   "checker_id": "index",
+   "key": "array.access.unsafe.high",
+   "message": "Potentially unsafe array access: the index could be larger than the array's bound",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_scl_SourceCodeLookupPlugin__attemptToDemangle__1",
+   "qualified_class_name": "ghidra.app.plugin.core.scl.SourceCodeLookupPlugin",
+   "method_name": "attemptToDemangle",
+   "original_file": "Ghidra/Features/SourceCodeLookup/src/main/java/ghidra/app/plugin/core/scl/SourceCodeLookupPlugin.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_app_plugin_core_scl_SourceCodeLookupPlugin__attemptToDemangle__1",
+   "qualified_class_name": "ghidra.app.plugin.core.scl.SourceCodeLookupPlugin",
+   "method_name": "attemptToDemangle",
+   "original_file": "Ghidra/Features/SourceCodeLookup/src/main/java/ghidra/app/plugin/core/scl/SourceCodeLookupPlugin.java",
+   "checker_id": "nullness",
+   "key": "return",
+   "message": "incompatible types in return.",
+   "current_verdict": "false_positive"
+  },
+  {
+   "snippet_id": "ghidra__ghidra_formats_gfilesystem_FSRL__fromString__1",
+   "qualified_class_name": "ghidra.formats.gfilesystem.FSRL",
+   "method_name": "fromString",
+   "original_file": "Ghidra/Features/Base/src/main/java/ghidra/formats/gfilesystem/FSRL.java",
+   "checker_id": "nullness",
+   "key": "argument",
+   "message": "incompatible argument for parameter parent of FSRL.fromString.",
+   "current_verdict": "uncertain"
+  }
+ ]
+}

@@ -1,0 +1,524 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45071 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Detecting the operating system and CPU architecture
+[INFO] ------------------------------------------------------------------------
+[INFO] os.detected.name: linux
+[INFO] os.detected.arch: x86_64
+[INFO] os.detected.bitness: 64
+[INFO] os.detected.version: 6.18
+[INFO] os.detected.version.major: 6
+[INFO] os.detected.version.minor: 18
+[INFO] os.detected.release: ubuntu
+[INFO] os.detected.release.version: 24.04
+[INFO] os.detected.release.like.ubuntu: true
+[INFO] os.detected.release.like.debian: true
+[INFO] os.detected.classifier: linux-x86_64
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Netty/Dev-Tools                                                    [jar]
+[INFO] Netty                                                              [pom]
+[INFO] Netty/Common                                                       [jar]
+[INFO] 
+[INFO] ----------------------< io.netty:netty-dev-tools >----------------------
+[INFO] Building Netty/Dev-Tools 4.1.119.Final-SNAPSHOT                    [1/3]
+[INFO]   from dev-tools/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ netty-dev-tools ---
+[INFO] Deleting /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/dev-tools/target
+[INFO] 
+[INFO] --- enforcer:1.0:enforce (enforce-maven) @ netty-dev-tools ---
+[INFO] 
+[INFO] --- remote-resources:1.5:bundle (default) @ netty-dev-tools ---
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ netty-dev-tools ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ netty-dev-tools ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ netty-dev-tools ---
+[INFO] skip non existing resourceDirectory /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/dev-tools/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ netty-dev-tools ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] -----------------------< io.netty:netty-parent >------------------------
+[INFO] Building Netty 4.1.119.Final-SNAPSHOT                              [2/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.0.0:clean (default-clean) @ netty-parent ---
+[INFO] 
+[INFO] --- enforcer:3.0.0:enforce (enforce-maven) @ netty-parent ---
+[INFO] 
+[INFO] --- enforcer:3.0.0:enforce (enforce-tools) @ netty-parent ---
+[INFO] 
+[INFO] --- checkstyle:3.1.0:check (check-style) @ netty-parent ---
+[INFO] 
+[INFO] --- checkstyle:3.1.0:check (nohttp-checkstyle-validation) @ netty-parent ---
+[INFO] 
+[INFO] --- xml:1.0.1:check-format (check-style) @ netty-parent ---
+[INFO] 
+[INFO] --- dependency:2.10:get (get-jetty-alpn-agent) @ netty-parent ---
+[INFO] Resolving org.mortbay.jetty.alpn:jetty-alpn-agent:jar:2.0.10 with transitive dependencies
+[INFO] 
+[INFO] --- build-helper:1.10:parse-version (parse-version) @ netty-parent ---
+[INFO] 
+[INFO] --- antrun:1.8:run (write-version-properties) @ netty-parent ---
+[INFO] Executing tasks
+
+main:
+     [echo] Current commit: f0a546d on 2025-02-24 13:31:07 -0800
+    [mkdir] Created dir: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/target/classes/META-INF
+[propertyfile] Creating new property file: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/target/classes/META-INF/io.netty.versions.properties
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- remote-resources:1.5:process (default) @ netty-parent ---
+[INFO] 
+[INFO] --- forbiddenapis:2.2:check (check-forbidden-apis) @ netty-parent ---
+[WARNING]  Parameter 'internalRuntimeForbidden' is deprecated: Use <a href="bundled-signatures.html">bundled signatures</a> {@code "jdk-non-portable"} or {@code "jdk-internal"} instead.
+[INFO] Skipping forbidden-apis checks.
+[INFO] 
+[INFO] --- animal-sniffer:1.16:check (default) @ netty-parent ---
+[INFO] Signature checking is skipped.
+[INFO] 
+[INFO] --- bundle:5.1.8:manifest (generate-manifest) @ netty-parent ---
+[WARNING] Ignoring project type pom - supportedProjectTypes = [jar, bundle]
+[INFO] 
+[INFO] --- forbiddenapis:2.2:testCheck (check-forbidden-test-apis) @ netty-parent ---
+[WARNING]  Parameter 'internalRuntimeForbidden' is deprecated: Use <a href="bundled-signatures.html">bundled signatures</a> {@code "jdk-non-portable"} or {@code "jdk-internal"} instead.
+[INFO] Skipping forbidden-apis checks.
+[INFO] 
+[INFO] -----------------------< io.netty:netty-common >------------------------
+[INFO] Building Netty/Common 4.1.119.Final-SNAPSHOT                       [3/3]
+[INFO]   from common/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.0.0:clean (default-clean) @ netty-common ---
+[INFO] Deleting /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target
+[INFO] 
+[INFO] --- enforcer:3.0.0:enforce (enforce-maven) @ netty-common ---
+[INFO] 
+[INFO] --- enforcer:3.0.0:enforce (enforce-tools) @ netty-common ---
+[INFO] 
+[INFO] --- checkstyle:3.1.0:check (check-style) @ netty-common ---
+[INFO] 
+[INFO] --- xml:1.0.1:check-format (check-style) @ netty-common ---
+[INFO] 
+[INFO] --- dependency:2.10:get (get-jetty-alpn-agent) @ netty-common ---
+[INFO] Resolving org.mortbay.jetty.alpn:jetty-alpn-agent:jar:2.0.10 with transitive dependencies
+[INFO] 
+[INFO] --- build-helper:1.10:parse-version (parse-version) @ netty-common ---
+[INFO] 
+[INFO] --- antrun:1.8:run (write-version-properties) @ netty-common ---
+[INFO] Executing tasks
+
+main:
+     [echo] Current commit: f0a546d on 2025-02-24 13:31:07 -0800
+    [mkdir] Created dir: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/classes/META-INF
+[propertyfile] Creating new property file: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/classes/META-INF/io.netty.versions.properties
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- groovy:2.1.1:execute (generate-collections) @ netty-common ---
+Copying 3 files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java
+Copying 3 files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java
+Copying 3 files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java
+Copying 3 files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java
+Copying 3 files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java
+Copying 1 file to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java
+Copying 1 file to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java
+Copying 1 file to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java
+Copying 1 file to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java
+Copying 1 file to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java
+[INFO] 
+[INFO] --- build-helper:1.10:add-source (add-source) @ netty-common ---
+[INFO] Source directory: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java added.
+[INFO] 
+[INFO] --- remote-resources:1.5:process (default) @ netty-common ---
+[INFO] 
+[INFO] --- resources:3.0.1:resources (default-resources) @ netty-common ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- compiler:3.8.0:compile (default-compile) @ netty-common ---
+[WARNING]  Parameter 'optimize' (user property 'maven.compiler.optimize') is deprecated: This property is a no-op in {@code javac}.
+[INFO] Invalid value for maxmem '6g'. Ignoring this option.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 175 source files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/classes
+[WARNING] Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45071 -Dhttp.nonProxyHosts=localhost|127.0.0.1|:1|127.*|0.*|:|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[27,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[46,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[20,15] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[28,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[26,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/logging/Log4J2Logger.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ObjectCleaner.java:[22,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SystemPropertyUtil.java:[23,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[31,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[32,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/NetUtil.java:[38,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[27,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[46,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[20,15] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[28,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[26,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/logging/Log4J2Logger.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ObjectCleaner.java:[22,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SystemPropertyUtil.java:[23,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[31,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[32,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/NetUtil.java:[38,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[27,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[46,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[20,15] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[28,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[26,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/logging/Log4J2Logger.java:[24,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ObjectCleaner.java:[22,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SystemPropertyUtil.java:[23,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[31,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[32,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/NetUtil.java:[38,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[40,39] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[86,18] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava9.java:[98,26] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[204,20] [deprecation] remove() in Attribute has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[193,17] [deprecation] getAndRemove() in Attribute has been deprecated
+  where T is a type-variable:
+    T extends Object declared in interface Attribute
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[47,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[47,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[97,36] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[97,42] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[136,32] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/DefaultAttributeMap.java:[136,38] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[104,15] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[104,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[288,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[288,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[500,67] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/IntObjectHashMap.java:[500,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[104,15] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[104,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[288,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[288,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[500,67] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/LongObjectHashMap.java:[500,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[239,36] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[268,8] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[289,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/GlobalEventExecutor.java:[289,32] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[133,33] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[133,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[166,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[166,22] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[327,45] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[327,55] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[327,66] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[327,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[341,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[341,22] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[341,33] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[341,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[364,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[364,22] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[364,33] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[364,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[429,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[429,22] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[431,19] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[431,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[613,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[613,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[850,33] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultPromise.java:[850,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultFutureListeners.java:[59,25] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/DefaultFutureListeners.java:[59,32] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[1123,20] [deprecation] getId() in Thread has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[216,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[216,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[244,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[244,32] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[272,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[272,32] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[1082,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/SingleThreadEventExecutor.java:[1082,31] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[65,17] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[65,17] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[65,17] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[87,8] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[103,50] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[99,39] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[139,26] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[149,22] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[155,44] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[150,46] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[219,22] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[220,46] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[250,22] Unsafe is internal proprietary API and may be removed in a future release
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[260,59] [deprecation] objectFieldOffset(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[253,49] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[325,24] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[399,56] [deprecation] staticFieldOffset(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[400,58] [deprecation] staticFieldBase(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[410,56] [deprecation] staticFieldOffset(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[411,58] [deprecation] staticFieldBase(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[384,36] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[459,40] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[477,37] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[524,35] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[700,21] [deprecation] objectFieldOffset(Field) in Unsafe has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[975,18] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[978,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[988,18] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[991,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[1001,18] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent0.java:[1004,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[235,28] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[1017,25] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[204,34] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[204,45] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[214,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/PlatformDependent.java:[214,23] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[203,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[203,22] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[254,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[254,26] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[262,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/Recycler.java:[262,26] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[61,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[61,56] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[101,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[101,39] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[116,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[116,39] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[138,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[138,39] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[153,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[153,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[167,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[167,39] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[178,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[178,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[194,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[194,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[206,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[206,43] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[256,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/FastThreadLocal.java:[256,39] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[41,50] [deprecation] UnpaddedInternalThreadLocalMap in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[41,50] [deprecation] UnpaddedInternalThreadLocalMap in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[41,50] [deprecation] UnpaddedInternalThreadLocalMap in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[70,12] [deprecation] IntegerHolder in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[70,12] [deprecation] IntegerHolder in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[70,12] [deprecation] IntegerHolder in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[212,25] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[212,52] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[338,19] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[338,31] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[380,46] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/InternalThreadLocalMap.java:[380,57] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[110,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[257,44] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ThreadDeathWatcher.java:[257,56] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[528,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[528,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1012,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1012,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1118,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1118,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1419,19] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1419,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1481,19] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/AsciiString.java:[1481,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[104,15] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[104,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[288,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[288,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[500,67] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/CharObjectHashMap.java:[500,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[48,39] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[110,18] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/CleanerJava6.java:[122,26] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ReflectionUtil.java:[47,66] [unnecessary.equals] use of .equals can be safely replaced by ==/!=
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/logging/Log4J2Logger.java:[38,23] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/NonStickyEventExecutorGroup.java:[315,20] [deprecation] shutdown() in AbstractEventExecutor has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/concurrent/NonStickyEventExecutorGroup.java:[316,20] [deprecation] shutdown() in EventExecutorGroup has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SystemPropertyUtil.java:[65,22] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SystemPropertyUtil.java:[68,24] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ObjectCleaner.java:[41,71] [deprecation] ConcurrentSet in io.netty.util.internal has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/ObjectCleaner.java:[110,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/EmptyArrays.java:[38,43] [removal] X509Certificate in javax.security.cert has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/EmptyArrays.java:[38,43] [removal] X509Certificate in javax.security.cert has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/EmptyArrays.java:[38,43] [removal] X509Certificate in javax.security.cert has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/MacAddressUtil.java:[105,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/MacAddressUtil.java:[105,27] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[59,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[73,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[88,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[102,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[116,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[130,12] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[143,15] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[153,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[166,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[178,15] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[188,16] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[205,15] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/SocketUtils.java:[222,19] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[104,15] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[104,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[288,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[288,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[500,67] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ShortObjectHashMap.java:[500,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[345,48] [deprecation] exec(String) in Runtime has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[422,21] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/internal/NativeLibraryLoader.java:[468,23] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[104,15] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[104,24] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[288,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[288,29] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[500,67] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-sources/collections/java/io/netty/util/collection/ByteObjectHashMap.java:[500,76] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ResourceLeakException.java:[25,7] [overrides.equals] annotated with @UsesObjectEquals but overrides .equals(Object)
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/ResourceLeakException.java:[64,12] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[324,19] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[326,17] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[813,16] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[813,27] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[815,20] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[815,31] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[821,23] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/HashedWheelTimer.java:[821,34] [not.interned] attempting to use a non-@Interned comparison operand
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/main/java/io/netty/util/NetUtil.java:[168,20] [removal] AccessController in java.security has been deprecated and marked for removal
+[WARNING] Implicitly compiled files were not subject to annotation processing.
+[INFO] 
+[INFO] --- forbiddenapis:2.2:check (check-forbidden-apis) @ netty-common ---
+[WARNING]  Parameter 'internalRuntimeForbidden' is deprecated: Use <a href="bundled-signatures.html">bundled signatures</a> {@code "jdk-non-portable"} or {@code "jdk-internal"} instead.
+[INFO] Skipping forbidden-apis checks.
+[INFO] 
+[INFO] --- animal-sniffer:1.16:check (default) @ netty-common ---
+[INFO] Signature checking is skipped.
+[INFO] 
+[INFO] --- bundle:5.1.8:manifest (generate-manifest) @ netty-common ---
+[INFO] No MANIFEST.MF file found, generating manifest.
+[INFO] Writing manifest: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/classes/META-INF/MANIFEST.MF
+[INFO] 
+[INFO] --- build-helper:1.10:add-test-source (add-test-source) @ netty-common ---
+[INFO] Test Source directory: /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/generated-test-sources/collections/java added.
+[INFO] 
+[INFO] --- resources:3.0.1:testResources (default-testResources) @ netty-common ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- compiler:3.8.0:testCompile (default-testCompile) @ netty-common ---
+[WARNING]  Parameter 'optimize' (user property 'maven.compiler.optimize') is deprecated: This property is a no-op in {@code javac}.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 61 source files to /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/target/test-classes
+[WARNING] Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=45071 -Dhttp.nonProxyHosts=localhost|127.0.0.1|:1|127.*|0.*|:|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+/tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/Log4J2LoggerTest.java:[67,19] [deprecation] isAccessible() in AccessibleObject has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[61,12] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[68,8] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[107,8] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[108,8] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[117,19] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ThreadDeathWatcherTest.java:[131,33] [deprecation] ThreadDeathWatcher in io.netty.util has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/AbstractScheduledEventExecutorTest.java:[139,20] [deprecation] shutdown() in AbstractEventExecutor has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerFactoryTest.java:[27,32] [deprecation] CommonsLoggerFactory in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerFactoryTest.java:[28,37] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerTest.java:[78,27] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerTest.java:[79,21] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerTest.java:[93,18] [removal] runFinalization() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultPromiseTest.java:[90,20] [deprecation] shutdown() in AbstractEventExecutor has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[76,8] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[77,20] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[102,8] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[103,20] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[129,8] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseAggregatorTest.java:[130,20] [deprecation] PromiseAggregator in io.netty.util.concurrent has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/DefaultAttributeMapTest.java:[56,11] [deprecation] remove() in Attribute has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/DefaultAttributeMapTest.java:[73,11] [deprecation] remove() in Attribute has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/DefaultAttributeMapTest.java:[84,26] [deprecation] getAndRemove() in Attribute has been deprecated
+  where T is a type-variable:
+    T extends Object declared in interface Attribute
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/DefaultAttributeMapTest.java:[107,25] [deprecation] remove() in Attribute has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/DefaultAttributeMapTest.java:[113,25] [deprecation] remove() in Attribute has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ResourceLeakDetectorTest.java:[222,12] [deprecation] ResourceLeakDetector(Class<?>,int,long) in ResourceLeakDetector has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/ResourceLeakDetectorTest.java:[236,23] [deprecation] reportInstancesLeak(String) in ResourceLeakDetector has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/ObjectCleanerTest.java:[68,18] [removal] runFinalization() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/ObjectCleanerTest.java:[115,18] [removal] runFinalization() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[33,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[45,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[57,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[69,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[81,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[91,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[101,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[111,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[121,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[131,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[141,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[151,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[161,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[171,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/logging/CommonsLoggerTest.java:[181,36] [deprecation] CommonsLogger in io.netty.util.internal.logging has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerFastThreadLocalTest.java:[54,27] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerFastThreadLocalTest.java:[55,21] [removal] finalize() in Object has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/RecyclerFastThreadLocalTest.java:[69,18] [removal] runFinalization() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[37,14] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[37,46] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[43,46] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[43,22] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[124,22] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[150,14] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[150,46] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[156,46] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[156,22] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/DefaultThreadFactoryTest.java:[182,22] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/FastThreadLocalTest.java:[225,18] [removal] runFinalization() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[88,24] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[98,32] non-varargs call of varargs method with inexact argument type for last parameter;
+  cast to Promise for a varargs call
+  cast to Promise[] for a non-varargs call and to suppress this warning
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[98,24] [deprecation] addAll(Promise...) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[109,24] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[121,24] [deprecation] addAll(Promise...) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[142,16] [deprecation] addAll(Promise...) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[154,16] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[156,16] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[169,16] [deprecation] addAll(Promise...) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[183,16] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/PromiseCombinerTest.java:[185,16] [deprecation] add(Promise) in PromiseCombiner has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/concurrent/SingleThreadEventExecutorTest.java:[110,27] [deprecation] getId() in Thread has been deprecated
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/PlatformDependent0Test.java:[61,14] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/PlatformDependent0Test.java:[61,46] [removal] getSecurityManager() in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/PlatformDependent0Test.java:[64,42] [removal] SecurityManager in java.lang has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/PlatformDependent0Test.java:[64,18] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[WARNING] /tmp/claude-0/-home-user-daikonplusplus/3a43e19b-c988-5dad-9130-60fcd68d9d51/scratchpad/netty-full/common/src/test/java/io/netty/util/internal/PlatformDependent0Test.java:[81,18] [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+[INFO] 
+[INFO] --- forbiddenapis:2.2:testCheck (check-forbidden-test-apis) @ netty-common ---
+[WARNING]  Parameter 'internalRuntimeForbidden' is deprecated: Use <a href="bundled-signatures.html">bundled signatures</a> {@code "jdk-non-portable"} or {@code "jdk-internal"} instead.
+[INFO] Skipping forbidden-apis checks.
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Netty 4.1.119.Final-SNAPSHOT:
+[INFO] 
+[INFO] Netty/Dev-Tools .................................... SUCCESS [  1.762 s]
+[INFO] Netty .............................................. SUCCESS [  4.074 s]
+[INFO] Netty/Common ....................................... SUCCESS [ 42.393 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  49.606 s
+[INFO] Finished at: 2026-11-05T06:29:03Z
+[INFO] ------------------------------------------------------------------------

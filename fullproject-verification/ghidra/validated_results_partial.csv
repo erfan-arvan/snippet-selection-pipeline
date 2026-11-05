@@ -1,0 +1,3 @@
+snippet_id,checker_id,key,result,evidence
+ghidra__ghidra_features_bsim_gui_filters_NotMd5BSimFilterType__normalizeValue__1,regex,argument,confirmed_persists,Full :BSim:compileJava build: NotMd5BSimFilterType.java:65: warning: [argument] incompatible argument for parameter regex of String.matches.
+ghidra__ghidra_dbg_isf_IsfClientHandler__fullExport__1,resourceleak,required.method.not.called,confirmed_persists,Full :Debugger-isf:compileJava build: IsfClientHandler.java:117: warning: [required.method.not.called] [required.method.not.called]
