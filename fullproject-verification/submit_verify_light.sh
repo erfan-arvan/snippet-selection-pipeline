@@ -45,6 +45,8 @@ FAIL=0
 FAILED_STEPS=()
 run() {  # run <label> <command...>: run one checker step, record failure, keep going
   local label="$1"; shift
+  # ONLY='dubbo: index' sbatch ... runs just the steps whose label matches that regex.
+  if [ -n "${ONLY:-}" ] && ! [[ "$label" =~ $ONLY ]]; then echo "(skipping $label)"; return 0; fi
   step "$label"
   "$@"
   local rc=$?

@@ -61,7 +61,8 @@ GHIDRA_COMMIT=93c19e3cc6733fab119ace63a39be2aec89208b3
 
 FAIL=0
 FAILED_STEPS=()
-for c in regex resourceleak interning index nullness; do
+# CHECKERS="index nullness" sbatch ... reruns just those checkers (default: all five).
+for c in ${CHECKERS:-regex resourceleak interning index nullness}; do
   step "ghidra checker: $c"
   # Every checker starts from a clean tree at the pinned commit (reuses the clone; only
   # discards leftovers, e.g. a build.gradle patch not reverted because a job was killed).

@@ -7,7 +7,7 @@ index f06f6926..02b50007 100644
  /* ###
   * IP: Public Domain
   */
-@@ -58,3 +59,19 @@ jar {
+@@ -58,3 +59,20 @@ jar {
  	destinationDirectory = file("build/data/lib")
  	from sourceSets.dmg.output
  }
@@ -15,6 +15,7 @@ index f06f6926..02b50007 100644
 +// ---- injected for Checker Framework re-audit ----
 +dependencies {
 +	compileOnly 'org.checkerframework:checker-qual:4.2.1'
++	dmgCompileOnly 'org.checkerframework:checker-qual:4.2.1'
 +	checkerFramework 'org.checkerframework:checker:4.2.1'
 +}
 +checkerFramework {
@@ -24,7 +25,7 @@ index f06f6926..02b50007 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Debug/ProposedUtils/build.gradle b/Ghidra/Debug/ProposedUtils/build.gradle
@@ -53,7 +54,7 @@ index 3a9482f0..9c734f47 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/BSim/build.gradle b/Ghidra/Features/BSim/build.gradle
@@ -82,7 +83,7 @@ index 2f82c137..723b25e7 100755
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/Base/build.gradle b/Ghidra/Features/Base/build.gradle
@@ -111,7 +112,7 @@ index 43d646d8..b348b76a 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/BytePatterns/build.gradle b/Ghidra/Features/BytePatterns/build.gradle
@@ -140,7 +141,7 @@ index 08bfe86d..7299e608 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/ByteViewer/build.gradle b/Ghidra/Features/ByteViewer/build.gradle
@@ -169,7 +170,7 @@ index dec49659..0c68d0d7 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/Decompiler/build.gradle b/Ghidra/Features/Decompiler/build.gradle
@@ -198,7 +199,7 @@ index 9c5671fa..382f81a8 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/FunctionID/build.gradle b/Ghidra/Features/FunctionID/build.gradle
@@ -227,7 +228,7 @@ index 51c575de..84bcb061 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/GraphServices/build.gradle b/Ghidra/Features/GraphServices/build.gradle
@@ -256,7 +257,7 @@ index 38dcd744..26afd052 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/Recognizers/build.gradle b/Ghidra/Features/Recognizers/build.gradle
@@ -285,7 +286,7 @@ index f09c2e8a..211d6f53 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/SourceCodeLookup/build.gradle b/Ghidra/Features/SourceCodeLookup/build.gradle
@@ -314,7 +315,7 @@ index bd231f92..1e4d0810 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Features/VersionTracking/build.gradle b/Ghidra/Features/VersionTracking/build.gradle
@@ -343,7 +344,7 @@ index 9f733854..cbae4496 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Docking/build.gradle b/Ghidra/Framework/Docking/build.gradle
@@ -372,7 +373,7 @@ index 279b119d..e0ee11e7 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Generic/build.gradle b/Ghidra/Framework/Generic/build.gradle
@@ -401,7 +402,7 @@ index 105095fa..75bf64d4 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Graph/build.gradle b/Ghidra/Framework/Graph/build.gradle
@@ -430,7 +431,7 @@ index e35ba7b4..cbc2ea0f 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Help/build.gradle b/Ghidra/Framework/Help/build.gradle
@@ -459,7 +460,7 @@ index ba6960c3..92efce06 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Project/build.gradle b/Ghidra/Framework/Project/build.gradle
@@ -488,7 +489,7 @@ index 065c2757..5c3b5a64 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/SoftwareModeling/build.gradle b/Ghidra/Framework/SoftwareModeling/build.gradle
@@ -517,7 +518,7 @@ index 36187041..25025fd4 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}
 diff --git a/Ghidra/Framework/Utility/build.gradle b/Ghidra/Framework/Utility/build.gradle
@@ -546,6 +547,6 @@ index c3de3b75..35398a86 100644
 +	options.compilerArgs += ['-Xmaxerrs', '10000', '-Xmaxwarns', '10000', '-Awarns']
 +	options.warnings = true
 +	options.fork = true
-+	options.forkOptions.memoryMaximumSize = '7g'
++	options.forkOptions.memoryMaximumSize = '24g'
 +	options.forkOptions.jvmArgs += ['--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED', '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED']
 +}

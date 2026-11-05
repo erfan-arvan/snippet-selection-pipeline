@@ -87,7 +87,14 @@ fi
 # the `compile` phase has no META-INF/maven/plugin.xml yet ("No plugin descriptor found").
 # Installing it (above) is not enough by itself; '!dubbo-maven-plugin' removes it from the
 # reactor so the installed copy in the local repo is used.
-PL="$MODULES,!dubbo-maven-plugin"
+# Only when the plugin is actually in the -am set (triple and the modules built on it):
+# excluding a project that isn't in the reactor is itself a Maven error ("Could not find
+# the selected project in the reactor"), which is what broke `index` on dubbo-common alone.
+PL="$MODULES"
+case ",$MODULES," in
+  *,dubbo-rpc/dubbo-rpc-triple,*|*,dubbo-plugin/dubbo-qos,*|*,dubbo-metadata/dubbo-metadata-processor,*)
+    PL="$MODULES,!dubbo-maven-plugin" ;;
+esac
 echo "Running: mvn -pl $PL -am clean compile   (log: $LOG)"
 set +e
 (cd "$REPO" && "$MVN" -B -fae -pl "$PL" -am clean compile \
