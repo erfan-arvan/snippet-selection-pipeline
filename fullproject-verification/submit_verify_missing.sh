@@ -40,10 +40,12 @@ run() { local label="$1"; shift; step "$label"; "$@"; local rc=$?
 
 # --- mybatis-3 index, dubbo interning (same Maven repo as the light job) ---
 export M2_REPO=/scratch/mjk76/ea442/.m2-fpverify-light
+if [ -z "${SKIP_DONE:-}" ]; then
 prepare_clone https://github.com/mybatis/mybatis-3 ed5512752c2a744202574345631b59a6b0d0ba1e "$WORK/mybatis-3" &&
   run "mybatis-3: index" bash fullproject-verification/mybatis-3/run_checker.sh index "$WORK/mybatis-3" "$OUT/mybatis-3/index.log"
 prepare_clone https://github.com/apache/dubbo a5604cd2632471b46f66ed0217e84a68dc84a374 "$WORK/dubbo" &&
   run "dubbo: interning" bash fullproject-verification/dubbo/run_checker.sh "$WORK/dubbo" interning dubbo-common "$OUT/dubbo/interning.log"
+fi   # SKIP_DONE=1 sbatch ... skips these two (already done)
 
 # --- hudi: separate clone + Maven repo from the running fpverify-hudi job ---
 HW="$WORK/hudi-extra"
@@ -52,9 +54,13 @@ export APPTAINER_CACHEDIR=/scratch/mjk76/ea442/.apptainer-cache SINGULARITY_CACH
 export PATH="$SLURM_SUBMIT_DIR/fullproject-verification/hudi/docker-shim:$PATH"
 HR=fullproject-verification/hudi/run_hudi_checker.sh
 hclone() { prepare_clone https://github.com/apache/hudi cb32e5e1bac58cbccba8c92c91e7bed4780e9858 "$HW"; }
-hclone && run "hudi: nullness on hudi-metaserver-server" bash $HR "$HW" nullness-metaserver "$OUT/hudi"
-hclone && PREP_MODS=hudi-kafka-connect run "hudi: prep for hudi-kafka-connect (install, no checker)" bash $HR "$HW" prep "$OUT/hudi" &&
+# prep installs (no checker) everything upstream of hudi-kafka-connect, incl. hudi-common's
+# tests jar, which hudi-metaserver-server also needs - so it runs first, for both steps.
+export PREP_MODS=hudi-kafka-connect
+if hclone && run "hudi: prep (install, no checker)" bash $HR "$HW" prep "$OUT/hudi"; then
   hclone && run "hudi: resourceleak on hudi-kafka-connect" bash $HR "$HW" resourceleak-kafka "$OUT/hudi"
+  hclone && run "hudi: nullness on hudi-metaserver-server" bash $HR "$HW" nullness-metaserver "$OUT/hudi"
+fi
 
 step "Done. Logs under $OUT"
 [ ${#FAILED_STEPS[@]} -eq 0 ] || { echo "Steps with non-zero exit:"; printf '  %s\n' "${FAILED_STEPS[@]}"; }

@@ -45,6 +45,7 @@ if [ "$CHK" = prep ]; then
   # Installs hudi test-jars etc. into ~/.m2 so later compile-only reactor runs can resolve
   # test-scoped hudi-*:tests artifacts (scala-maven-plugin in hudi-spark-* resolves test scope).
   # Only needed for hudi-utilities (nullness). Run on a node WITH network access.
+  cd "$H"
   "$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} install -DskipTests \
     -pl "${PREP_MODS:-hudi-utilities,hudi-hadoop-mr,hudi-examples/hudi-examples-common}" -am \
     2>&1 | tee "$OUT/prep_install.log"
