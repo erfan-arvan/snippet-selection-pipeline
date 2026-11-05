@@ -127,6 +127,25 @@ def _simple(t):
     return t.split(".")[-1].replace(" ", "")
 
 
+def normalize_paths(rows, clones_root):
+    """snippet.json original_file can carry a layout prefix (legacy-import: "source/Ghidra/...").
+    Drop leading components until the file exists in <clones>/<repo>/, so the path matches the
+    clone and the full-project logs. Keeps the original value when nothing matches."""
+    cache = {}
+    for r in rows:
+        f, repo = r.get("original_file"), r.get("repo")
+        if not f or not repo:
+            continue
+        if (repo, f) not in cache:
+            parts = f.replace("\\", "/").split("/")
+            hit = next(("/".join(parts[i:]) for i in range(len(parts))
+                        if os.path.isfile(os.path.join(clones_root, repo, *parts[i:]))), None)
+            if hit is None and parts[0] == "source":
+                hit = "/".join(parts[1:])
+            cache[(repo, f)] = hit or f
+        r["original_file"] = cache[(repo, f)]
+
+
 def locate_ranges(rows, clones_root):
     """Fill r["start"]/r["end"] for rows that lack them, from the original source. Sets r["range_source"]."""
     need = collections.defaultdict(set)
@@ -263,6 +282,8 @@ def main():
     out_csv = a.out or os.path.join(a.logs, "comparison.csv")
 
     rows, not_compared, dup_records = load_sliced(a.run_dir)
+    normalize_paths(rows, a.clones)
+    normalize_paths(not_compared, a.clones)
     locate_ranges(rows, a.clones)
 
     groups = collections.OrderedDict()
