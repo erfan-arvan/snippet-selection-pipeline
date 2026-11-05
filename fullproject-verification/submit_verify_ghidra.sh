@@ -27,14 +27,9 @@ module load easybuild
 module load GCCcore/13.3.0
 
 # Ghidra needs JDK >= 21 (application.java.min=21) - NOT the JDK 17 the rest of this
-# pipeline uses for the Checker Framework itself. The exact module name/version varies
-# by site, so this tries a few plausible easybuild names, then hard-verifies the result
-# rather than trusting any one of them blindly. If all of these miss, run
-# `module avail Java` yourself and re-submit with: JAVA_MODULE=<exact name> sbatch ...
-for m in "${JAVA_MODULE:-}" Java/21.0.5 Java/21.0.2 Java/21 Java/22.0.1 Java/22; do
-  [ -z "$m" ] && continue
-  module load "$m" 2>/dev/null && { echo "Loaded Java module: $m"; break; }
-done
+# pipeline uses for the Checker Framework itself. Confirmed via `module avail Java` on
+# Wulver: only Java/17.0.15 and Java/23.0.2 exist there, so use the latter.
+module load "${JAVA_MODULE:-Java/23.0.2}"
 JV="$(java -version 2>&1 | grep -Eo 'version "[0-9]+' | grep -Eo '[0-9]+$' || true)"
 if [ -z "$JV" ] || [ "$JV" -lt 21 ]; then
   echo "FATAL: need a JDK >= 21 on PATH for ghidra (found '${JV:-none}')." >&2
