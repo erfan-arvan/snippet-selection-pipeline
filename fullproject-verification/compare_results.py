@@ -390,7 +390,7 @@ def main():
                     "sliced_log": r.get("sliced_log") or ""})
 
     os.makedirs(os.path.dirname(os.path.abspath(out_csv)), exist_ok=True)
-    with open(out_csv, "w", newline="") as f:
+    with open(out_csv, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=list(out[0].keys()) if out else ["verdict"])
         w.writeheader()
         w.writerows(out)
