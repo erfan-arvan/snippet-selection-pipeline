@@ -11,6 +11,12 @@ usage:
   --logs     root of the full-project logs written by the submit_verify_*.sh jobs
              (default /project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification)
   --out      per-row result CSV (default: <logs>/comparison.csv)
+  --clones   root of the full-project checkouts at the pinned commits, one dir per repo
+             (default /scratch/mjk76/ea442/fullproject-verify-work). Used when snippet.json has no
+             original_start_line/original_end_line (true for legacy-import: the old xlsx export
+             had no line ranges): the method is located in <clones>/<repo>/<original_file> with
+             Locator.java (needs `java` >= 17 on PATH), matching class + method name + number of
+             parameters (as snippet ids do), and parameter types if that is still ambiguous.
 
 What counts as "the same warning": same checker, same Checker Framework key, reported in the
 same original source file, on a line inside the target method's original line range
@@ -46,9 +52,12 @@ import glob
 import json
 import os
 import re
+import subprocess
 import sys
 
 DEFAULT_LOGS = "/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification"
+DEFAULT_CLONES = "/scratch/mjk76/ea442/fullproject-verify-work"
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 # [WARNING] /abs/File.java:[12,34] [key] msg   (Maven; mybatis-3 prints [ERROR] ... error: [key];
 #                                                some summary lines have no [LEVEL] prefix)
@@ -89,6 +98,7 @@ def load_sliced(run_dir):
     for (sid, cid), r in last.items():
         m = meta(sid)
         base = {"snippet_id": sid, "checker_id": cid, "status": r["status"],
+                "num_params": m and m.get("num_params"), "signature": m and m.get("target_method_signature"),
                 "repo": m and m.get("repo"), "original_file": m and m.get("original_file"),
                 "start": m and m.get("original_start_line"), "end": m and m.get("original_end_line"),
                 "qualified_class_name": m and m.get("qualified_class_name"),
@@ -109,6 +119,57 @@ def load_sliced(run_dir):
             else:
                 on_target.append(row)
     return on_target, not_compared, dup_records
+
+
+def _simple(t):
+    t = re.sub(r"<.*>", "", t or "").replace("...", "[]").strip()
+    t = re.sub(r"@\S+\s+", "", t)              # drop type annotations
+    return t.split(".")[-1].replace(" ", "")
+
+
+def locate_ranges(rows, clones_root):
+    """Fill r["start"]/r["end"] for rows that lack them, from the original source. Sets r["range_source"]."""
+    need = collections.defaultdict(set)
+    for r in rows:
+        if r.get("start") is not None and r.get("end") is not None:
+            r["range_source"] = "snippet.json"
+        elif r.get("repo") and r.get("original_file"):
+            need[r["repo"]].add(r["original_file"])
+    found = collections.defaultdict(list)   # (repo, original_file) -> [(cls, name, n, types, s, e)]
+    for repo, files in need.items():
+        root = os.path.join(clones_root, repo)
+        paths = [os.path.join(root, f) for f in sorted(files) if os.path.isfile(os.path.join(root, f))]
+        if not paths:
+            continue
+        for i in range(0, len(paths), 200):
+            p = subprocess.run(["java", os.path.join(HERE, "Locator.java")] + paths[i:i + 200],
+                               capture_output=True, text=True)
+            if p.returncode != 0:
+                print(f"WARNING: Locator failed for {repo}: {p.stderr.strip()[:300]}", file=sys.stderr)
+            for line in p.stdout.splitlines():
+                f, cls, name, n, types, st, en = line.split("\t")
+                found[(repo, os.path.relpath(f, root))].append((cls, name, int(n), types, int(st), int(en)))
+    for r in rows:
+        if r.get("range_source"):
+            continue
+        key = (r.get("repo"), r.get("original_file"))
+        if not os.path.isfile(os.path.join(clones_root, str(key[0]), str(key[1]))):
+            r["range_source"] = f"not found: no {clones_root}/{key[0]}/{key[1]}"
+            continue
+        q = (r.get("qualified_class_name") or "").replace("$", ".")
+        cands = [c for c in found[key] if c[0] == q and c[1] == r.get("method_name")]
+        if r.get("num_params") is not None:
+            cands = [c for c in cands if c[2] == int(r["num_params"])]
+        if len(cands) > 1 and r.get("signature") and "(" in r["signature"]:
+            want = [_simple(t) for t in r["signature"].split("(", 1)[1].rstrip(")").split(",") if t.strip()]
+            exact = [c for c in cands if [_simple(t) for t in c[3].split(",") if t] == want]
+            if exact:
+                cands = exact
+        if not cands:
+            r["range_source"] = f"not found: no {q}.{r.get('method_name')} with {r.get('num_params')} params in original"
+            continue
+        r["start"], r["end"] = min(c[4] for c in cands), max(c[5] for c in cands)
+        r["range_source"] = "located in original" + ("" if len(cands) == 1 else f" (AMBIGUOUS: {len(cands)} overloads, union of their ranges)")
 
 
 def log_files(logs_root, repo, checker):
@@ -197,10 +258,12 @@ def main():
     ap.add_argument("run_dir")
     ap.add_argument("--logs", default=DEFAULT_LOGS)
     ap.add_argument("--out")
+    ap.add_argument("--clones", default=DEFAULT_CLONES)
     a = ap.parse_args()
     out_csv = a.out or os.path.join(a.logs, "comparison.csv")
 
     rows, not_compared, dup_records = load_sliced(a.run_dir)
+    locate_ranges(rows, a.clones)
 
     groups = collections.OrderedDict()
     for r in rows:
@@ -218,6 +281,8 @@ def main():
         n = len(rs)
         if fl is None:
             verdict, m, evidence, mod_note = "no_log", 0, "", f"no log under {a.logs}/{repo}/ for {cid}"
+        elif s is None or e is None:
+            verdict, m, evidence, mod_note = "unverified", 0, "", f"method range unknown: {r0['range_source']}"
         else:
             hits = fl.matches(of, key, s, e)
             m = len(hits)
@@ -232,7 +297,7 @@ def main():
         out.append({"repo": repo, "snippet_id": sid, "checker_id": cid, "key": key,
                     "verdict": verdict, "sliced_count": n, "full_count": m,
                     "original_file": of, "method": f"{r0['qualified_class_name']}.{r0['method_name']}",
-                    "original_lines": f"{s}-{e}", "module_check": mod_note,
+                    "original_lines": f"{s}-{e}", "range_source": r0.get("range_source"), "module_check": mod_note,
                     "sliced_messages": " | ".join(sorted({x['sliced_message'] or '' for x in rs}))[:300],
                     "full_project_evidence": evidence})
     for r in not_compared:
@@ -240,7 +305,7 @@ def main():
                     "key": r.get("key"), "verdict": "not_compared", "sliced_count": 1, "full_count": "",
                     "original_file": r["original_file"],
                     "method": f"{r['qualified_class_name']}.{r['method_name']}",
-                    "original_lines": f"{r['start']}-{r['end']}", "module_check": r["reason"],
+                    "original_lines": f"{r['start']}-{r['end']}", "range_source": "", "module_check": r["reason"],
                     "sliced_messages": (r.get("sliced_message") or "")[:300], "full_project_evidence": ""})
 
     os.makedirs(os.path.dirname(os.path.abspath(out_csv)), exist_ok=True)
@@ -278,6 +343,11 @@ def main():
         print("\nNeeds attention (missing / partial):")
         for o in attention:
             print(f"  {o['verdict']:16} {o['snippet_id']} [{o['checker_id']}/{o['key']}] {o['sliced_count']}->{o['full_count']}  {o['module_check']}")
+    rs = collections.Counter((o.get("range_source") or "").split(" (")[0].split(":")[0] for o in out if o["verdict"] != "not_compared")
+    print("\nMethod line ranges: " + ", ".join(f"{k}: {v}" for k, v in rs.items()))
+    amb = sum(1 for o in out if "AMBIGUOUS" in (o.get("range_source") or ""))
+    if amb:
+        print(f"  {amb} row(s) matched several overloads (union range used) - see range_source in the CSV")
     print(f"\nPer-row details: {out_csv}")
 
 
