@@ -21,6 +21,19 @@ with that repo's own gotchas.
 | ghidra | 5 (1 per checker) | Only regex + resourceleak confirmed; index/nullness/interning unrun | 2/114 — `ghidra/validated_results_partial.csv` |
 | hudi | 4 (formatter, index, nullness, regex) | **Not validated at all** — treat first HPC run as the real first test | none |
 
+## No system-wide Maven/Gradle module required (except hudi)
+
+Every `run_*.sh` uses the target repo's own bundled `./mvnw`/`./gradlew` wrapper by
+default — the same convention the rest of this pipeline already uses (see
+`orchestrator/snippet_pipeline/classpath.py`) specifically so this never depends on
+guessing an HPC site's module names. Confirmed present at the pinned commit for apollo,
+mybatis-3, netty, dubbo, and ghidra. **hudi is the one exception** — it does not ship an
+`mvnw` — so `submit_verify_hudi.sh` still needs a real `mvn`: it tries a couple of common
+module names, and if none resolve, downloads Apache Maven 3.9.9 directly into
+`/scratch/mjk76/ea442/.maven-dist/` instead of failing. Override either behavior with
+`MAVEN_MODULE=<name>` (hudi) or `JAVA_MODULE=<name>` (ghidra, which separately needs
+JDK >= 21, unlike everything else here which uses JDK 17) if the built-in guesses miss.
+
 ## No diagnostics are truncated or silently dropped
 
 Two separate javac-level caps could otherwise lose diagnostics needed for the diff, and both

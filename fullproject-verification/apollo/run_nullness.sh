@@ -28,8 +28,12 @@ fi
 java -version 2>&1 | head -1   # needs JDK 17+ (tested on 21)
 git apply "$HERE/apollo-nullness-pom.patch"
 
+# Use apollo's own bundled wrapper, same convention as the rest of this pipeline
+# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
+chmod +x ./mvnw
+
 set +e
-mvn -B -fae -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"
+./mvnw -B -fae -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"
 rc=${PIPESTATUS[0]}
 set -e
 

@@ -29,9 +29,31 @@ module purge
 module load easybuild
 module load Java/17.0.15
 module load GCCcore/13.3.0
-module load Maven/3.9.6 2>/dev/null || module load maven 2>/dev/null || true
+
+# Unlike apollo/mybatis-3/netty/dubbo/ghidra, hudi does NOT ship its own ./mvnw wrapper
+# (confirmed: no mvnw at the pinned commit) - it genuinely needs a real Maven on PATH.
+# Try a module first (name varies by site; override with MAVEN_MODULE=<name> if these
+# miss), and if none resolve, bootstrap Maven directly from Apache's archive into
+# scratch instead of guessing further.
+for m in "${MAVEN_MODULE:-}" Maven/3.9.6 Maven/3.9.9 maven; do
+  [ -z "$m" ] && continue
+  module load "$m" 2>/dev/null && { echo "Loaded Maven module: $m"; break; }
+done
 if ! command -v mvn >/dev/null 2>&1; then
-  echo "FATAL: no 'mvn' on PATH after module load attempts. Load/install Maven 3.9.x before running this." >&2
+  echo "No Maven module resolved; bootstrapping Apache Maven 3.9.9 directly into scratch."
+  MVN_DIST=/scratch/mjk76/ea442/.maven-dist/apache-maven-3.9.9
+  if [ ! -x "$MVN_DIST/bin/mvn" ]; then
+    mkdir -p "$(dirname "$MVN_DIST")"
+    curl -sSL -o "$(dirname "$MVN_DIST")/maven.tar.gz" \
+      https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
+    tar -xzf "$(dirname "$MVN_DIST")/maven.tar.gz" -C "$(dirname "$MVN_DIST")"
+    rm -f "$(dirname "$MVN_DIST")/maven.tar.gz"
+  fi
+  export PATH="$MVN_DIST/bin:$PATH"
+fi
+if ! command -v mvn >/dev/null 2>&1; then
+  echo "FATAL: still no 'mvn' on PATH after module-load and direct-download attempts." >&2
+  echo "  Run 'module avail Maven' yourself, then: MAVEN_MODULE=<name> sbatch fullproject-verification/submit_verify_hudi.sh" >&2
   exit 1
 fi
 echo "Using: $(mvn -v | head -1)"

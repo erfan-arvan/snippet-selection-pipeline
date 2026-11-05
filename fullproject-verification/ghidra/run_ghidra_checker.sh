@@ -15,8 +15,8 @@
 #                then exit without building
 #
 # env:
-#   GRADLE            gradle executable (default: `gradle` on PATH; ghidra
-#                     needs Gradle >= 8.5; validated with 8.14.3)
+#   GRADLE            gradle executable (default: the clone's own ./gradlew wrapper;
+#                     ghidra needs Gradle >= 8.5; validated with 8.14.3)
 #   GRADLE_USER_HOME  RESPECTED if already set (e.g. by your HPC module setup).
 #                     If unset, defaults to <clone>/../ghidra_gradle_user_home.
 #   GRADLE_OFFLINE=1  pass --offline to the build (cache must be warm already)
@@ -48,7 +48,11 @@ fi
 G="$(cd "$1" && pwd)" || exit 2
 CHECKER="${2:-}"
 LOG="${3:-$PWD/ghidra_${CHECKER:-init}_build.log}"
-GRADLE="${GRADLE:-gradle}"
+# Use ghidra's own bundled wrapper by default, same convention as the rest of this
+# pipeline (classpath.py/config.py) - never depend on a system-wide `gradle` module
+# on HPC. Set GRADLE=... to force a specific/system gradle instead.
+GRADLE="${GRADLE:-$G/gradlew}"
+[[ "$GRADLE" == "$G/gradlew" ]] && chmod +x "$GRADLE"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 

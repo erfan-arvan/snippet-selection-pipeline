@@ -31,8 +31,11 @@ for m in ${MODS//,/ }; do
   if [ -f "$p" ]; then git apply "$p"; else python3 -I "$HERE/patch_pom.py" "$CLONE/$m/pom.xml" "$PROC"; fi
 done
 git diff --stat
+# Use netty's own bundled wrapper, same convention as the rest of this pipeline
+# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
+chmod +x ./mvnw
 # clean: so patched modules are really recompiled (maven-compiler-plugin 3.8.0 does not detect pom changes)
-mvn -B -fae -pl "$MODS" -am clean "$GOAL" -DskipTests -Dcheckstyle.skip=true -Danimal.sniffer.skip=true \
+./mvnw -B -fae -pl "$MODS" -am clean "$GOAL" -DskipTests -Dcheckstyle.skip=true -Danimal.sniffer.skip=true \
   2>&1 | tee "$CLONE/cf_${CHECKER}.log"
 rc=${PIPESTATUS[0]}
 echo "mvn rc=$rc  log: $CLONE/cf_${CHECKER}.log"

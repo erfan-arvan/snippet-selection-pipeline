@@ -29,13 +29,11 @@ module load easybuild
 module load Java/17.0.15
 module load GCCcore/13.3.0
 
-# Maven: try a module first (name varies by HPC site); fall back to whatever's on PATH.
-module load Maven/3.9.6 2>/dev/null || module load maven 2>/dev/null || true
-if ! command -v mvn >/dev/null 2>&1; then
-  echo "FATAL: no 'mvn' on PATH after module load attempts. Load/install Maven 3.9.x before running this." >&2
-  exit 1
-fi
-echo "Using: $(mvn -v | head -1)"
+# No system-wide Maven module needed: apollo, mybatis-3, netty and dubbo all ship their
+# own ./mvnw wrapper, which each run_checker.sh now uses directly (same convention as
+# the rest of this pipeline - see orchestrator/snippet_pipeline/classpath.py). The
+# wrapper self-bootstraps its own pinned Maven distribution on first run.
+echo "Using: $(java -version 2>&1 | head -1)"
 
 WORK=/scratch/mjk76/ea442/fullproject-verify-work
 OUT=/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification

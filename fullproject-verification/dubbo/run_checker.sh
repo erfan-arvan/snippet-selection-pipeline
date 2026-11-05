@@ -42,6 +42,10 @@ for m in "${MODS[@]}"; do POMS+=("$m/pom.xml"); done
 revert() { git -C "$REPO" checkout -- "${POMS[@]}" && echo "reverted: ${POMS[*]}"; }
 trap revert EXIT
 
+# Use dubbo's own bundled wrapper, same convention as the rest of this pipeline
+# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
+chmod +x "$REPO/mvnw"
+
 # --- Gotcha 1: dubbo-maven-plugin must be installed first --------------------------------
 # dubbo-rpc-triple (and anything downstream of it, e.g. dubbo-qos, dubbo-metadata-processor)
 # uses org.apache.dubbo:dubbo-maven-plugin:3.3.4-SNAPSHOT to run protoc in generate-sources.
@@ -50,7 +54,7 @@ trap revert EXIT
 # "No plugin descriptor found". Installing it once into ~/.m2 (no checker) fixes that.
 if [[ ! -d "$HOME/.m2/repository/org/apache/dubbo/dubbo-maven-plugin/3.3.4-SNAPSHOT" ]]; then
   echo "Installing dubbo-maven-plugin (one-time, no checker) ..."
-  (cd "$REPO" && mvn -B -pl dubbo-maven-plugin -am install -DskipTests \
+  (cd "$REPO" && ./mvnw -B -pl dubbo-maven-plugin -am install -DskipTests \
       -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip) \
       2>&1 | tee "$LOG.plugin-install"
   [[ ${PIPESTATUS[0]} -eq 0 ]] || { echo "plugin install failed, see $LOG.plugin-install" >&2; exit 1; }
@@ -71,7 +75,7 @@ fi
 
 echo "Running: mvn -pl $MODULES -am clean compile   (log: $LOG)"
 set +e
-(cd "$REPO" && mvn -B -fae -pl "$MODULES" -am clean compile \
+(cd "$REPO" && ./mvnw -B -fae -pl "$MODULES" -am clean compile \
     -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true) 2>&1 | tee "$LOG"
 rc=${PIPESTATUS[0]}
 set -e

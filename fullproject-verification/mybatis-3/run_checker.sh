@@ -31,6 +31,10 @@ HEAD=$(git rev-parse HEAD)
 git checkout -- pom.xml
 git apply "$PATCH" || { echo "patch failed to apply"; exit 2; }
 
+# Use mybatis-3's own bundled wrapper, same convention as the rest of this pipeline
+# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
+chmod +x ./mvnw
+
 # Why the -D...skip flags are needed:
 # mybatis-3's parent POM (org.mybatis:mybatis-parent:48) binds four plugins to phases that run
 # BEFORE compile, and each one REWRITES source files in place:
@@ -41,7 +45,7 @@ git apply "$PATCH" || { echo "patch failed to apply"; exit 2; }
 # Without these flags the checker would analyze modified source rather than the pinned commit,
 # which can shift line numbers and taints the "same program" comparison. With them, the clone
 # stays clean (`git status` shows only pom.xml, which this script restores at the end).
-mvn -B -fae clean compile \
+./mvnw -B -fae clean compile \
   -Dlicense.skip=true \
   -Dformatter.skip=true \
   -Dimpsort.skip=true \
