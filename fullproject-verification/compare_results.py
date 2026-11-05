@@ -66,6 +66,15 @@ MAVEN_RE = re.compile(r"^(?:\[(?:WARNING|ERROR)\]\s+)?(/\S+?\.java):\[(\d+),(\d+
 JAVAC_RE = re.compile(r"^(/\S+?\.java):(\d+):\s+(?:warning|error):\s+\[([\w.]+)\]\s*(.*)$")
 GRADLE_TASK_RE = re.compile(r"^> Task :([\w.-]+):(compile\w*Java)(?:\s+(\S.*))?$")
 
+MEANING = {
+    "persists": "Same checker + key reported inside this method in the original project at least as many times as in the slice.",
+    "persists_partial": "Reported in the original project, but fewer times than in the slice - check by hand.",
+    "absent": "Not reported in the original project although the checker ran on this module - the warning exists only in the slice.",
+    "unverified": "Not found, but there is no evidence the checker ran over this module (or the method's lines are unknown) - no conclusion.",
+    "no_log": "No full-project run exists for this repo + checker.",
+    "not_compared": "Not comparable: the sliced warning is not on the target method, or the slice did not compile.",
+}
+
 
 def load_sliced(run_dir):
     """-> (on-target rows, not-compared rows, duplicate-record report)"""
@@ -97,7 +106,7 @@ def load_sliced(run_dir):
     on_target, not_compared = [], []
     for (sid, cid), r in last.items():
         m = meta(sid)
-        base = {"snippet_id": sid, "checker_id": cid, "status": r["status"],
+        base = {"snippet_id": sid, "checker_id": cid, "status": r["status"], "sliced_log": r.get("log_path"),
                 "num_params": m and m.get("num_params"), "signature": m and m.get("target_method_signature"),
                 "repo": m and m.get("repo"), "original_file": m and m.get("original_file"),
                 "start": m and m.get("original_start_line"), "end": m and m.get("original_end_line"),
@@ -272,6 +281,46 @@ class FullLog:
         return False, "no checker output from this module (not compiled, or checker not enabled there)"
 
 
+def write_xlsx(path, out, tab, cols):
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Summary"
+    ws.append(["repo"] + cols)
+    for repo in sorted(tab, key=str):
+        ws.append([str(repo)] + [tab[repo][c] for c in cols])
+    ws.append(["TOTAL"] + [sum(t[c] for t in tab.values()) for c in cols])
+    ws.append([])
+    for v, m in MEANING.items():
+        ws.append([v, m])
+    for c in ws[1]:
+        c.font = Font(bold=True)
+    ws.column_dimensions["A"].width = 18
+    ws.column_dimensions["B"].width = 16
+    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
+    for title, rows in (("Results", sorted((o for o in out if o["verdict"] != "not_compared"),
+                                           key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))),
+                        ("Not compared", [o for o in out if o["verdict"] == "not_compared"])):
+        sh = wb.create_sheet(title)
+        keys = list(out[0].keys())
+        sh.append(keys)
+        for o in rows:
+            sh.append([o.get(k) for k in keys])
+        for c in sh[1]:
+            c.font = Font(bold=True)
+        widths = {"verdict_meaning": 50, "sliced_messages": 80, "full_project_messages": 80, "method": 60,
+                  "original_file": 60, "snippet_id": 60, "module_check": 45, "full_project_log": 50, "sliced_log": 50}
+        for i, k in enumerate(keys, 1):
+            sh.column_dimensions[sh.cell(1, i).column_letter].width = widths.get(k, 16)
+        for row in sh.iter_rows(min_row=2):
+            for c in row:
+                c.alignment = Alignment(wrap_text=True, vertical="top")
+        sh.freeze_panes = "A2"
+        sh.auto_filter.ref = sh.dimensions
+    wb.save(path)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("run_dir")
@@ -300,6 +349,7 @@ def main():
             logs[(repo, cid)] = FullLog(fs) if fs else None
         fl = logs[(repo, cid)]
         n = len(rs)
+        hits = []
         if fl is None:
             verdict, m, evidence, mod_note = "no_log", 0, "", f"no log under {a.logs}/{repo}/ for {cid}"
         elif s is None or e is None:
@@ -316,18 +366,28 @@ def main():
             else:
                 verdict = "absent" if ran else "unverified"
         out.append({"repo": repo, "snippet_id": sid, "checker_id": cid, "key": key,
-                    "verdict": verdict, "sliced_count": n, "full_count": m,
-                    "original_file": of, "method": f"{r0['qualified_class_name']}.{r0['method_name']}",
-                    "original_lines": f"{s}-{e}", "range_source": r0.get("range_source"), "module_check": mod_note,
-                    "sliced_messages": " | ".join(sorted({x['sliced_message'] or '' for x in rs}))[:300],
-                    "full_project_evidence": evidence})
+                    "verdict": verdict, "verdict_meaning": MEANING[verdict],
+                    "sliced_count": n, "full_count": m,
+                    "method": f"{r0['qualified_class_name']}.{r0['method_name']}",
+                    "original_file": of, "original_method_lines": f"{s}-{e}",
+                    "method_lines_source": r0.get("range_source"),
+                    "sliced_lines": ", ".join(str(x.get("sliced_line")) for x in rs),
+                    "sliced_messages": "\n".join(f"line {x.get('sliced_line')}: {x.get('sliced_message') or ''}" for x in rs),
+                    "full_project_lines": ", ".join(f"{h[1]}" + ("" if h[2] is None else f":{h[2]}") for h in hits) if fl is not None and s is not None else "",
+                    "full_project_messages": "\n".join(f"{h[1]}{'' if h[2] is None else ':'+str(h[2])} [{h[3]}] {h[4]}" for h in hits) if fl is not None and s is not None else "",
+                    "module_check": mod_note,
+                    "full_project_log": ", ".join(fl.files) if fl is not None else "",
+                    "sliced_log": r0.get("sliced_log") or ""})
     for r in not_compared:
         out.append({"repo": r["repo"], "snippet_id": r["snippet_id"], "checker_id": r["checker_id"],
-                    "key": r.get("key"), "verdict": "not_compared", "sliced_count": 1, "full_count": "",
-                    "original_file": r["original_file"],
+                    "key": r.get("key"), "verdict": "not_compared", "verdict_meaning": MEANING["not_compared"],
+                    "sliced_count": 1, "full_count": "",
                     "method": f"{r['qualified_class_name']}.{r['method_name']}",
-                    "original_lines": f"{r['start']}-{r['end']}", "range_source": "", "module_check": r["reason"],
-                    "sliced_messages": (r.get("sliced_message") or "")[:300], "full_project_evidence": ""})
+                    "original_file": r["original_file"], "original_method_lines": "",
+                    "method_lines_source": "", "sliced_lines": str(r.get("sliced_line") or ""),
+                    "sliced_messages": r.get("sliced_message") or "", "full_project_lines": "",
+                    "full_project_messages": "", "module_check": r["reason"], "full_project_log": "",
+                    "sliced_log": r.get("sliced_log") or ""})
 
     os.makedirs(os.path.dirname(os.path.abspath(out_csv)), exist_ok=True)
     with open(out_csv, "w", newline="") as f:
@@ -364,9 +424,15 @@ def main():
         print("\nNeeds attention (missing / partial):")
         for o in attention:
             print(f"  {o['verdict']:16} {o['snippet_id']} [{o['checker_id']}/{o['key']}] {o['sliced_count']}->{o['full_count']}  {o['module_check']}")
-    rs = collections.Counter((o.get("range_source") or "").split(" (")[0].split(":")[0] for o in out if o["verdict"] != "not_compared")
+    xlsx = os.path.splitext(out_csv)[0] + ".xlsx"
+    try:
+        write_xlsx(xlsx, out, tab, cols)
+        print(f"Spreadsheet: {xlsx}")
+    except ImportError:
+        print("(openpyxl not installed - no .xlsx written; the CSV has the same content)")
+    rs = collections.Counter((o.get("method_lines_source") or "").split(" (")[0].split(":")[0] for o in out if o["verdict"] != "not_compared")
     print("\nMethod line ranges: " + ", ".join(f"{k}: {v}" for k, v in rs.items()))
-    amb = sum(1 for o in out if "AMBIGUOUS" in (o.get("range_source") or ""))
+    amb = sum(1 for o in out if "AMBIGUOUS" in (o.get("method_lines_source") or ""))
     if amb:
         print(f"  {amb} row(s) matched several overloads (union range used) - see range_source in the CSV")
     print(f"\nPer-row details: {out_csv}")
