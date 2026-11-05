@@ -1,0 +1,13 @@
+#!/bin/bash
+# Stand-in for `docker`, for hudi-metaserver's thrift_in_docker.sh only (compute nodes have no
+# Docker): `docker pull` is a no-op and `docker run -v a:b ... IMAGE cmd...` runs the same public
+# image through apptainer/singularity with the same bind mounts.
+RT=$(command -v apptainer || command -v singularity) || { echo "docker-shim: no apptainer/singularity on PATH" >&2; exit 1; }
+case "$1" in
+  pull) exit 0 ;;
+  run)  shift; binds=()
+        while [ "${1:-}" = -v ]; do mkdir -p "${2%%:*}"; binds+=(--bind "$2"); shift 2; done
+        img=$1; shift
+        exec "$RT" exec "${binds[@]}" "docker://$img" "$@" ;;
+  *)    echo "docker-shim: unsupported: $*" >&2; exit 1 ;;
+esac

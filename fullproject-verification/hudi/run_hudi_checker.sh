@@ -46,15 +46,21 @@ if [ "$CHK" = prep ]; then
   # test-scoped hudi-*:tests artifacts (scala-maven-plugin in hudi-spark-* resolves test scope).
   # Only needed for hudi-utilities (nullness). Run on a node WITH network access.
   "$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} install -DskipTests \
-    -pl hudi-utilities,hudi-hadoop-mr,hudi-examples/hudi-examples-common -am \
+    -pl "${PREP_MODS:-hudi-utilities,hudi-hadoop-mr,hudi-examples/hudi-examples-common}" -am \
     2>&1 | tee "$OUT/prep_install.log"
   exit "${PIPESTATUS[0]}"
 fi
 
 AM=(-am)
+PROFILE=()
 PATCH_NAME="$CHK"
 case "$CHK" in
   nullness-utilities) MODS="hudi-utilities"; AM=(); PATCH_NAME=nullness ;;
+  # resourceleak on hudi-kafka-connect only (needs `prep` with PREP_MODS incl. hudi-kafka-connect)
+  resourceleak-kafka) MODS="hudi-kafka-connect"; AM=(); PATCH_NAME=resourceleak_kafka ;;
+  # nullness on hudi-metaserver-server only; its thrift step needs `docker` (see hudi/docker-shim)
+  nullness-metaserver) MODS="hudi-platform-service/hudi-metaserver/hudi-metaserver-server"; PATCH_NAME=nullness_metaserver
+                       PROFILE=(-Phudi-platform-service) ;;
   formatter) MODS="hudi-common" ;;
   regex)     MODS="hudi-common" ;;
   index)     MODS="hudi-io,hudi-common" ;;
@@ -76,7 +82,7 @@ git -C "$H" diff --stat
 
 rc=0
 cd "$H"
-"$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} -fae clean compile -pl "$MODS" ${AM[@]+"${AM[@]}"} 2>&1 | tee "$OUT/build_$CHK.log"
+"$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} -fae ${PROFILE[@]+"${PROFILE[@]}"} clean compile -pl "$MODS" ${AM[@]+"${AM[@]}"} 2>&1 | tee "$OUT/build_$CHK.log"
 rc=${PIPESTATUS[0]}
 echo "[run_hudi_checker] main reactor exit=$rc  log=$OUT/build_$CHK.log"
 

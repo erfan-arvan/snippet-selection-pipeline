@@ -11,6 +11,7 @@ import sys, pathlib
 PROCESSORS = {
     "index": "org.checkerframework.checker.index.IndexChecker",
     "nullness": "org.checkerframework.checker.nullness.NullnessChecker",
+    "interning": "org.checkerframework.checker.interning.InterningChecker",
 }
 CF_VERSION = "4.2.1"
 OPEN_PKGS = ["api", "code", "comp", "file", "main", "model", "parser",
