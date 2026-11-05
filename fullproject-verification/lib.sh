@@ -48,7 +48,32 @@ prepare_clone() {
       return 1
     fi
   fi
+  # Restore exec bits git records (100755): some filesystems lose them on checkout, and
+  # e.g. hudi-metaserver's thrift_binary.sh then fails with "Permission denied".
+  git -C "$dest" ls-files -s | awk '$1=="100755"{print $4}' | (cd "$dest" && xargs -r chmod +x)
   echo "  $dest clean at $commit"
+}
+
+# only_defs_regex <repo> [run_dir]
+#   Regex of the fully-qualified classes that have on-target flagged rows for <repo> in the
+#   pipeline run (default legacy-import), for the checker's -AonlyDefs option: only those
+#   classes are type-checked; the rest of the project is still compiled normally.
+only_defs_regex() {
+  python3 -I - "$1" "${2:-/project/mjk76/ea442/snippet-selection-pipeline-output/legacy-import}" <<'PY'
+import json, os, re, sys
+repo, run = sys.argv[1], sys.argv[2]
+cls = set()
+for line in open(os.path.join(run, "stats", "results.jsonl")):
+    r = json.loads(line)
+    if r.get("status") != "flagged" or not any(d.get("on_target") for d in r.get("diagnostics") or []):
+        continue
+    p = os.path.join(run, "snippets", r["snippet_id"], "snippet.json")
+    if os.path.isfile(p):
+        m = json.load(open(p))
+        if m.get("repo") == repo and m.get("qualified_class_name"):
+            cls.add(m["qualified_class_name"].replace("$", "."))
+print("|".join(re.escape(c) for c in sorted(cls)))
+PY
 }
 
 setup_maven() {

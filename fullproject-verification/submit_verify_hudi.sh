@@ -40,6 +40,10 @@ setup_maven || exit 1
 M2_REPO=/scratch/mjk76/ea442/.m2-fpverify-hudi
 mkdir -p "$M2_REPO"
 export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=$M2_REPO"
+# Type-check only the hudi classes that have flagged rows (see lib.sh only_defs_regex).
+export ONLY_DEFS="$(only_defs_regex hudi)"
+[ -n "$ONLY_DEFS" ] || { echo "FATAL: no flagged hudi classes found in results.jsonl" >&2; exit 1; }
+echo "Checking only: $ONLY_DEFS"
 echo "Using: $(java -version 2>&1 | head -1)"
 
 WORK=/scratch/mjk76/ea442/fullproject-verify-work/hudi

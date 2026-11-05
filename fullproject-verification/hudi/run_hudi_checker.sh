@@ -79,6 +79,19 @@ revert() {
 git -C "$H" apply --check -p1 "$PATCH" || { echo "patch does not apply cleanly" >&2; exit 3; }
 git -C "$H" apply -p1 "$PATCH"
 trap revert EXIT
+# ONLY_DEFS=<regex>: type-check only the matching classes (-AonlyDefs); everything is still compiled.
+if [ -n "${ONLY_DEFS:-}" ]; then
+  for f in $(git -C "$H" diff --name-only); do
+    python3 -I - "$H/$f" "$ONLY_DEFS" <<'PY'
+import sys
+p, rx = sys.argv[1], sys.argv[2]
+s = open(p).read()
+s = s.replace("<arg>-Awarns</arg>", "<arg>-Awarns</arg>\n            <arg>-AonlyDefs=" + rx + "</arg>")
+open(p, "w").write(s)
+PY
+  done
+  echo "[run_hudi_checker] -AonlyDefs=$ONLY_DEFS"
+fi
 git -C "$H" diff --stat
 
 rc=0

@@ -50,6 +50,10 @@ fi   # SKIP_DONE=1 sbatch ... skips these two (already done)
 # --- hudi: separate clone + Maven repo from the running fpverify-hudi job ---
 HW="$WORK/hudi-extra"
 export MAVEN_OPTS="-Dmaven.repo.local=/scratch/mjk76/ea442/.m2-fpverify-hudi-extra"
+# Type-check only the hudi classes that have flagged rows (see lib.sh only_defs_regex).
+export ONLY_DEFS="$(only_defs_regex hudi)"
+[ -n "$ONLY_DEFS" ] || { echo "FATAL: no flagged hudi classes found in results.jsonl" >&2; exit 1; }
+echo "Checking only: $ONLY_DEFS"
 export APPTAINER_CACHEDIR=/scratch/mjk76/ea442/.apptainer-cache SINGULARITY_CACHEDIR=/scratch/mjk76/ea442/.apptainer-cache
 export PATH="$SLURM_SUBMIT_DIR/fullproject-verification/hudi/docker-shim:$PATH"
 HR=fullproject-verification/hudi/run_hudi_checker.sh
