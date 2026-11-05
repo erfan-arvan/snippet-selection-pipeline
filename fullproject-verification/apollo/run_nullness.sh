@@ -29,8 +29,8 @@ java -version 2>&1 | head -1   # needs JDK 17+ (tested on 21)
 git apply "$HERE/apollo-nullness-pom.patch"
 
 set +e
-mvn -B -pl apollo-portal -am clean compile -DskipTests > "$LOG" 2>&1
-rc=$?
+mvn -B -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"
+rc=${PIPESTATUS[0]}
 set -e
 
 git checkout -q pom.xml   # leave the clone clean

@@ -52,7 +52,8 @@ if [[ ! -d "$HOME/.m2/repository/org/apache/dubbo/dubbo-maven-plugin/3.3.4-SNAPS
   echo "Installing dubbo-maven-plugin (one-time, no checker) ..."
   (cd "$REPO" && mvn -B -pl dubbo-maven-plugin -am install -DskipTests \
       -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip) \
-      > "$LOG.plugin-install" 2>&1 || { echo "plugin install failed, see $LOG.plugin-install" >&2; exit 1; }
+      2>&1 | tee "$LOG.plugin-install"
+  [[ ${PIPESTATUS[0]} -eq 0 ]] || { echo "plugin install failed, see $LOG.plugin-install" >&2; exit 1; }
 fi
 
 python3 -I "$HERE/patch_pom.py" "$REPO" "$CHECKER" "${MODS[@]}"
@@ -71,8 +72,8 @@ fi
 echo "Running: mvn -pl $MODULES -am clean compile   (log: $LOG)"
 set +e
 (cd "$REPO" && mvn -B -pl "$MODULES" -am clean compile \
-    -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true) > "$LOG" 2>&1
-rc=$?
+    -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true) 2>&1 | tee "$LOG"
+rc=${PIPESTATUS[0]}
 set -e
 echo "mvn exit code: $rc"
 grep -E "BUILD (SUCCESS|FAILURE)|Total time" "$LOG" || true

@@ -46,8 +46,8 @@ mvn -B clean compile \
   -Dformatter.skip=true \
   -Dimpsort.skip=true \
   -Dwhitespace.skip=true \
-  > "$LOG" 2>&1
-rc=$?
+  2>&1 | tee "$LOG"
+rc=${PIPESTATUS[0]}
 echo "mvn exit=$rc (1 is expected if the checker reported anything); log: $LOG"
 
 git checkout -- pom.xml

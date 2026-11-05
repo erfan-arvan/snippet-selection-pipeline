@@ -21,6 +21,24 @@ with that repo's own gotchas.
 | ghidra | 5 (1 per checker) | Only regex + resourceleak confirmed; index/nullness/interning unrun | 2/114 — `ghidra/validated_results_partial.csv` |
 | hudi | 4 (formatter, index, nullness, regex) | **Not validated at all** — treat first HPC run as the real first test | none |
 
+## Watching progress while it runs
+
+Every build command in every `run_*.sh` streams Maven/Gradle's real output live (via `tee`),
+not just into its own per-checker log file — so SLURM's own `%x.%j.out` file shows the actual
+compile/download output as it happens, not just silence until the step finishes. Each submit
+script also prints a timestamped `[YYYY-MM-DD HH:MM:SS] === step ===` banner before every
+repo/checker it starts. So once a job is running:
+
+```
+tail -f fpverify-light.<jobid>.out      # or fpverify-hudi./fpverify-ghidra.
+```
+
+shows, in order: which repo/checker is currently running and when it started, then that
+build's live Maven/Gradle output, then its `mvn/gradle exit=...` and diagnostic-count summary
+line, then the next step's banner — so a long job (ghidra's 72h one especially) can be told
+apart as "still compiling module N" vs. actually stuck, without waiting for it to finish. The
+same content also lands in each checker's own `.log` file under `$OUT` for grepping afterward.
+
 ## Running on HPC
 
 Three SLURM scripts, split by how much is already proven:

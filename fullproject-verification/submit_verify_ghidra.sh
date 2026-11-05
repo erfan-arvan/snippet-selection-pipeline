@@ -41,6 +41,11 @@ WORK=/scratch/mjk76/ea442/fullproject-verify-work/ghidra
 OUT=/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/ghidra
 mkdir -p "$OUT"
 
+# Timestamped step banner - tail -f fpverify-ghidra.<jobid>.out to watch progress; this is the
+# 72h job, so this is the main way to tell "still compiling" from "stuck". run_ghidra_checker.sh
+# now streams gradle's live output here too (via tee), not just into its own log file.
+step() { echo; echo "[$(date '+%Y-%m-%d %H:%M:%S')] === $* ==="; }
+
 if [ -d "$WORK/.git" ] && [ "$(git -C "$WORK" rev-parse HEAD 2>/dev/null)" = "93c19e3cc6733fab119ace63a39be2aec89208b3" ]; then
   echo "ghidra already cloned at pinned commit"
 else
@@ -53,8 +58,8 @@ else
 fi
 
 for c in index interning nullness regex resourceleak; do
-  echo "=== ghidra checker: $c ==="
+  step "ghidra checker: $c"
   bash fullproject-verification/ghidra/run_ghidra_checker.sh --init "$WORK" "$c" "$OUT/$c.log"
 done
 
-echo "=== Done. Logs under $OUT ==="
+step "Done. Logs under $OUT"

@@ -69,7 +69,8 @@ git -C "$H" diff --stat
 
 rc=0
 cd "$H"
-"$MVN" "${COMMON[@]}" "${EXTRA[@]}" clean compile -pl "$MODS" -am > "$OUT/build_$CHK.log" 2>&1 || rc=$?
+"$MVN" "${COMMON[@]}" "${EXTRA[@]}" clean compile -pl "$MODS" -am 2>&1 | tee "$OUT/build_$CHK.log"
+rc=${PIPESTATUS[0]}
 echo "[run_hudi_checker] main reactor exit=$rc  log=$OUT/build_$CHK.log"
 
 if [ "$CHK" = nullness ] && [ "${SKIP_METASERVER:-0}" != 1 ]; then
@@ -80,7 +81,8 @@ if [ "$CHK" = nullness ] && [ "${SKIP_METASERVER:-0}" != 1 ]; then
   rc2=0
   "$MVN" "${COMMON[@]}" "${EXTRA[@]}" $PROF clean compile \
     -pl hudi-platform-service/hudi-metaserver/hudi-metaserver-server -am \
-    > "$OUT/build_${CHK}_metaserver.log" 2>&1 || rc2=$?
+    2>&1 | tee "$OUT/build_${CHK}_metaserver.log"
+  rc2=${PIPESTATUS[0]}
   echo "[run_hudi_checker] metaserver reactor exit=$rc2  log=$OUT/build_${CHK}_metaserver.log"
   [ $rc -eq 0 ] && rc=$rc2
 fi

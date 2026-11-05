@@ -43,6 +43,10 @@ WORK=/scratch/mjk76/ea442/fullproject-verify-work/hudi
 OUT=/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/hudi
 mkdir -p "$OUT"
 
+# Timestamped step banner - tail -f fpverify-hudi.<jobid>.out to watch progress; run_hudi_checker.sh
+# now streams its build output here live too (via tee), not just into its own log file.
+step() { echo; echo "[$(date '+%Y-%m-%d %H:%M:%S')] === $* ==="; }
+
 if [ -d "$WORK/.git" ] && [ "$(git -C "$WORK" rev-parse HEAD 2>/dev/null)" = "cb32e5e1bac58cbccba8c92c91e7bed4780e9858" ]; then
   echo "hudi already cloned at pinned commit"
 else
@@ -54,12 +58,12 @@ else
   git -C "$WORK" checkout -q cb32e5e1bac58cbccba8c92c91e7bed4780e9858
 fi
 
-echo "=== prep (one-time: mvn install -DskipTests) ==="
+step "prep (one-time: mvn install -DskipTests)"
 bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" prep
 
 for c in formatter index nullness regex; do
-  echo "=== hudi checker: $c ==="
+  step "hudi checker: $c"
   bash fullproject-verification/hudi/run_hudi_checker.sh "$WORK" "$c" "$OUT"
 done
 
-echo "=== Done. Logs under $OUT ==="
+step "Done. Logs under $OUT"

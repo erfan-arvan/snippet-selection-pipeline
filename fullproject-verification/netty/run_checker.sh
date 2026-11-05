@@ -33,8 +33,8 @@ done
 git diff --stat
 # clean: so patched modules are really recompiled (maven-compiler-plugin 3.8.0 does not detect pom changes)
 mvn -B -pl "$MODS" -am clean "$GOAL" -DskipTests -Dcheckstyle.skip=true -Danimal.sniffer.skip=true \
-  > "$CLONE/cf_${CHECKER}.log" 2>&1
-rc=$?
+  2>&1 | tee "$CLONE/cf_${CHECKER}.log"
+rc=${PIPESTATUS[0]}
 echo "mvn rc=$rc  log: $CLONE/cf_${CHECKER}.log"
 grep -E "BUILD (SUCCESS|FAILURE)" "$CLONE/cf_${CHECKER}.log"
 # Checker warnings look like: [WARNING] /path/File.java:[line,col] [message.key] text

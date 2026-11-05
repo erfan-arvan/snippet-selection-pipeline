@@ -113,7 +113,8 @@ PY
 
 run_init() {
   echo "== init: official fetchDependencies step"
-  ( cd "$G" && "$GRADLE" --no-daemon -I gradle/support/fetchDependencies.gradle ) > "$LOG.init" 2>&1 && { echo "   ok"; return 0; }
+  ( cd "$G" && "$GRADLE" --no-daemon -I gradle/support/fetchDependencies.gradle ) 2>&1 | tee "$LOG.init"
+  [[ ${PIPESTATUS[0]} -eq 0 ]] && { echo "   ok"; return 0; }
   echo "   official fetch failed (see $LOG.init); trying curl pre-download fallback"
   mapfile -t MISSING < <(fallback_predownload)
   local script=gradle/support/fetchDependencies.gradle
@@ -134,7 +135,8 @@ open(G + '/gradle/support/fetchDependencies_local.gradle', 'w').write(s)
 PY
     script=gradle/support/fetchDependencies_local.gradle
   fi
-  ( cd "$G" && "$GRADLE" --no-daemon -I "$script" ) >> "$LOG.init" 2>&1 || die "fetchDependencies failed even after fallback; see $LOG.init"
+  ( cd "$G" && "$GRADLE" --no-daemon -I "$script" ) 2>&1 | tee -a "$LOG.init"
+  [[ ${PIPESTATUS[0]} -eq 0 ]] || die "fetchDependencies failed even after fallback; see $LOG.init"
   echo "   ok (via $script)"
 }
 
@@ -161,7 +163,8 @@ read -r -a T0 < "$TASKFILE"
 TASKS=(); for t in "${T0[@]}"; do TASKS+=("$t" --rerun); done
 OFF=(); [[ "${GRADLE_OFFLINE:-0}" == 1 ]] && OFF=(--offline)
 build() {
-  ( cd "$G" && "$GRADLE" --no-daemon --continue "${OFF[@]}" "${TASKS[@]}" ) > "$LOG" 2>&1
+  ( cd "$G" && "$GRADLE" --no-daemon --continue "${OFF[@]}" "${TASKS[@]}" ) 2>&1 | tee "$LOG"
+  return "${PIPESTATUS[0]}"
 }
 echo "== gradle ${TASKS[*]}  (log: $LOG)"
 build; RC=$?
