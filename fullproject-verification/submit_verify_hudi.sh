@@ -32,28 +32,15 @@ module load GCCcore/13.3.0
 
 # Unlike apollo/mybatis-3/netty/dubbo/ghidra, hudi does NOT ship its own ./mvnw wrapper
 # (confirmed: no mvnw at the pinned commit) - it genuinely needs a real Maven on PATH.
-# Try a module first (name varies by site; override with MAVEN_MODULE=<name> if these
-# miss), and if none resolve, bootstrap Maven directly from Apache's archive into
-# scratch instead of guessing further.
-for m in "${MAVEN_MODULE:-}" Maven/3.9.6 Maven/3.9.9 maven; do
-  [ -z "$m" ] && continue
-  module load "$m" 2>/dev/null && { echo "Loaded Maven module: $m"; break; }
-done
+# There is no Maven module on Wulver at all; use the Maven 3.9.9 already manually
+# installed under this account for other project work (promptstudy's
+# run_daikonpp_hudi_java_client.sh), same layout: scratch-local install + scratch-local
+# .m2 repo, so this doesn't touch the home quota either.
+export MAVEN_HOME="/scratch/mjk76/ea442/apache-maven-3.9.9"
+export PATH="$MAVEN_HOME/bin:$PATH"
+export MAVEN_OPTS="-Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
 if ! command -v mvn >/dev/null 2>&1; then
-  echo "No Maven module resolved; bootstrapping Apache Maven 3.9.9 directly into scratch."
-  MVN_DIST=/scratch/mjk76/ea442/.maven-dist/apache-maven-3.9.9
-  if [ ! -x "$MVN_DIST/bin/mvn" ]; then
-    mkdir -p "$(dirname "$MVN_DIST")"
-    curl -sSL -o "$(dirname "$MVN_DIST")/maven.tar.gz" \
-      https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
-    tar -xzf "$(dirname "$MVN_DIST")/maven.tar.gz" -C "$(dirname "$MVN_DIST")"
-    rm -f "$(dirname "$MVN_DIST")/maven.tar.gz"
-  fi
-  export PATH="$MVN_DIST/bin:$PATH"
-fi
-if ! command -v mvn >/dev/null 2>&1; then
-  echo "FATAL: still no 'mvn' on PATH after module-load and direct-download attempts." >&2
-  echo "  Run 'module avail Maven' yourself, then: MAVEN_MODULE=<name> sbatch fullproject-verification/submit_verify_hudi.sh" >&2
+  echo "FATAL: no 'mvn' at $MAVEN_HOME/bin on this node. Set MAVEN_HOME=<path> yourself if it moved." >&2
   exit 1
 fi
 echo "Using: $(mvn -v | head -1)"
