@@ -393,57 +393,111 @@ def per_slice(out, groups, logs):
     return res
 
 
+def _xml(v):
+    v = "" if v is None else str(v)
+    v = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", v)
+    return v.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
+
+def _col(i):
+    n = ""
+    while i:
+        i, r = divmod(i - 1, 26)
+        n = chr(65 + r) + n
+    return n
+
+
 def write_xlsx(path, out, tab, cols, by_slice=()):
-    from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Font
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Summary"
-    ws.append(["repo"] + cols)
-    for repo in sorted(tab, key=str):
-        ws.append([str(repo)] + [tab[repo][c] for c in cols])
-    ws.append(["TOTAL"] + [sum(t[c] for t in tab.values()) for c in cols])
-    ws.append([])
-    for v, m in MEANING.items():
-        ws.append([v, m])
-    for c in ws[1]:
-        c.font = Font(bold=True)
-    ws.column_dimensions["A"].width = 18
-    ws.column_dimensions["B"].width = 16
-    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
+    """Real .xlsx (standard library only): clickable links in *_link columns, bold frozen header,
+    filters, wrapped text, one sheet per view."""
+    import zipfile
+    sheets = []
+    summ = [["repo"] + cols] + [[str(r)] + [tab[r][c] for c in cols] for r in sorted(tab, key=str)]
+    summ.append(["TOTAL"] + [sum(t[c] for t in tab.values()) for c in cols])
+    summ += [[]] + [["verdict", "meaning"]] + [[k, v] for k, v in MEANING.items()]
+    summ += [[]] + [["by-slice status", "meaning"]] + [[k, v] for k, v in SLICE_MEANING.items()]
+    sheets.append(("Summary", summ, None))
     if by_slice:
-        sh = wb.create_sheet("By slice")
-        keys = list(by_slice[0].keys())
-        sh.append(keys)
-        for r in by_slice:
-            sh.append([r.get(k) for k in keys])
-        for c in sh[1]:
-            c.font = Font(bold=True)
-        for i, k in enumerate(keys, 1):
-            sh.column_dimensions[sh.cell(1, i).column_letter].width = {"status_meaning": 50, "method": 60, "snippet_id": 60,
-                "original_file": 60, "slice_warnings": 40, "original_method_warnings": 40}.get(k, 18)
-        sh.freeze_panes = "A2"
-        sh.auto_filter.ref = sh.dimensions
-    for title, rows in (("Results", sorted((o for o in out if o["verdict"] != "not_compared"),
-                                           key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))),
-                        ("Not compared", [o for o in out if o["verdict"] == "not_compared"])):
-        sh = wb.create_sheet(title)
-        keys = list(out[0].keys())
-        sh.append(keys)
-        for o in rows:
-            sh.append([o.get(k) for k in keys])
-        for c in sh[1]:
-            c.font = Font(bold=True)
-        widths = {"verdict_meaning": 50, "sliced_messages": 80, "full_project_messages": 80, "method": 60,
-                  "original_file": 60, "snippet_id": 60, "module_check": 45, "full_project_log": 50, "sliced_log": 50}
-        for i, k in enumerate(keys, 1):
-            sh.column_dimensions[sh.cell(1, i).column_letter].width = widths.get(k, 16)
-        for row in sh.iter_rows(min_row=2):
-            for c in row:
-                c.alignment = Alignment(wrap_text=True, vertical="top")
-        sh.freeze_panes = "A2"
-        sh.auto_filter.ref = sh.dimensions
-    wb.save(path)
+        k = list(by_slice[0].keys())
+        sheets.append(("By slice", [k] + [[r.get(x) for x in k] for r in by_slice], k))
+    order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
+    k = list(out[0].keys()) if out else []
+    res = sorted((o for o in out if o["verdict"] != "not_compared"),
+                 key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))
+    sheets.append(("Results", [k] + [[o.get(x) for x in k] for o in res], k))
+    sheets.append(("Not compared", [k] + [[o.get(x) for x in k] for o in out if o["verdict"] == "not_compared"], k))
+    widths = {"verdict_meaning": 50, "status_meaning": 50, "sliced_messages": 70, "full_project_messages": 70,
+              "method": 55, "original_file": 55, "snippet_id": 55, "module_check": 40, "method_link": 30,
+              "original_match_link": 30, "original_match_urls": 40, "full_project_log": 45, "sliced_log": 45,
+              "slice_warnings": 35, "original_method_warnings": 35}
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+        ct = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+              '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">',
+              '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+              '<Default Extension="xml" ContentType="application/xml"/>',
+              '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>',
+              '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>']
+        ct += [f'<Override PartName="/xl/worksheets/sheet{i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+               for i in range(1, len(sheets) + 1)]
+        z.writestr("[Content_Types].xml", "".join(ct) + "</Types>")
+        z.writestr("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')
+        wb = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>']
+        wb += [f'<sheet name="{_xml(n)}" sheetId="{i}" r:id="rId{i}"/>' for i, (n, _, _) in enumerate(sheets, 1)]
+        dn = [f'<definedName name="_xlnm._FilterDatabase" localSheetId="{i-1}" hidden="1">\'{n}\'!$A$1:${_col(len(r[0]))}${len(r)}</definedName>'
+              for i, (n, r, h) in enumerate(sheets, 1) if h and r and r[0]]
+        z.writestr("xl/workbook.xml", "".join(wb) + "</sheets>" + (f"<definedNames>{''.join(dn)}</definedNames>" if dn else "") + "</workbook>")
+        rels = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">']
+        rels += [f'<Relationship Id="rId{i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet{i}.xml"/>'
+                 for i in range(1, len(sheets) + 1)]
+        rels.append(f'<Relationship Id="rId{len(sheets)+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>')
+        z.writestr("xl/_rels/workbook.xml.rels", "".join(rels) + "</Relationships>")
+        # styles: 0 default, 1 bold header, 2 wrapped top-aligned, 3 blue underlined link
+        z.writestr("xl/styles.xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+                   '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font>'
+                   '<font><u/><sz val="11"/><color rgb="FF0563C1"/><name val="Calibri"/></font></fonts>'
+                   '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
+                   '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+                   '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+                   '<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+                   '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+                   '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+                   '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top"/></xf></cellXfs>'
+                   '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>')
+        for i, (name, rows, header) in enumerate(sheets, 1):
+            links, xml = [], []
+            ncol = max((len(r) for r in rows), default=1)
+            for ri, row in enumerate(rows, 1):
+                cells = []
+                for ci, v in enumerate(row, 1):
+                    ref = f"{_col(ci)}{ri}"
+                    if v is None or v == "":
+                        continue
+                    colname = header[ci - 1] if header and ri > 1 else ""
+                    if isinstance(v, (int, float)) and not isinstance(v, bool):
+                        cells.append(f'<c r="{ref}" s="{1 if ri == 1 else 2}"><v>{v}</v></c>')
+                        continue
+                    v = str(v)
+                    style = 1 if ri == 1 else 2
+                    if colname.endswith("_link") and v.startswith("http"):
+                        links.append((ref, v))
+                        style, v = 3, v.rsplit("/", 1)[-1]
+                    cells.append(f'<c r="{ref}" t="inlineStr" s="{style}"><is><t xml:space="preserve">{_xml(v[:32000])}</t></is></c>')
+                xml.append(f'<row r="{ri}">{"".join(cells)}</row>')
+            hdr = rows[0] if rows else []
+            colw = "".join(f'<col min="{c}" max="{c}" width="{widths.get(str(hdr[c-1]) if header else "", 22 if not header else 16)}" customWidth="1"/>'
+                           for c in range(1, ncol + 1))
+            sheet = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">',
+                     '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>',
+                     f"<cols>{colw}</cols>", f"<sheetData>{''.join(xml)}</sheetData>"]
+            if header and len(rows) > 0:
+                sheet.append(f'<autoFilter ref="A1:{_col(ncol)}{len(rows)}"/>')
+            if links:
+                sheet.append("<hyperlinks>" + "".join(f'<hyperlink ref="{r}" r:id="rId{j}"/>' for j, (r, _) in enumerate(links, 1)) + "</hyperlinks>")
+                z.writestr(f"xl/worksheets/_rels/sheet{i}.xml.rels",
+                           '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+                           + "".join(f'<Relationship Id="rId{j}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="{_xml(u)}" TargetMode="External"/>'
+                                     for j, (_, u) in enumerate(links, 1)) + "</Relationships>")
+            z.writestr(f"xl/worksheets/sheet{i}.xml", "".join(sheet) + "</worksheet>")
 
 
 def main():
@@ -495,8 +549,8 @@ def main():
         hurls = [gh_url(repo, of, h[1]) for h in hits]
         out.append({"repo": repo, "snippet_id": sid, "checker_id": cid, "key": key,
                     "verdict": verdict, "verdict_meaning": MEANING[verdict],
-                    "method_link": xl_link(murl, f"{fname}#L{s}-{e}"),
-                    "original_match_link": xl_link(hurls[0], f"{fname}#L{hits[0][1]}") if hurls else "",
+                    "method_link": murl,
+                    "original_match_link": hurls[0] if hurls else "",
                     "original_match_urls": "\n".join(hurls),
                     "sliced_count": n, "full_count": m,
                     "method": f"{r0['qualified_class_name']}.{r0['method_name']}",
@@ -563,11 +617,8 @@ def main():
         for o in attention:
             print(f"  {o['verdict']:16} {o['snippet_id']} [{o['checker_id']}/{o['key']}] {o['sliced_count']}->{o['full_count']}  {o['module_check']}")
     xlsx = os.path.splitext(out_csv)[0] + ".xlsx"
-    try:
-        write_xlsx(xlsx, out, tab, cols, by_slice)
-        print(f"Spreadsheet: {xlsx}")
-    except ImportError:
-        print("(openpyxl not installed - no .xlsx written; the CSV has the same content)")
+    write_xlsx(xlsx, out, tab, cols, by_slice)
+    print(f"Spreadsheet (clickable links): {xlsx}")
     rs = collections.Counter((o.get("method_lines_source") or "").split(" (")[0].split(":")[0] for o in out if o["verdict"] != "not_compared")
     print("\nMethod line ranges: " + ", ".join(f"{k}: {v}" for k, v in rs.items()))
     amb = sum(1 for o in out if "AMBIGUOUS" in (o.get("method_lines_source") or ""))
