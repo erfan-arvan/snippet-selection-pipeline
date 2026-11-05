@@ -244,6 +244,14 @@ class FullLog:
         for d in self.diags:
             self.by_file[d[0]].append(d)
 
+    def in_method(self, original_file, start, end):
+        """All checker diagnostics (any key) inside the method's lines."""
+        out = []
+        for path, ds in self.by_file.items():
+            if path.endswith("/" + original_file):
+                out += [d for d in ds if start <= d[1] <= end]
+        return sorted(set(out), key=lambda d: (d[1], d[2] or 0))
+
     def matches(self, original_file, key, start, end):
         out = []
         for path, ds in self.by_file.items():
@@ -281,7 +289,70 @@ class FullLog:
         return False, "no checker output from this module (not compiled, or checker not enabled there)"
 
 
-def write_xlsx(path, out, tab, cols):
+SLICE_MEANING = {
+    "identical": "Every warning of the slice is in the original method, and the original method has no other warnings from this checker (same keys, same counts).",
+    "slice_warnings_all_in_original": "Every warning of the slice is in the original method, but the original method has additional warnings from this checker.",
+    "differs": "At least one warning of the slice is missing (or occurs fewer times) in the original method.",
+    "incomplete": "At least one warning could not be checked yet (no full-project log, or the checker did not demonstrably run on this module).",
+}
+
+
+def _fmt(counter):
+    return "; ".join(f"{k} x{v}" for k, v in sorted(counter.items()))
+
+
+def per_slice(out, groups, logs):
+    """One row per (snippet, checker) that has on-target warnings."""
+    rows = collections.OrderedDict()
+    for o in out:
+        if o["verdict"] == "not_compared":
+            continue
+        rows.setdefault((o["snippet_id"], o["checker_id"]), []).append(o)
+    res = []
+    for (sid, cid), os_ in rows.items():
+        o0 = os_[0]
+        sliced = collections.Counter({o["key"]: int(o["sliced_count"]) for o in os_})
+        verdicts = {o["verdict"] for o in os_}
+        orig = collections.Counter()
+        fl = logs.get((o0["repo"], cid))
+        lines = o0["original_method_lines"]
+        if fl is not None and lines and "None" not in lines:
+            st, en = (int(x) for x in lines.split("-"))
+            for d in fl.in_method(o0["original_file"], st, en):
+                orig[d[3]] += 1
+        if verdicts & {"unverified", "no_log"}:
+            status = "incomplete"
+        elif verdicts & {"absent", "persists_partial"}:
+            status = "differs"
+        elif orig == sliced:
+            status = "identical"
+        else:
+            status = "slice_warnings_all_in_original"
+        res.append({"repo": o0["repo"], "snippet_id": sid, "checker_id": cid, "status": status,
+                    "status_meaning": SLICE_MEANING[status], "method": o0["method"],
+                    "original_file": o0["original_file"], "original_method_lines": lines,
+                    "slice_warnings": _fmt(sliced),
+                    "original_method_warnings": _fmt(orig) if status != "incomplete" else "",
+                    "only_in_slice": _fmt(sliced - orig) if status != "incomplete" else "",
+                    "only_in_original": _fmt(orig - sliced) if status != "incomplete" else "",
+                    "sliced_log": o0["sliced_log"], "full_project_log": o0["full_project_log"]})
+    # snippet-level: identical for every checker that flagged it?
+    allid = collections.defaultdict(lambda: True)
+    for r in res:
+        allid[r["snippet_id"]] &= r["status"] == "identical"
+    for r in res:
+        r["snippet_identical_for_all_checkers"] = "yes" if allid[r["snippet_id"]] else "no"
+    order = {k: i for i, k in enumerate(SLICE_MEANING)}
+    res.sort(key=lambda r: (order[r["status"]], str(r["repo"]), r["snippet_id"], r["checker_id"]))
+    print("\nPer slice (snippet + checker):")
+    c = collections.Counter(r["status"] for r in res)
+    for k in SLICE_MEANING:
+        print(f"  {k:32} {c[k]}")
+    print(f"  snippets identical for ALL their checkers: {sum(1 for v in allid.values() if v)} of {len(allid)}")
+    return res
+
+
+def write_xlsx(path, out, tab, cols, by_slice=()):
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font
     wb = Workbook()
@@ -299,6 +370,19 @@ def write_xlsx(path, out, tab, cols):
     ws.column_dimensions["A"].width = 18
     ws.column_dimensions["B"].width = 16
     order = {v: i for i, v in enumerate(["absent", "persists_partial", "unverified", "no_log", "persists"])}
+    if by_slice:
+        sh = wb.create_sheet("By slice")
+        keys = list(by_slice[0].keys())
+        sh.append(keys)
+        for r in by_slice:
+            sh.append([r.get(k) for k in keys])
+        for c in sh[1]:
+            c.font = Font(bold=True)
+        for i, k in enumerate(keys, 1):
+            sh.column_dimensions[sh.cell(1, i).column_letter].width = {"status_meaning": 50, "method": 60, "snippet_id": 60,
+                "original_file": 60, "slice_warnings": 40, "original_method_warnings": 40}.get(k, 18)
+        sh.freeze_panes = "A2"
+        sh.auto_filter.ref = sh.dimensions
     for title, rows in (("Results", sorted((o for o in out if o["verdict"] != "not_compared"),
                                            key=lambda o: (order.get(o["verdict"], 9), str(o["repo"]), o["snippet_id"]))),
                         ("Not compared", [o for o in out if o["verdict"] == "not_compared"])):
@@ -389,7 +473,13 @@ def main():
                     "full_project_messages": "", "module_check": r["reason"], "full_project_log": "",
                     "sliced_log": r.get("sliced_log") or ""})
 
+    by_slice = per_slice(out, groups, logs)
     os.makedirs(os.path.dirname(os.path.abspath(out_csv)), exist_ok=True)
+    slice_csv = os.path.splitext(out_csv)[0] + "_by_slice.csv"
+    with open(slice_csv, "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=list(by_slice[0].keys()) if by_slice else ["status"])
+        w.writeheader()
+        w.writerows(by_slice)
     with open(out_csv, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=list(out[0].keys()) if out else ["verdict"])
         w.writeheader()
@@ -426,7 +516,7 @@ def main():
             print(f"  {o['verdict']:16} {o['snippet_id']} [{o['checker_id']}/{o['key']}] {o['sliced_count']}->{o['full_count']}  {o['module_check']}")
     xlsx = os.path.splitext(out_csv)[0] + ".xlsx"
     try:
-        write_xlsx(xlsx, out, tab, cols)
+        write_xlsx(xlsx, out, tab, cols, by_slice)
         print(f"Spreadsheet: {xlsx}")
     except ImportError:
         print("(openpyxl not installed - no .xlsx written; the CSV has the same content)")
@@ -436,6 +526,7 @@ def main():
     if amb:
         print(f"  {amb} row(s) matched several overloads (union range used) - see range_source in the CSV")
     print(f"\nPer-row details: {out_csv}")
+    print(f"Per slice:       {slice_csv}")
 
 
 if __name__ == "__main__":
