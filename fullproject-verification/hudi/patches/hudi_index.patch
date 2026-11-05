@@ -1,52 +1,54 @@
-diff -ruN a/hudi-common/pom.xml b/hudi-common/pom.xml
---- a/hudi-common/pom.xml	2026-11-05 06:46:11.886401841 +0000
-+++ b/hudi-common/pom.xml	2026-11-05 06:46:11.916959764 +0000
-@@ -40,6 +40,41 @@
+diff --git a/hudi-common/pom.xml b/hudi-common/pom.xml
+index c9d673b..3351112 100644
+--- a/hudi-common/pom.xml
++++ b/hudi-common/pom.xml
+@@ -38,6 +38,41 @@
+     </resources>
+ 
      <plugins>
++      <plugin>
++        <groupId>org.apache.maven.plugins</groupId>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <configuration>
++          <fork>true</fork>
++          <showWarnings>true</showWarnings>
++          <annotationProcessorPaths>
++            <path>
++              <groupId>org.checkerframework</groupId>
++              <artifactId>checker</artifactId>
++              <version>4.2.1</version>
++            </path>
++          </annotationProcessorPaths>
++          <compilerArgs combine.children="append">
++            <arg>-processor</arg>
++            <arg>org.checkerframework.checker.index.IndexChecker</arg>
++            <arg>-Xmaxerrs</arg>
++            <arg>10000</arg>
++            <arg>-Xmaxwarns</arg>
++            <arg>10000</arg>
++            <arg>-Awarns</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
++          </compilerArgs>
++        </configuration>
++      </plugin>
        <plugin>
          <groupId>org.apache.maven.plugins</groupId>
-+        <artifactId>maven-compiler-plugin</artifactId>
-+        <configuration>
-+          <fork>true</fork>
-+          <showWarnings>true</showWarnings>
-+          <annotationProcessorPaths>
-+            <path>
-+              <groupId>org.checkerframework</groupId>
-+              <artifactId>checker</artifactId>
-+              <version>4.2.1</version>
-+            </path>
-+          </annotationProcessorPaths>
-+          <compilerArgs combine.children="append">
-+            <arg>-processor</arg>
-+            <arg>org.checkerframework.checker.index.IndexChecker</arg>
-+            <arg>-Xmaxerrs</arg>
-+            <arg>10000</arg>
-+            <arg>-Xmaxwarns</arg>
-+            <arg>10000</arg>
-+            <arg>-Awarns</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-+          </compilerArgs>
-+        </configuration>
-+      </plugin>
-+      <plugin>
-+        <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-jar-plugin</artifactId>
-         <version>${maven-jar-plugin.version}</version>
-         <executions>
-@@ -104,6 +139,18 @@
+@@ -103,6 +138,18 @@
+   </build>
  
    <dependencies>
-     <dependency>
++    <dependency>
 +      <groupId>org.checkerframework</groupId>
 +      <artifactId>checker-qual</artifactId>
 +      <version>4.2.1</version>
@@ -58,17 +60,79 @@ diff -ruN a/hudi-common/pom.xml b/hudi-common/pom.xml
 +      <scope>provided</scope>
 +    </dependency>
 +
-+    <dependency>
+     <dependency>
        <groupId>org.apache.hudi</groupId>
        <artifactId>hudi-io</artifactId>
-       <version>${project.version}</version>
-diff -ruN a/hudi-io/pom.xml b/hudi-io/pom.xml
---- a/hudi-io/pom.xml	2026-11-05 06:46:11.854401839 +0000
-+++ b/hudi-io/pom.xml	2026-11-05 06:46:11.880306359 +0000
-@@ -51,6 +51,41 @@
+diff --git a/hudi-examples/hudi-examples-common/pom.xml b/hudi-examples/hudi-examples-common/pom.xml
+index 6373e05..98ce099 100644
+--- a/hudi-examples/hudi-examples-common/pom.xml
++++ b/hudi-examples/hudi-examples-common/pom.xml
+@@ -43,6 +43,37 @@
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-compiler-plugin</artifactId>
++        <configuration>
++          <fork>true</fork>
++          <showWarnings>true</showWarnings>
++          <annotationProcessorPaths>
++            <path>
++              <groupId>org.checkerframework</groupId>
++              <artifactId>checker</artifactId>
++              <version>4.2.1</version>
++            </path>
++          </annotationProcessorPaths>
++          <compilerArgs combine.children="append">
++            <arg>-processor</arg>
++            <arg>org.checkerframework.checker.index.IndexChecker</arg>
++            <arg>-Xmaxerrs</arg>
++            <arg>10000</arg>
++            <arg>-Xmaxwarns</arg>
++            <arg>10000</arg>
++            <arg>-Awarns</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
++            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
++          </compilerArgs>
++        </configuration>
+                 <executions>
+                     <execution>
+                         <phase>compile</phase>
+@@ -75,6 +106,18 @@
+     </build>
+ 
+     <dependencies>
++    <dependency>
++      <groupId>org.checkerframework</groupId>
++      <artifactId>checker-qual</artifactId>
++      <version>4.2.1</version>
++    </dependency>
++    <dependency>
++      <groupId>org.checkerframework</groupId>
++      <artifactId>checker</artifactId>
++      <version>4.2.1</version>
++      <scope>provided</scope>
++    </dependency>
++
+         <dependency>
+             <groupId>org.apache.hudi</groupId>
+             <artifactId>hudi-common</artifactId>
+diff --git a/hudi-io/pom.xml b/hudi-io/pom.xml
+index 59c7993..11f757d 100644
+--- a/hudi-io/pom.xml
++++ b/hudi-io/pom.xml
+@@ -50,6 +50,41 @@
+     </extensions>
  
      <plugins>
-       <plugin>
++      <plugin>
 +        <groupId>org.apache.maven.plugins</groupId>
 +        <artifactId>maven-compiler-plugin</artifactId>
 +        <configuration>
@@ -103,14 +167,14 @@ diff -ruN a/hudi-io/pom.xml b/hudi-io/pom.xml
 +          </compilerArgs>
 +        </configuration>
 +      </plugin>
-+      <plugin>
+       <plugin>
          <groupId>org.xolstice.maven.plugins</groupId>
          <artifactId>protobuf-maven-plugin</artifactId>
-         <version>${protobuf.plugin.version}</version>
-@@ -101,6 +136,18 @@
+@@ -100,6 +135,18 @@
+   </build>
  
    <dependencies>
-     <dependency>
++    <dependency>
 +      <groupId>org.checkerframework</groupId>
 +      <artifactId>checker-qual</artifactId>
 +      <version>4.2.1</version>
@@ -122,7 +186,6 @@ diff -ruN a/hudi-io/pom.xml b/hudi-io/pom.xml
 +      <scope>provided</scope>
 +    </dependency>
 +
-+    <dependency>
+     <dependency>
        <groupId>com.google.protobuf</groupId>
        <artifactId>protobuf-java</artifactId>
-     </dependency>
