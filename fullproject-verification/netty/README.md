@@ -4,14 +4,14 @@
 ```
 git init netty && cd netty && git remote add origin https://github.com/netty/netty
 git fetch --depth 1 origin f0a546dffa0d8644eb6c1f23433601cf464c0882 && git checkout f0a546dffa0d8644eb6c1f23433601cf464c0882
-../hpc_scripts_netty/run_checker.sh . nullness codec-http,codec-http2,resolver-dns
+../run_checker.sh . nullness codec-http,codec-http2,resolver-dns cf_nullness.log
 ```
 Tested with JDK 21.0.12 and Maven 3.9.11. Checker Framework 4.2.1 comes from Maven Central.
 
 ## Files
 - `patches/<checker>__<submodule>.patch`: unified diff against the pinned `<submodule>/pom.xml`. Each adds `checker-qual` and `checker` 4.2.1 as dependencies, plus a `maven-compiler-plugin` `default-compile` execution with: `annotationProcessorPaths` (checker 4.2.1), `-processor <class>`, `-Awarns`, `-Xmaxerrs 10000`, `-Xmaxwarns 10000`, `fork=true`, `maxmem=6g`, and `-J--add-opens=jdk.compiler/com.sun.tools.javac.{api,code,comp,file,main,model,parser,processing,tree,util,jvm}=ALL-UNNAMED`.
 - `patch_pom.py <pom> <processor_class>`: generates the same patch for any other submodule.
-- `run_checker.sh <clone> <checker> <mods> [goal]`: applies the patch(es), runs `mvn -pl <mods> -am clean <goal>`, writes `<clone>/cf_<checker>.log`, and then reverts the poms.
+- `run_checker.sh <clone> <checker> <mods> [log]`: applies the patch(es), runs `mvn -pl <mods> -am clean $NETTY_GOAL` (default `test-compile`), writes the log (default `<clone>/cf_<checker>.log`), and then reverts the poms.
 
 ## What was validated here
 | checker | submodules | status |

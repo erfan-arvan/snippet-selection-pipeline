@@ -31,12 +31,13 @@ HEAD=$(git rev-parse HEAD)
 git checkout -- pom.xml
 git apply "$PATCH" || { echo "patch failed to apply"; exit 2; }
 
-# Use mybatis-3's own bundled wrapper, same convention as the rest of this pipeline
-# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
-chmod +x ./mvnw
+# Maven to use: $MVN if set (the submit jobs set it to one Maven 3.9.9 install, the
+# version these patches were validated with), else this repo's own ./mvnw.
+MVN="${MVN:-./mvnw}"
+[ "$MVN" = ./mvnw ] && chmod +x "./mvnw"
 # Keep Maven's local repo on scratch, not $HOME (same reason GRADLE_USER_HOME is
 # redirected to scratch everywhere else in this project - avoids the home quota).
-export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
+export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=${M2_REPO:-/scratch/mjk76/ea442/.m2}"
 
 # Why the -D...skip flags are needed:
 # mybatis-3's parent POM (org.mybatis:mybatis-parent:48) binds four plugins to phases that run
@@ -48,7 +49,7 @@ export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
 # Without these flags the checker would analyze modified source rather than the pinned commit,
 # which can shift line numbers and taints the "same program" comparison. With them, the clone
 # stays clean (`git status` shows only pom.xml, which this script restores at the end).
-./mvnw -B -fae clean compile \
+"$MVN" -B -fae clean compile \
   -Dlicense.skip=true \
   -Dformatter.skip=true \
   -Dimpsort.skip=true \
@@ -62,3 +63,12 @@ dirty=$(git status --short)
 [ -z "$dirty" ] || { echo "WARNING: source tree modified by build:"; echo "$dirty"; }
 
 echo "unique diagnostics: $(grep -E '\.java:\[' "$LOG" | sort -u | wc -l)"
+
+# Exit 0 if the build succeeded, or failed ONLY because the checker reported findings
+# (they are javac errors here, since these patches don't use -Awarns). Any other failure
+# (Maven never started, dependency resolution, crash) keeps mvn's non-zero exit code so
+# the submit job reports it instead of silently showing "0 diagnostics".
+if [ "$rc" -ne 0 ] && grep -q 'COMPILATION ERROR' "$LOG" && grep -qE '\.java:\[[0-9]+,[0-9]+\] (error: )?\[' "$LOG"; then
+  rc=0
+fi
+exit "$rc"

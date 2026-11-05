@@ -16,23 +16,17 @@ with that repo's own gotchas.
 |---|---|---|---|
 | apollo | 1 (nullness) | Yes, confirmed twice | 2/2 — `results_apollo.csv` |
 | mybatis-3 | 2 (interning, nullness) | Yes, confirmed twice | 6/6 — `results_mybatis-3.csv` |
-| netty | 11 (4 checkers x submodules) | Yes for index/interning/resourceleak; nullness partial (3/6 submodules) | 25 attempted, 6 unreached — `results_netty.csv` |
-| dubbo | 12 (2 checkers x submodules) | Yes for index; nullness partial (3/6 modules) | 26 attempted, 4 unreached — `results_dubbo.csv` |
+| netty | 11 (4 checkers x submodules) | Yes, all 4 checkers incl. nullness on all 6 submodules (2026-11-05, via `submit_verify_light.sh`) | 25 attempted, 6 unreached — `results_netty.csv` |
+| dubbo | 12 (2 checkers x submodules) | Yes, index and nullness on all 6 modules (2026-11-05, after the `!dubbo-maven-plugin` fix) | 26 attempted, 4 unreached — `results_dubbo.csv` |
 | ghidra | 5 (1 per checker) | Only regex + resourceleak confirmed; index/nullness/interning unrun | 2/114 — `ghidra/validated_results_partial.csv` |
 | hudi | 4 (formatter, index, nullness, regex) | **Not validated at all** — treat first HPC run as the real first test | none |
 
-## No system-wide Maven/Gradle module required (except hudi)
+## Build tools on Wulver
 
-Every `run_*.sh` uses the target repo's own bundled `./mvnw`/`./gradlew` wrapper by
-default — the same convention the rest of this pipeline already uses (see
-`orchestrator/snippet_pipeline/classpath.py`) specifically so this never depends on
-guessing an HPC site's module names. Confirmed present at the pinned commit for apollo,
-mybatis-3, netty, dubbo, and ghidra. **hudi is the one exception** — it does not ship an
-`mvnw` — so `submit_verify_hudi.sh` still needs a real `mvn`: it tries a couple of common
-module names, and if none resolve, downloads Apache Maven 3.9.9 directly into
-`/scratch/mjk76/ea442/.maven-dist/` instead of failing. Override either behavior with
-`MAVEN_MODULE=<name>` (hudi) or `JAVA_MODULE=<name>` (ghidra, which separately needs
-JDK >= 21, unlike everything else here which uses JDK 17) if the built-in guesses miss.
+- apollo, mybatis-3, netty, dubbo, hudi: one Maven 3.9.9 at `/scratch/mjk76/ea442/apache-maven-3.9.9`, downloaded there if it is missing (`lib.sh` `setup_maven`). The jobs don't use the repos' own `./mvnw`: apollo's wrapper pins Maven 3.5.4, mybatis-3's and dubbo's download their wrapper jar at run time, and the patches were validated with Maven 3.9.x. The run scripts still fall back to `./mvnw` if `MVN` is unset. JDK: `Java/17.0.15`.
+- ghidra: its own `./gradlew` (Gradle 8.12.1, via `Ghidra/RuntimeScripts/Common/support/gradle/gradle-wrapper.jar`). JDK: `Java/23.0.2`, because ghidra needs >= 21 and Wulver has no 21.
+
+Maven local repos: the light job uses `/scratch/mjk76/ea442/.m2-fpverify-light` and the hudi job uses `/scratch/mjk76/ea442/.m2-fpverify-hudi`. They are separate so the two jobs can run at the same time without writing into one local repo concurrently. The run scripts read the path from `M2_REPO`.
 
 ## No diagnostics are truncated or silently dropped
 
@@ -78,20 +72,12 @@ same content also lands in each checker's own `.log` file under `$OUT` for grepp
 
 ## Running on HPC
 
-Three SLURM scripts, split by how much is already proven:
+Submit from the repo root, i.e. `/project/mjk76/ea442/snippet-selection-pipeline`. The three jobs are independent and can run at the same time.
 
-- `submit_verify_light.sh` — apollo + mybatis-3 + netty + dubbo, ~12h.
-- `submit_verify_hudi.sh` — hudi alone, unvalidated patches, ~24h. Two known blockers noted
-  inline (Confluent deps behind a blocked host in the sandbox that built this — may work fine
-  on HPC's network; Docker-dependent hudi-metaserver, skipped by default).
-- `submit_verify_ghidra.sh` — ghidra alone, 72h timewall, needs Gradle >= 8.5 on PATH.
+- `submit_verify_light.sh`: apollo, mybatis-3, netty and dubbo, in that order. 24 h limit.
+- `submit_verify_hudi.sh`: hudi formatter, regex, index and nullness, then optionally hudi-utilities. 24 h limit. hudi-utilities is attempted last because it needs `packages.confluent.io`. hudi-metaserver-server needs Docker and is skipped.
+- `submit_verify_ghidra.sh`: ghidra regex, resourceleak, interning, index and nullness. 72 h limit.
 
-Each clones its own repo(s) **fresh** under `/scratch/mjk76/ea442/fullproject-verify-work/`
-rather than reusing `/scratch/mjk76/ea442/repos-pinned/` — these scripts patch `pom.xml`/
-`build.gradle` in place (reverted after each run, but still touching the file live), and this
-avoids any chance of racing with the main pipeline if it's running at the same time. Results
-land under `/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/`.
+Each job checks its repos out under `/scratch/mjk76/ea442/fullproject-verify-work/`, not in the pipeline's `repos-pinned` checkouts, because the patches edit build files in place. A clone is reused if it is already at the pinned commit. Before each repo (light job) or each checker (hudi and ghidra jobs), `lib.sh` (`prepare_clone`) resets the clone to a clean tree at that commit. It prints any leftover changes it discards, for example a patch left behind by a killed job.
 
-All three assume a `mvn`/`gradle` module is loadable on HPC — neither was ever confirmed
-working there specifically (only in the sandbox this was built in); check `module avail` if
-the fallback `module load Maven/3.9.6` / `module load Gradle/8.9` lines don't resolve.
+Logs go to `/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/<repo>/`. At the end, each job prints the steps that exited non-zero. mybatis-3 exits 1 whenever its checker reports anything. That is expected, because its patches don't use `-Awarns`.

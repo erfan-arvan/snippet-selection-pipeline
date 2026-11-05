@@ -21,6 +21,7 @@
 
 set -uo pipefail
 cd "$SLURM_SUBMIT_DIR"
+source fullproject-verification/lib.sh
 
 module purge
 module load easybuild
@@ -55,33 +56,27 @@ mkdir -p "$OUT"
 # now streams gradle's live output here too (via tee), not just into its own log file.
 step() { echo; echo "[$(date '+%Y-%m-%d %H:%M:%S')] === $* ==="; }
 
-if [ -d "$WORK/.git" ] && [ "$(git -C "$WORK" rev-parse HEAD 2>/dev/null)" = "93c19e3cc6733fab119ace63a39be2aec89208b3" ]; then
-  echo "ghidra already cloned at pinned commit"
-else
-  rm -rf "$WORK"
-  mkdir -p "$WORK"
-  git init -q "$WORK"
-  # Disable checkout-time normalization (CRLF conversion, file-mode tracking) that can
-  # make a byte-for-byte fresh checkout look "dirty" to git before anything has even
-  # touched it, which would trip run_ghidra_checker.sh's own modified-tree guard
-  # (confirmed this happened for hudi under the equivalent clone in submit_verify_hudi.sh).
-  git -C "$WORK" config core.autocrlf false
-  git -C "$WORK" config core.filemode false
-  git -C "$WORK" remote add origin https://github.com/NationalSecurityAgency/ghidra
-  git -C "$WORK" fetch --depth 1 origin 93c19e3cc6733fab119ace63a39be2aec89208b3
-  git -C "$WORK" checkout -q 93c19e3cc6733fab119ace63a39be2aec89208b3
-fi
-dirty="$(git -C "$WORK" status --porcelain --untracked-files=no)"
-if [ -n "$dirty" ]; then
-  echo "WARNING: clone reported dirty before any patch was applied; resetting: $dirty"
-  git -C "$WORK" checkout -- .
-fi
+GHIDRA_URL=https://github.com/NationalSecurityAgency/ghidra
+GHIDRA_COMMIT=93c19e3cc6733fab119ace63a39be2aec89208b3
 
 FAIL=0
-for c in index interning nullness regex resourceleak; do
+FAILED_STEPS=()
+for c in regex resourceleak interning index nullness; do
   step "ghidra checker: $c"
-  bash fullproject-verification/ghidra/run_ghidra_checker.sh --init "$WORK" "$c" "$OUT/$c.log" || FAIL=1
+  # Every checker starts from a clean tree at the pinned commit (reuses the clone; only
+  # discards leftovers, e.g. a build.gradle patch not reverted because a job was killed).
+  if ! prepare_clone "$GHIDRA_URL" "$GHIDRA_COMMIT" "$WORK"; then
+    FAIL=1; FAILED_STEPS+=("$c (clone not clean)"); continue
+  fi
+  bash fullproject-verification/ghidra/run_ghidra_checker.sh --init "$WORK" "$c" "$OUT/$c.log"
+  rc=$?
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] --- ghidra $c exit=$rc"
+  if [ $rc -ne 0 ]; then FAIL=1; FAILED_STEPS+=("$c (exit $rc)"); fi
 done
 
 step "Done. Logs under $OUT"
+if [ ${#FAILED_STEPS[@]} -gt 0 ]; then
+  echo "Steps with non-zero exit:"
+  printf '  %s\n' "${FAILED_STEPS[@]}"
+fi
 exit $FAIL

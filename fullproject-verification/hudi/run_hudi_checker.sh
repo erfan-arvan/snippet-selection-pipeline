@@ -4,6 +4,10 @@
 # usage:
 #   run_hudi_checker.sh <hudi_clone_dir> prep                 # one-time, no checker: mvn install -DskipTests
 #   run_hudi_checker.sh <hudi_clone_dir> <checker> [outdir]   # checker = formatter | index | nullness | regex
+#   run_hudi_checker.sh <hudi_clone_dir> nullness-utilities [outdir]
+#       nullness on hudi-utilities ONLY (its one target, BloomFilterData). Needs `prep` to have
+#       succeeded first: builds -pl hudi-utilities WITHOUT -am, so upstream hudi modules come
+#       from the local Maven repo instead of being re-checked. Needs packages.confluent.io.
 #
 # The clone must be at the pinned commit cb32e5e1bac58cbccba8c92c91e7bed4780e9858 and clean.
 # For a checker run: applies patches/hudi_<checker>.patch, runs
@@ -41,13 +45,16 @@ if [ "$CHK" = prep ]; then
   # Installs hudi test-jars etc. into ~/.m2 so later compile-only reactor runs can resolve
   # test-scoped hudi-*:tests artifacts (scala-maven-plugin in hudi-spark-* resolves test scope).
   # Only needed for hudi-utilities (nullness). Run on a node WITH network access.
-  "$MVN" "${COMMON[@]}" "${EXTRA[@]}" install -DskipTests \
+  "$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} install -DskipTests \
     -pl hudi-utilities,hudi-hadoop-mr,hudi-examples/hudi-examples-common -am \
     2>&1 | tee "$OUT/prep_install.log"
   exit "${PIPESTATUS[0]}"
 fi
 
+AM=(-am)
+PATCH_NAME="$CHK"
 case "$CHK" in
+  nullness-utilities) MODS="hudi-utilities"; AM=(); PATCH_NAME=nullness ;;
   formatter) MODS="hudi-common" ;;
   regex)     MODS="hudi-common" ;;
   index)     MODS="hudi-io,hudi-common" ;;
@@ -55,7 +62,7 @@ case "$CHK" in
              [ "${SKIP_UTILITIES:-0}" = 1 ] || MODS="$MODS,hudi-utilities" ;;
   *) echo "unknown checker: $CHK" >&2; exit 2 ;;
 esac
-PATCH="$HERE/patches/hudi_$CHK.patch"
+PATCH="$HERE/patches/hudi_$PATCH_NAME.patch"
 [ -f "$PATCH" ] || { echo "missing $PATCH" >&2; exit 2; }
 
 revert() {
@@ -69,7 +76,7 @@ git -C "$H" diff --stat
 
 rc=0
 cd "$H"
-"$MVN" "${COMMON[@]}" "${EXTRA[@]}" -fae clean compile -pl "$MODS" -am 2>&1 | tee "$OUT/build_$CHK.log"
+"$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} -fae clean compile -pl "$MODS" ${AM[@]+"${AM[@]}"} 2>&1 | tee "$OUT/build_$CHK.log"
 rc=${PIPESTATUS[0]}
 echo "[run_hudi_checker] main reactor exit=$rc  log=$OUT/build_$CHK.log"
 
@@ -79,7 +86,7 @@ if [ "$CHK" = nullness ] && [ "${SKIP_METASERVER:-0}" != 1 ]; then
   PROF=-Phudi-platform-service
   [ "${METASERVER_LOCAL_THRIFT:-0}" = 1 ] && PROF="$PROF,thrift-gen-source"
   rc2=0
-  "$MVN" "${COMMON[@]}" "${EXTRA[@]}" -fae $PROF clean compile \
+  "$MVN" "${COMMON[@]}" ${EXTRA[@]+"${EXTRA[@]}"} -fae $PROF clean compile \
     -pl hudi-platform-service/hudi-metaserver/hudi-metaserver-server -am \
     2>&1 | tee "$OUT/build_${CHK}_metaserver.log"
   rc2=${PIPESTATUS[0]}

@@ -42,14 +42,15 @@ for m in "${MODS[@]}"; do POMS+=("$m/pom.xml"); done
 revert() { git -C "$REPO" checkout -- "${POMS[@]}" && echo "reverted: ${POMS[*]}"; }
 trap revert EXIT
 
-# Use dubbo's own bundled wrapper, same convention as the rest of this pipeline
-# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
-chmod +x "$REPO/mvnw"
+# Maven to use: $MVN if set (the submit jobs set it to one Maven 3.9.9 install, the
+# version these patches were validated with), else this repo's own ./mvnw.
+MVN="${MVN:-./mvnw}"
+[ "$MVN" = ./mvnw ] && chmod +x "$REPO/mvnw"
 
 # Keep Maven's local repo on scratch, not $HOME (same reason GRADLE_USER_HOME is
 # redirected to scratch everywhere else in this project - avoids the home quota, and
 # avoids inheriting any stale/unrelated state from a real $HOME/.m2).
-export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
+export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=${M2_REPO:-/scratch/mjk76/ea442/.m2}"
 
 # --- Gotcha 1: dubbo-maven-plugin must be installed first --------------------------------
 # dubbo-rpc-triple (and anything downstream of it, e.g. dubbo-qos, dubbo-metadata-processor)
@@ -61,7 +62,7 @@ export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
 # this caused a real build failure), and a clean re-install is fast and idempotent anyway.
 {
   echo "Installing dubbo-maven-plugin (no checker) ..."
-  (cd "$REPO" && ./mvnw -B -pl dubbo-maven-plugin -am install -DskipTests \
+  (cd "$REPO" && "$MVN" -B -pl dubbo-maven-plugin -am install -DskipTests \
       -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip) \
       2>&1 | tee "$LOG.plugin-install"
   [[ ${PIPESTATUS[0]} -eq 0 ]] || { echo "plugin install failed, see $LOG.plugin-install" >&2; exit 1; }
@@ -80,9 +81,16 @@ if [[ -n "${JAVA_TOOL_OPTIONS:-}" ]]; then
   unset JAVA_TOOL_OPTIONS
 fi
 
-echo "Running: mvn -pl $MODULES -am clean compile   (log: $LOG)"
+# --- Gotcha 3: keep dubbo-maven-plugin OUT of the checker reactor -------------------------
+# dubbo-rpc-triple uses dubbo-maven-plugin, so `-am` pulls the plugin's own module into the
+# reactor, and Maven then loads the plugin from dubbo-maven-plugin/target/classes - which at
+# the `compile` phase has no META-INF/maven/plugin.xml yet ("No plugin descriptor found").
+# Installing it (above) is not enough by itself; '!dubbo-maven-plugin' removes it from the
+# reactor so the installed copy in the local repo is used.
+PL="$MODULES,!dubbo-maven-plugin"
+echo "Running: mvn -pl $PL -am clean compile   (log: $LOG)"
 set +e
-(cd "$REPO" && ./mvnw -B -fae -pl "$MODULES" -am clean compile \
+(cd "$REPO" && "$MVN" -B -fae -pl "$PL" -am clean compile \
     -Dspotless.skip=true -Dcheckstyle.skip=true -Drat.skip=true) 2>&1 | tee "$LOG"
 rc=${PIPESTATUS[0]}
 set -e

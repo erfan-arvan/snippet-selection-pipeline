@@ -28,15 +28,16 @@ fi
 java -version 2>&1 | head -1   # needs JDK 17+ (tested on 21)
 git apply "$HERE/apollo-nullness-pom.patch"
 
-# Use apollo's own bundled wrapper, same convention as the rest of this pipeline
-# (classpath.py/config.py) - never depend on a system-wide `mvn` module on HPC.
-chmod +x ./mvnw
+# Maven to use: $MVN if set (the submit jobs set it to one Maven 3.9.9 install, the
+# version these patches were validated with), else this repo's own ./mvnw.
+MVN="${MVN:-./mvnw}"
+[ "$MVN" = ./mvnw ] && chmod +x "./mvnw"
 # Keep Maven's local repo on scratch, not $HOME (same reason GRADLE_USER_HOME is
 # redirected to scratch everywhere else in this project - avoids the home quota).
-export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=/scratch/mjk76/ea442/.m2"
+export MAVEN_OPTS="${MAVEN_OPTS:-} -Dmaven.repo.local=${M2_REPO:-/scratch/mjk76/ea442/.m2}"
 
 set +e
-./mvnw -B -fae -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"
+"$MVN" -B -fae -pl apollo-portal -am clean compile -DskipTests 2>&1 | tee "$LOG"
 rc=${PIPESTATUS[0]}
 set -e
 
