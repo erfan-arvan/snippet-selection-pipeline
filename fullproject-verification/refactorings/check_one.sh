@@ -7,16 +7,18 @@ ID="$1"
 FV="$PWD/fullproject-verification"   # absolute: git -C resolves relative paths inside the clone
 R=$FV/refactorings
 source $FV/lib.sh
-IFS=$'\t' read -r _ REPO CHECKER KEYS FILE CLASS METHOD NPARAMS GTASK < <(grep -P "^$ID\t" $R/cases.tsv)
+IFS=$'\t' read -r _ REPO CHECKER KEYS FILE CLASS METHOD NPARAMS GTASK < <(awk -F'\t' -v id="$ID" '$1==id' $R/cases.tsv)
 [ -n "${REPO:-}" ] || { echo "unknown case $ID" >&2; exit 2; }
-WORK=/scratch/mjk76/ea442/fullproject-verify-work
-OUT=/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/refactorings
+WORK="${FPV_WORK:-/scratch/mjk76/ea442/fullproject-verify-work}"
+OUT="${FPV_OUT:-/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/refactorings}"
 CO="$WORK/$REPO"
 mkdir -p "$OUT/$ID"
-declare -A URL=([dubbo]=https://github.com/apache/dubbo [netty]=https://github.com/netty/netty
-                [hudi]=https://github.com/apache/hudi [ghidra]=https://github.com/NationalSecurityAgency/ghidra)
-declare -A COMMIT=([dubbo]=a5604cd2632471b46f66ed0217e84a68dc84a374 [netty]=f0a546dffa0d8644eb6c1f23433601cf464c0882
-                   [hudi]=cb32e5e1bac58cbccba8c92c91e7bed4780e9858 [ghidra]=93c19e3cc6733fab119ace63a39be2aec89208b3)
+case "$REPO" in
+  dubbo)  URL=https://github.com/apache/dubbo;                 PIN=a5604cd2632471b46f66ed0217e84a68dc84a374 ;;
+  netty)  URL=https://github.com/netty/netty;                  PIN=f0a546dffa0d8644eb6c1f23433601cf464c0882 ;;
+  hudi)   URL=https://github.com/apache/hudi;                  PIN=cb32e5e1bac58cbccba8c92c91e7bed4780e9858 ;;
+  ghidra) URL=https://github.com/NationalSecurityAgency/ghidra; PIN=93c19e3cc6733fab119ace63a39be2aec89208b3 ;;
+esac
 ONLY="${CLASS//./[.]}"
 export ALLOW_SOURCE_CHANGES=1
 
@@ -39,7 +41,7 @@ run_checker() {  # <log>
 
 for PHASE in before after; do
   echo "[$(date '+%F %T')] === $ID $PHASE ($REPO $CHECKER, $CLASS.$METHOD) ==="
-  prepare_clone "${URL[$REPO]}" "${COMMIT[$REPO]}" "$CO" || exit 1
+  prepare_clone "$URL" "$PIN" "$CO" || exit 1
   if [ "$PHASE" = after ]; then
     git -C "$CO" apply --check "$R/patches/${ID}_"*.patch || { echo "patch does not apply" >&2; exit 1; }
     git -C "$CO" apply "$R/patches/${ID}_"*.patch && git -C "$CO" diff --stat
@@ -51,7 +53,7 @@ for PHASE in before after; do
   python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" "$ST" "$EN" "$KEYS" > "$OUT/$ID/$PHASE.json"
   echo "  method lines $ST-$EN, build exit $rc: $(cat "$OUT/$ID/$PHASE.json")"
 done
-prepare_clone "${URL[$REPO]}" "${COMMIT[$REPO]}" "$CO" >/dev/null   # leave the clone clean
+prepare_clone "$URL" "$PIN" "$CO" >/dev/null   # leave the clone clean
 
 CASE_FILE="$FILE" python3 -I - "$OUT/$ID" "$ID" "$OUT/results.tsv" <<'PY'
 import json, os, sys

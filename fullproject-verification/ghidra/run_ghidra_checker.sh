@@ -120,7 +120,7 @@ run_init() {
   ( cd "$G" && "$GRADLE" --no-daemon -I gradle/support/fetchDependencies.gradle ) 2>&1 | tee "$LOG.init"
   [[ ${PIPESTATUS[0]} -eq 0 ]] && { echo "   ok"; return 0; }
   echo "   official fetch failed (see $LOG.init); trying curl pre-download fallback"
-  mapfile -t MISSING < <(fallback_predownload)
+  MISSING=(); while IFS= read -r m; do [[ -n "$m" ]] && MISSING+=("$m"); done < <(fallback_predownload)
   local script=gradle/support/fetchDependencies.gradle
   if [[ ${#MISSING[@]} -gt 0 ]]; then
     echo "   could not fetch: ${MISSING[*]}"
@@ -158,7 +158,7 @@ else
   git -C "$G" diff --quiet || die "tracked files in $G are modified; refusing to patch (git -C $G checkout -- . to reset)"
 fi
 git -C "$G" apply --check "$PATCH" || die "patch does not apply cleanly to $G"
-mapfile -t PATCHED < <(grep '^+++ b/' "$PATCH" | sed 's#^+++ b/##')
+PATCHED=(); while IFS= read -r p; do PATCHED+=("$p"); done < <(grep '^+++ b/' "$PATCH" | sed 's#^+++ b/##')
 revert() { git -C "$G" checkout -- "${PATCHED[@]}" && echo "== reverted ${#PATCHED[@]} build.gradle file(s)"; }
 trap revert EXIT
 git -C "$G" apply "$PATCH"

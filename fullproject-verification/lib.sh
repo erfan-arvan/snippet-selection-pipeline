@@ -50,7 +50,7 @@ prepare_clone() {
   fi
   # Restore exec bits git records (100755): some filesystems lose them on checkout, and
   # e.g. hudi-metaserver's thrift_binary.sh then fails with "Permission denied".
-  git -C "$dest" ls-files -s | awk '$1=="100755"{print $4}' | (cd "$dest" && xargs -r chmod +x)
+  git -C "$dest" ls-files -s | awk '$1=="100755"{print $4}' | while IFS= read -r f; do chmod +x "$dest/$f"; done
   echo "  $dest clean at $commit"
 }
 

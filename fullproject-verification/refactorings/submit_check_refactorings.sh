@@ -31,7 +31,7 @@ rm -f "$OUT/results.tsv"
 CASES="${CASES:-$(grep -v '^#' fullproject-verification/refactorings/cases.tsv | cut -f1 | tr '\n' ' ')}"
 FAIL=0
 for id in $CASES; do
-  repo=$(grep -P "^$id\t" fullproject-verification/refactorings/cases.tsv | cut -f2)
+  repo=$(awk -F'\t' -v id="$id" '$1==id{print $2}' fullproject-verification/refactorings/cases.tsv)
   module purge
   module load easybuild
   module load GCCcore/13.3.0
