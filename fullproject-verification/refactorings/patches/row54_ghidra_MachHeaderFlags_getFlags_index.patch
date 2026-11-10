@@ -1,0 +1,19 @@
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java b/Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java
+index 2ab8e7b..c776afd 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java
+@@ -198,11 +198,12 @@ public final class MachHeaderFlags {
+ 		List<String> list = new ArrayList<>();
+ 		Field[] fields = MachHeaderFlags.class.getDeclaredFields();
+ 		for (Field field : fields) {
+-			if (field.getName().startsWith("MH_")) {
++			String name = field.getName();
++			if (name.startsWith("MH_")) {
+ 				try {
+ 					Integer value = (Integer) field.get(null);
+ 					if ((flags & value) != 0) {
+-						list.add(field.getName().substring("MH_".length()));
++						list.add(name.substring("MH_".length()));
+ 					}
+ 				}
+ 				catch (Exception e) {

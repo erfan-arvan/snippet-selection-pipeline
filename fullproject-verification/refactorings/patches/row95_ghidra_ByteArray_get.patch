@@ -1,0 +1,16 @@
+diff --git a/Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java b/Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java
+index b7b570c..2b7213b 100644
+--- a/Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java
++++ b/Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java
+@@ -100,6 +100,11 @@ public class ByteArray implements Array, Serializable {
+      * @throws IndexOutOfBoundsException if the index is negative
+      */
+     public byte get(int index) {
++        if (index < 0) {
++            // Same exception and message bytes[index] threw for a negative index before.
++            throw new ArrayIndexOutOfBoundsException(
++                "Index " + index + " out of bounds for length " + bytes.length);
++        }
+         if (index < bytes.length) {
+             return bytes[index];
+         }

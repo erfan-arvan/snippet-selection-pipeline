@@ -1,0 +1,21 @@
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java
+index 60f076d..3c00ab9 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java
+@@ -170,8 +170,14 @@ public class TerminalLayoutModel implements LayoutModel, VtHandler {
+ 	@Override
+ 	public TerminalLayout getLayout(BigInteger index) {
+ 		synchronized (lock) {
+-			if (BigInteger.ZERO.compareTo(index) <= 0 && index.compareTo(numIndexes) < 0) {
+-				return layouts.get(index.intValue());
++			if (index.signum() >= 0 && index.compareTo(numIndexes) < 0) {
++				int i = index.intValue();
++				if (i < 0 || i >= layouts.size()) {
++					// Same exception and message ArrayList.get(i) threw here before.
++					throw new IndexOutOfBoundsException(
++						"Index " + i + " out of bounds for length " + layouts.size());
++				}
++				return layouts.get(i);
+ 			}
+ 		}
+ 		return null;

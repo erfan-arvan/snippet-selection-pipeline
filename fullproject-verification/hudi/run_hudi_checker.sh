@@ -37,7 +37,9 @@ head_commit="$(git -C "$H" rev-parse HEAD)"
 if [ "$head_commit" != "$PINNED" ]; then
   echo "ERROR: $H is at $head_commit, expected $PINNED" >&2; exit 2
 fi
-if [ -n "$(git -C "$H" status --porcelain --untracked-files=no)" ]; then
+# ALLOW_SOURCE_CHANGES=1 (refactorings/): source edits are intentional; only the poms must be clean.
+GUARD_PATHS=(); [ "${ALLOW_SOURCE_CHANGES:-0}" = 1 ] && GUARD_PATHS=(-- '*pom.xml')
+if [ -n "$(git -C "$H" status --porcelain --untracked-files=no ${GUARD_PATHS[@]+"${GUARD_PATHS[@]}"})" ]; then
   echo "ERROR: $H has modified tracked files; refusing to run (git -C $H checkout -- . to reset)" >&2; exit 2
 fi
 

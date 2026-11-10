@@ -1,0 +1,13 @@
+diff --git a/hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java b/hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java
+index 9a9bbd8..c79417a 100644
+--- a/hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java
++++ b/hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java
+@@ -326,7 +326,7 @@ public class HoodieTableFileSystemView extends IncrementalTimelineSyncFileSystem
+       LOG.warn("Partition: {} is not available in store", partition);
+       return Stream.empty();
+     }
+-    return new ArrayList<>(partitionToFileGroupsMap.get(partition)).stream();
++    return new ArrayList<>(fileGroups).stream();
+   }
+ 
+   public Stream<HoodieFileGroup> getAllFileGroups() {

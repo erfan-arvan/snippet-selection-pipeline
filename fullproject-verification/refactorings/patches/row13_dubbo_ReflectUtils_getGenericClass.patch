@@ -1,0 +1,25 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
+index 4fcea01..f25ef31 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
+@@ -275,8 +275,18 @@ public final class ReflectUtils {
+ 
+     public static Class<?> getGenericClass(Class<?> cls, int i) {
+         try {
+-            ParameterizedType parameterizedType = ((ParameterizedType) cls.getGenericInterfaces()[0]);
+-            Object genericClass = parameterizedType.getActualTypeArguments()[i];
++            Type[] genericInterfaces = cls.getGenericInterfaces();
++            if (genericInterfaces.length == 0) {
++                // Same exception the array access threw before; the catch below wraps it as before.
++                throw new ArrayIndexOutOfBoundsException("Index 0 out of bounds for length 0");
++            }
++            ParameterizedType parameterizedType = ((ParameterizedType) genericInterfaces[0]);
++            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
++            if (i < 0 || i >= actualTypeArguments.length) {
++                throw new ArrayIndexOutOfBoundsException(
++                        "Index " + i + " out of bounds for length " + actualTypeArguments.length);
++            }
++            Object genericClass = actualTypeArguments[i];
+ 
+             // handle nested generic type
+             if (genericClass instanceof ParameterizedType) {

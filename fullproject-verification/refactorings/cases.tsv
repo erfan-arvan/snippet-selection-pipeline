@@ -1,0 +1,10 @@
+# id	repo	checker	keys(comma)	file	class	method	nparams	ghidra_task
+row13	dubbo	index	array.access.unsafe.high.constant,array.access.unsafe.low,array.access.unsafe.high	dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java	org.apache.dubbo.common.utils.ReflectUtils	getGenericClass	2	-
+row16	dubbo	index	argument	dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java	org.apache.dubbo.common.utils.UrlUtils	isMatchGlobPattern	2	-
+row49	ghidra	index	argument	Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java	ghidra.app.plugin.core.terminal.TerminalLayoutModel	getLayout	1	:Base:compileJava
+row53	ghidra	nullness	unboxing.of.nullable	Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java	ghidra.app.util.bin.format.macho.MachHeaderFlags	getFlags	1	:Base:compileJava
+row54	ghidra	index	argument	Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java	ghidra.app.util.bin.format.macho.MachHeaderFlags	getFlags	1	:Base:compileJava
+row90	ghidra	nullness	toarray.nullable.elements.not.newarray	Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java	ghidra.program.util.InstructionUtils	getFormatedInstructionObjects	1	:SoftwareModeling:compileJava
+row95	ghidra	index	array.access.unsafe.low	Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java	ghidra.util.datastruct.ByteArray	get	1	:Generic:compileJava
+row114	hudi	nullness	argument	hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java	org.apache.hudi.common.table.view.HoodieTableFileSystemView	fetchAllStoredFileGroups	1	-
+row153	netty	index	argument	common/src/main/java/io/netty/util/DomainWildcardMappingBuilder.java	io.netty.util.DomainWildcardMappingBuilder	normalizeHostName	1	-

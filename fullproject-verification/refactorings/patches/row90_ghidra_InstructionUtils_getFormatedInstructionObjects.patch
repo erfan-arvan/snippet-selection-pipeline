@@ -1,0 +1,14 @@
+diff --git a/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java b/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java
+index aede0f4..49fedbf 100644
+--- a/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java
++++ b/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java
+@@ -163,8 +163,7 @@ public class InstructionUtils {
+ 				set.add(addr.toString(true));
+ 			}
+ 		}
+-		String[] list = new String[set.size()];
+-		set.toArray(list);
++		String[] list = set.toArray(new String[set.size()]);
+ 		Arrays.sort(list, OBJSTRING_COMPARATOR);
+ 		return list;
+ 	}

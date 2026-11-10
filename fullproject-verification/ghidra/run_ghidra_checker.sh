@@ -151,7 +151,12 @@ if need_init; then run_init; else echo "== init: dependencies/flatRepo already p
 # ---------------------------------------------------------------- patch
 PATCH="$HERE/patches/$CHECKER.patch"; TASKFILE="$HERE/patches/$CHECKER.tasks"
 [[ -f "$PATCH" && -f "$TASKFILE" ]] || die "no patch for checker '$CHECKER' (expected $PATCH)"
-git -C "$G" diff --quiet || die "tracked files in $G are modified; refusing to patch (git -C $G checkout -- . to reset)"
+# ALLOW_SOURCE_CHANGES=1 (refactorings/): source edits are intentional; only build files must be clean.
+if [[ "${ALLOW_SOURCE_CHANGES:-0}" == 1 ]]; then
+  git -C "$G" diff --quiet -- '*.gradle' || die "build.gradle files in $G are modified; refusing to patch"
+else
+  git -C "$G" diff --quiet || die "tracked files in $G are modified; refusing to patch (git -C $G checkout -- . to reset)"
+fi
 git -C "$G" apply --check "$PATCH" || die "patch does not apply cleanly to $G"
 mapfile -t PATCHED < <(grep '^+++ b/' "$PATCH" | sed 's#^+++ b/##')
 revert() { git -C "$G" checkout -- "${PATCHED[@]}" && echo "== reverted ${#PATCHED[@]} build.gradle file(s)"; }
@@ -173,7 +178,8 @@ PY
 fi
 
 # ---------------------------------------------------------------- build
-read -r -a T0 < "$TASKFILE"
+# GHIDRA_TASKS=":Base:compileJava" builds only those tasks (and what they depend on).
+if [[ -n "${GHIDRA_TASKS:-}" ]]; then read -r -a T0 <<< "$GHIDRA_TASKS"; else read -r -a T0 < "$TASKFILE"; fi
 # `--rerun` (Gradle >= 7.6) forces each target compile task to execute even if
 # it is UP-TO-DATE from an earlier run; an UP-TO-DATE task prints NO
 # diagnostics, which would otherwise look like "no warning" (= false artifact).
