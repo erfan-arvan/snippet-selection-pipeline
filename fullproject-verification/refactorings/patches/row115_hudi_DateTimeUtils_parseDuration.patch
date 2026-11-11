@@ -1,14 +1,17 @@
 diff --git a/hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java b/hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java
-index 9dde772..9213d1d 100644
+index 9dde772..e1b262f 100644
 --- a/hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java
 +++ b/hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java
-@@ -113,8 +113,11 @@ public class DateTimeUtils {
-     final int len = trimmed.length();
-     int pos = 0;
+@@ -110,11 +110,12 @@ public class DateTimeUtils {
+     final String trimmed = text.trim();
+     ValidationUtils.checkArgument(!trimmed.isEmpty(), "argument is an empty- or whitespace-only string");
  
+-    final int len = trimmed.length();
+     int pos = 0;
+-
 -    char current;
 -    while (pos < len && (current = trimmed.charAt(pos)) >= '0' && current <= '9') {
-+    while (pos < len) {
++    while (pos < trimmed.length()) {
 +      char current = trimmed.charAt(pos);
 +      if (current < '0' || current > '9') {
 +        break;

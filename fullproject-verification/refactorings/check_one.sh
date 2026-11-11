@@ -13,6 +13,7 @@ WORK="${FPV_WORK:-/scratch/mjk76/ea442/fullproject-verify-work}"
 OUT="${FPV_OUT:-/project/mjk76/ea442/snippet-selection-pipeline-output/fullproject-verification/refactorings}"
 CO="$WORK/$REPO"
 mkdir -p "$OUT/$ID"
+rm -f "$OUT/$ID"/*.json "$OUT/$ID"/*.exit   # no stale results from an earlier run
 case "$REPO" in
   dubbo)  URL=https://github.com/apache/dubbo;                 PIN=a5604cd2632471b46f66ed0217e84a68dc84a374 ;;
   netty)  URL=https://github.com/netty/netty;                  PIN=f0a546dffa0d8644eb6c1f23433601cf464c0882 ;;
@@ -39,24 +40,47 @@ run_checker() {  # <log>
   esac
 }
 
-for PHASE in before after; do
+# Phases: before = original code (control); after = refactored code;
+# canary = refactored code plus one deliberately unsafe statement at the top of the method. The
+# canary warning proves the checker really analyzed the refactored method (not just "0 warnings").
+case "$CHECKER" in
+  index)    CANARY='int[] fpvCanary = new int[0]; int fpvCanaryValue = fpvCanary[1];'; CANARY_KEY=array.access.unsafe.high.constant ;;
+  nullness) CANARY='Object fpvCanary = null; fpvCanary.hashCode();';                   CANARY_KEY=dereference.of.nullable ;;
+  *)        CANARY=''; CANARY_KEY='' ;;
+esac
+for PHASE in before after canary; do
+  [ "$PHASE" = canary ] && [ -z "$CANARY" ] && continue
   echo "[$(date '+%F %T')] === $ID $PHASE ($REPO $CHECKER, $CLASS.$METHOD) ==="
   prepare_clone "$URL" "$PIN" "$CO" || exit 1
-  if [ "$PHASE" = after ]; then
+  if [ "$PHASE" != before ]; then
     git -C "$CO" apply --check "$R/patches/${ID}_"*.patch || { echo "patch does not apply" >&2; exit 1; }
     git -C "$CO" apply "$R/patches/${ID}_"*.patch && git -C "$CO" diff --stat
+  fi
+  if [ "$PHASE" = canary ]; then
+    read -r ST EN < <(method_range)
+    python3 -I - "$CO/$FILE" "$ST" "$CANARY" <<'PY' || { echo "could not insert canary" >&2; exit 1; }
+import sys
+p, st, canary = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+lines = open(p).read().split("\n")
+i = st - 1
+while "{" not in lines[i]:       # skip annotations / multi-line signature up to the opening brace
+    i += 1
+lines.insert(i + 1, "        " + canary)
+open(p, "w").write("\n".join(lines))
+PY
   fi
   read -r ST EN < <(method_range)
   [ -n "${ST:-}" ] || { echo "could not locate $CLASS.$METHOD/$NPARAMS in $FILE" >&2; exit 1; }
   run_checker "$OUT/$ID/$PHASE.log"; rc=$?
   echo "$rc" > "$OUT/$ID/$PHASE.exit"
-  python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" "$ST" "$EN" "$KEYS" > "$OUT/$ID/$PHASE.json"
+  K="$KEYS"; [ "$PHASE" = canary ] && K="$KEYS,$CANARY_KEY"
+  python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" "$ST" "$EN" "$K" > "$OUT/$ID/$PHASE.json"
   python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" 1 9999999 "$KEYS" > "$OUT/$ID/$PHASE.file.json"
   echo "  method lines $ST-$EN, build exit $rc: $(cat "$OUT/$ID/$PHASE.json")"
 done
 prepare_clone "$URL" "$PIN" "$CO" >/dev/null   # leave the clone clean
 
-CASE_FILE="$FILE" python3 -I - "$OUT/$ID" "$ID" "$OUT/results.tsv" <<'PY'
+CASE_FILE="$FILE" CANARY_KEY="$CANARY_KEY" python3 -I - "$OUT/$ID" "$ID" "$OUT/results.tsv" <<'PY'
 import json, os, sys
 d, cid, res = sys.argv[1:4]
 b, a = (json.load(open(os.path.join(d, p + ".json"))) for p in ("before", "after"))
@@ -77,9 +101,15 @@ verdict = ("CONTROL FAILED (warning not reproduced on original)" if not present 
 fb, fa = (json.load(open(os.path.join(d, p + ".file.json"))) for p in ("before", "after"))
 ob = sum(fb["all_keys_in_method"].values()) - sum(b["all_keys_in_method"].values())
 oa = sum(fa["all_keys_in_method"].values()) - sum(a["all_keys_in_method"].values())
-ran = ("checker ran on file (other warnings in file: %d before, %d after)" % (ob, oa) if oa > 0 and oa == ob else
-       "CHECK BY HAND: other warnings in file changed (%d before, %d after)" % (ob, oa) if oa != ob else
-       "CANNOT CONFIRM checker ran on file (no other warnings in it)")
+cp = os.path.join(d, "canary.json")
+if os.path.exists(cp):
+    c = json.load(open(cp))
+    extra = sum(c["all_keys_in_method"].values()) - sum(a["all_keys_in_method"].values())
+    ran = ("YES: canary warning reported in the refactored method" if extra > 0
+           else "NO: canary warning NOT reported - checker did not analyze the refactored method")
+else:
+    ran = "no canary for this checker"
+ran += " (other warnings in file: %d before, %d after)" % (ob, oa)
 row = [cid, verdict, json.dumps(b["target"]), json.dumps(a["target"]), json.dumps(new), eb, ea, ran]
 new_file = not os.path.exists(res)
 with open(res, "a") as f:
