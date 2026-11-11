@@ -12,9 +12,8 @@ original (control) and on the refactored method and reports whether the warning 
 | row90 | ghidra `InstructionUtils.getFormatedInstructionObjects` | nullness, `toArray` | `set.toArray(new String[set.size()])` (Martin: LGTM) | identical |
 | row94 | ghidra `EuclideanHyperSpace.collectBounds` | index, `result[i * 2]`, `result[i * 2 + 1]` | loop over the result array in steps of 2 (`j + 1 < result.length`) with an iterator over the dimensions, instead of index arithmetic | identical (same elements, same order, same exception on an overflowing size); differs only if lower()/upper() modified the list during the loop |
 | row114 | hudi `HoodieTableFileSystemView.fetchAllStoredFileGroups` | nullness, second `map.get` | use the already-checked local (Martin: LGTM) | identical single-threaded |
-| row115 | hudi `DateTimeUtils.parseDuration` | index, `substring(0, pos)` / `substring(pos)` | read the character inside the loop body instead of inside the loop condition | identical |
 
-Dropped after Martin's review: row49 (needed an explicit re-throw; probably not fixable), row53 (same
+Dropped: row115 (the warning stays after two restructurings). Dropped after Martin's review: row49 (needed an explicit re-throw; probably not fixable), row53 (same
 method as row54), row95 (annotation fix), row153 (true positive). Rules from his review: no checks that
 always pass, never `throw new` the exception being avoided, shrink `try` scopes instead of relying on
 catching, one case per method, no true positives, no annotation-only fixes.

@@ -5,4 +5,3 @@ row54	ghidra	index	argument	Ghidra/Features/Base/src/main/java/ghidra/app/util/b
 row90	ghidra	nullness	toarray.nullable.elements.not.newarray	Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/InstructionUtils.java	ghidra.program.util.InstructionUtils	getFormatedInstructionObjects	1	:SoftwareModeling:compileJava
 row114	hudi	nullness	argument	hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFileSystemView.java	org.apache.hudi.common.table.view.HoodieTableFileSystemView	fetchAllStoredFileGroups	1	-
 row94	ghidra	index	array.access.unsafe.high	Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java	ghidra.util.database.spatial.hyper.EuclideanHyperSpace	collectBounds	1	:ProposedUtils:compileJava
-row115	hudi	index	argument	hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java	org.apache.hudi.common.util.DateTimeUtils	parseDuration	1	-
