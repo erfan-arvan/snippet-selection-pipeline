@@ -6,7 +6,7 @@ original (control) and on the refactored method and reports whether the warning 
 
 | case | method | checker / warning | refactoring | behaviour |
 |---|---|---|---|---|
-| row13 | dubbo `ReflectUtils.getGenericClass` | index, `[0]` and `[i]` | Martin's version: validate the interface array and the index at the start and throw the method's own `IllegalArgumentException`; the `try` now only covers the remaining casts | same result type and message for every invalid input; the early `IllegalArgumentException` has no cause, and reflection errors from malformed class files are no longer wrapped |
+| row13 | dubbo `ReflectUtils.getGenericClass` | index, `[0]` and `[i]` | Martin's version: validate the interface array and the index at the start and throw the method's own `IllegalArgumentException`; the `try` now only covers the remaining casts | NOT exactly equivalent: same exception type and message for invalid inputs, but (1) no wrapped cause, (2) reflection errors from malformed class files no longer wrapped, (3) for `cls == null` the NPE comes from a different call, so its JDK message differs |
 | row16 | dubbo `UrlUtils.isMatchGlobPattern` | index, `substring(i + 1)` | inline `StringUtils.isEmpty` (`s == null \|\| s.isEmpty()`) and merge the two empty-checks, so the checker sees `pattern` is non-empty; no new check | identical for every input (both empty: true; one empty: false) |
 | row54 | ghidra `MachHeaderFlags.getFlags` | index, `substring("MH_".length())` | `field.getName()` stored in a local, checked and used (Martin: LGTM) | identical |
 | row90 | ghidra `InstructionUtils.getFormatedInstructionObjects` | nullness, `toArray` | `set.toArray(new String[set.size()])` (Martin: LGTM) | identical |
