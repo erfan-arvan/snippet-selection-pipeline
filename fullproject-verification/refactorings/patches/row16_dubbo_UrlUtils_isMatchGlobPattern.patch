@@ -1,18 +1,18 @@
 diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java
-index 56895f0..376a4a8 100644
+index 56895f0..3f40ba7 100644
 --- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java
 +++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java
-@@ -480,8 +480,11 @@ public class UrlUtils {
-             return value.startsWith(pattern.substring(0, i));
+@@ -463,10 +463,10 @@ public class UrlUtils {
+         if ("*".equals(pattern)) {
+             return true;
          }
-         // "*" is at the beginning
--        else if (i == 0) {
--            return value.endsWith(pattern.substring(i + 1));
-+        // (pattern.length() > 1 always holds here: i == 0 is a valid index, and the branch above
-+        // already handled i == pattern.length() - 1, so the length is not 1. Stating it lets the
-+        // checker see that substring(1) is in bounds.)
-+        else if (i == 0 && pattern.length() > 1) {
-+            return value.endsWith(pattern.substring(1));
+-        if (StringUtils.isEmpty(pattern) && StringUtils.isEmpty(value)) {
+-            return true;
++        if (pattern == null || pattern.isEmpty()) {
++            return value == null || value.isEmpty();
          }
-         // "*" is in the middle
-         else {
+-        if (StringUtils.isEmpty(pattern) || StringUtils.isEmpty(value)) {
++        if (value == null || value.isEmpty()) {
+             return false;
+         }
+ 

@@ -1,6 +1,6 @@
 # Refactored methods: before / after
 
-Original code is at the pinned commit of each repo; "after" is the same method with `../patches/<case>_*.patch` applied. Each case was checked with its checker: the target warning is reported before and gone after.
+Original code is at the pinned commit of each repo; "after" is the same method with `../patches/<case>_*.patch` applied.
 
 ## row13: org.apache.dubbo.common.utils.ReflectUtils.getGenericClass
 
@@ -38,20 +38,16 @@ File: `dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.jav
 ### After
 ```java
     public static Class<?> getGenericClass(Class<?> cls, int i) {
+        Type[] genericInterfaces = cls.getGenericInterfaces();
+        if (genericInterfaces.length == 0 || !(genericInterfaces[0] instanceof ParameterizedType)) {
+            throw new IllegalArgumentException(cls.getName() + " generic type undefined!");
+        }
+        Type[] typeArguments = ((ParameterizedType) genericInterfaces[0]).getActualTypeArguments();
+        if (i < 0 || i >= typeArguments.length) {
+            throw new IllegalArgumentException(cls.getName() + " generic type undefined!");
+        }
+        Object genericClass = typeArguments[i];
         try {
-            Type[] genericInterfaces = cls.getGenericInterfaces();
-            if (genericInterfaces.length == 0) {
-                // Same exception the array access threw before; the catch below wraps it as before.
-                throw new ArrayIndexOutOfBoundsException("Index 0 out of bounds for length 0");
-            }
-            ParameterizedType parameterizedType = ((ParameterizedType) genericInterfaces[0]);
-            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-            if (i < 0 || i >= actualTypeArguments.length) {
-                throw new ArrayIndexOutOfBoundsException(
-                        "Index " + i + " out of bounds for length " + actualTypeArguments.length);
-            }
-            Object genericClass = actualTypeArguments[i];
-
             // handle nested generic type
             if (genericClass instanceof ParameterizedType) {
                 return (Class<?>) ((ParameterizedType) genericClass).getRawType();
@@ -119,10 +115,10 @@ File: `dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java`
         if ("*".equals(pattern)) {
             return true;
         }
-        if (StringUtils.isEmpty(pattern) && StringUtils.isEmpty(value)) {
-            return true;
+        if (pattern == null || pattern.isEmpty()) {
+            return value == null || value.isEmpty();
         }
-        if (StringUtils.isEmpty(pattern) || StringUtils.isEmpty(value)) {
+        if (value == null || value.isEmpty()) {
             return false;
         }
 
@@ -136,11 +132,8 @@ File: `dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java`
             return value.startsWith(pattern.substring(0, i));
         }
         // "*" is at the beginning
-        // (pattern.length() > 1 always holds here: i == 0 is a valid index, and the branch above
-        // already handled i == pattern.length() - 1, so the length is not 1. Stating it lets the
-        // checker see that substring(1) is in bounds.)
-        else if (i == 0 && pattern.length() > 1) {
-            return value.endsWith(pattern.substring(1));
+        else if (i == 0) {
+            return value.endsWith(pattern.substring(i + 1));
         }
         // "*" is in the middle
         else {
@@ -149,93 +142,6 @@ File: `dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java`
             return value.startsWith(prefix) && value.endsWith(suffix);
         }
     }
-```
-
-## row49: ghidra.app.plugin.core.terminal.TerminalLayoutModel.getLayout
-
-ghidra, index checker, warning `argument`  
-File: `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/terminal/TerminalLayoutModel.java`
-
-### Before
-```java
-	@Override
-	public TerminalLayout getLayout(BigInteger index) {
-		synchronized (lock) {
-			if (BigInteger.ZERO.compareTo(index) <= 0 && index.compareTo(numIndexes) < 0) {
-				return layouts.get(index.intValue());
-			}
-		}
-		return null;
-	}
-```
-
-### After
-```java
-	@Override
-	public TerminalLayout getLayout(BigInteger index) {
-		synchronized (lock) {
-			if (index.signum() >= 0 && index.compareTo(numIndexes) < 0) {
-				int i = index.intValue();
-				if (i < 0 || i >= layouts.size()) {
-					// Same exception and message ArrayList.get(i) threw here before.
-					throw new IndexOutOfBoundsException(
-						"Index " + i + " out of bounds for length " + layouts.size());
-				}
-				return layouts.get(i);
-			}
-		}
-		return null;
-	}
-```
-
-## row53: ghidra.app.util.bin.format.macho.MachHeaderFlags.getFlags
-
-ghidra, nullness checker, warning `unboxing.of.nullable`  
-File: `Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/macho/MachHeaderFlags.java`
-
-### Before
-```java
-	public final static List<String> getFlags(int flags) {
-		List<String> list = new ArrayList<>();
-		Field[] fields = MachHeaderFlags.class.getDeclaredFields();
-		for (Field field : fields) {
-			if (field.getName().startsWith("MH_")) {
-				try {
-					Integer value = (Integer) field.get(null);
-					if ((flags & value) != 0) {
-						list.add(field.getName().substring("MH_".length()));
-					}
-				}
-				catch (Exception e) {
-					// do nothing
-				}
-			}
-		}
-		return list;
-	}
-```
-
-### After
-```java
-	public final static List<String> getFlags(int flags) {
-		List<String> list = new ArrayList<>();
-		Field[] fields = MachHeaderFlags.class.getDeclaredFields();
-		for (Field field : fields) {
-			if (field.getName().startsWith("MH_")) {
-				try {
-					Integer value = (Integer) field.get(null);
-					// null used to throw NullPointerException here, which the catch below ignored
-					if (value != null && (flags & value) != 0) {
-						list.add(field.getName().substring("MH_".length()));
-					}
-				}
-				catch (Exception e) {
-					// do nothing
-				}
-			}
-		}
-		return list;
-	}
 ```
 
 ## row54: ghidra.app.util.bin.format.macho.MachHeaderFlags.getFlags
@@ -348,36 +254,6 @@ File: `Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/util/Instr
 	}
 ```
 
-## row95: ghidra.util.datastruct.ByteArray.get
-
-ghidra, index checker, warning `array.access.unsafe.low`  
-File: `Ghidra/Framework/Generic/src/main/java/ghidra/util/datastruct/ByteArray.java`
-
-### Before
-```java
-    public byte get(int index) {
-        if (index < bytes.length) {
-            return bytes[index];
-        }
-        return (byte)0;
-    }
-```
-
-### After
-```java
-    public byte get(int index) {
-        if (index < 0) {
-            // Same exception and message bytes[index] threw for a negative index before.
-            throw new ArrayIndexOutOfBoundsException(
-                "Index " + index + " out of bounds for length " + bytes.length);
-        }
-        if (index < bytes.length) {
-            return bytes[index];
-        }
-        return (byte)0;
-    }
-```
-
 ## row114: org.apache.hudi.common.table.view.HoodieTableFileSystemView.fetchAllStoredFileGroups
 
 hudi, nullness checker, warning `argument`  
@@ -409,47 +285,144 @@ File: `hudi-common/src/main/java/org/apache/hudi/common/table/view/HoodieTableFi
   }
 ```
 
-## row153: io.netty.util.DomainWildcardMappingBuilder.normalizeHostName
+## row94: ghidra.util.database.spatial.hyper.EuclideanHyperSpace.collectBounds
 
-netty, index checker, warning `argument`  
-File: `common/src/main/java/io/netty/util/DomainWildcardMappingBuilder.java`
+ghidra, index checker, warning `array.access.unsafe.high`  
+File: `Ghidra/Debug/ProposedUtils/src/main/java/ghidra/util/database/spatial/hyper/EuclideanHyperSpace.java`
 
 ### Before
 ```java
-    private String normalizeHostName(String hostname) {
-        checkNotNull(hostname, "hostname");
-        if (hostname.isEmpty() || hostname.charAt(0) == '.') {
-            throw new IllegalArgumentException("Hostname '" + hostname + "' not valid");
-        }
-        hostname = ImmutableDomainWildcardMapping.normalize(checkNotNull(hostname, "hostname"));
-        if (hostname.charAt(0) == '*') {
-            if (hostname.length() < 3 || hostname.charAt(1) != '.') {
-                throw new IllegalArgumentException("Wildcard Hostname '" + hostname + "'not valid");
-            }
-            return hostname.substring(1);
-        }
-        return hostname;
-    }
+	default Object[] collectBounds(B box) {
+		List<Dimension<?, P, B>> dims = getDimensions();
+		Object[] result = new Object[dims.size() * 2];
+		for (int i = 0; i < dims.size(); i++) {
+			Dimension<?, P, B> d = dims.get(i);
+			result[i * 2] = d.lower(box);
+			result[i * 2 + 1] = d.upper(box);
+		}
+		return result;
+	}
 ```
 
 ### After
 ```java
-    private String normalizeHostName(String hostname) {
-        checkNotNull(hostname, "hostname");
-        if (hostname.isEmpty() || hostname.charAt(0) == '.') {
-            throw new IllegalArgumentException("Hostname '" + hostname + "' not valid");
-        }
-        hostname = ImmutableDomainWildcardMapping.normalize(checkNotNull(hostname, "hostname"));
-        if (hostname.isEmpty()) {
-            // normalize() can only return "" for unusual IDN input; charAt(0) threw exactly this before.
-            throw new StringIndexOutOfBoundsException("index 0, length 0");
-        }
-        if (hostname.charAt(0) == '*') {
-            if (hostname.length() < 3 || hostname.charAt(1) != '.') {
-                throw new IllegalArgumentException("Wildcard Hostname '" + hostname + "'not valid");
-            }
-            return hostname.substring(1);
-        }
-        return hostname;
+	default Object[] collectBounds(B box) {
+		List<Dimension<?, P, B>> dims = getDimensions();
+		Object[] result = new Object[dims.size() * 2];
+		Iterator<Dimension<?, P, B>> it = dims.iterator();
+		for (int j = 0; j + 1 < result.length; j += 2) {
+			Dimension<?, P, B> d = it.next();
+			result[j] = d.lower(box);
+			result[j + 1] = d.upper(box);
+		}
+		return result;
+	}
+```
+
+## row115: org.apache.hudi.common.util.DateTimeUtils.parseDuration
+
+hudi, index checker, warning `argument`  
+File: `hudi-common/src/main/java/org/apache/hudi/common/util/DateTimeUtils.java`
+
+### Before
+```java
+  public static Duration parseDuration(String text) {
+    ValidationUtils.checkArgument(!StringUtils.isNullOrEmpty(text));
+
+    final String trimmed = text.trim();
+    ValidationUtils.checkArgument(!trimmed.isEmpty(), "argument is an empty- or whitespace-only string");
+
+    final int len = trimmed.length();
+    int pos = 0;
+
+    char current;
+    while (pos < len && (current = trimmed.charAt(pos)) >= '0' && current <= '9') {
+      pos++;
     }
+
+    final String number = trimmed.substring(0, pos);
+    final String unitLabel = trimmed.substring(pos).trim().toLowerCase(Locale.US);
+
+    if (number.isEmpty()) {
+      throw new NumberFormatException("text does not start with a number");
+    }
+
+    final long value;
+    try {
+      value = Long.parseLong(number); // this throws a NumberFormatException on overflow
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+          "The value '"
+              + number
+              + "' cannot be re represented as 64bit number (numeric overflow).");
+    }
+
+    if (unitLabel.isEmpty()) {
+      return Duration.of(value, ChronoUnit.MILLIS);
+    }
+
+    ChronoUnit unit = LABEL_TO_UNIT_MAP.get(unitLabel);
+    if (unit != null) {
+      return Duration.of(value, unit);
+    } else {
+      throw new IllegalArgumentException(
+          "Time interval unit label '"
+              + unitLabel
+              + "' does not match any of the recognized units: "
+              + TimeUnit.getAllUnits());
+    }
+  }
+```
+
+### After
+```java
+  public static Duration parseDuration(String text) {
+    ValidationUtils.checkArgument(!StringUtils.isNullOrEmpty(text));
+
+    final String trimmed = text.trim();
+    ValidationUtils.checkArgument(!trimmed.isEmpty(), "argument is an empty- or whitespace-only string");
+
+    final int len = trimmed.length();
+    int pos = 0;
+
+    while (pos < len) {
+      char current = trimmed.charAt(pos);
+      if (current < '0' || current > '9') {
+        break;
+      }
+      pos++;
+    }
+
+    final String number = trimmed.substring(0, pos);
+    final String unitLabel = trimmed.substring(pos).trim().toLowerCase(Locale.US);
+
+    if (number.isEmpty()) {
+      throw new NumberFormatException("text does not start with a number");
+    }
+
+    final long value;
+    try {
+      value = Long.parseLong(number); // this throws a NumberFormatException on overflow
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+          "The value '"
+              + number
+              + "' cannot be re represented as 64bit number (numeric overflow).");
+    }
+
+    if (unitLabel.isEmpty()) {
+      return Duration.of(value, ChronoUnit.MILLIS);
+    }
+
+    ChronoUnit unit = LABEL_TO_UNIT_MAP.get(unitLabel);
+    if (unit != null) {
+      return Duration.of(value, unit);
+    } else {
+      throw new IllegalArgumentException(
+          "Time interval unit label '"
+              + unitLabel
+              + "' does not match any of the recognized units: "
+              + TimeUnit.getAllUnits());
+    }
+  }
 ```
