@@ -51,6 +51,7 @@ for PHASE in before after; do
   run_checker "$OUT/$ID/$PHASE.log"; rc=$?
   echo "$rc" > "$OUT/$ID/$PHASE.exit"
   python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" "$ST" "$EN" "$KEYS" > "$OUT/$ID/$PHASE.json"
+  python3 -I $R/evaluate.py "$OUT/$ID/$PHASE.log" "$FILE" 1 9999999 "$KEYS" > "$OUT/$ID/$PHASE.file.json"
   echo "  method lines $ST-$EN, build exit $rc: $(cat "$OUT/$ID/$PHASE.json")"
 done
 prepare_clone "$URL" "$PIN" "$CO" >/dev/null   # leave the clone clean
@@ -72,11 +73,18 @@ verdict = ("CONTROL FAILED (warning not reproduced on original)" if not present 
            "REFACTORED CODE DOES NOT COMPILE" if broke else
            "WARNING GONE" + (" (but new warnings in method)" if new else "") if gone else
            "WARNING STILL PRESENT")
-row = [cid, verdict, json.dumps(b["target"]), json.dumps(a["target"]), json.dumps(new), eb, ea]
+# Evidence that the checker really analyzed the refactored file: its warnings OUTSIDE the method.
+fb, fa = (json.load(open(os.path.join(d, p + ".file.json"))) for p in ("before", "after"))
+ob = sum(fb["all_keys_in_method"].values()) - sum(b["all_keys_in_method"].values())
+oa = sum(fa["all_keys_in_method"].values()) - sum(a["all_keys_in_method"].values())
+ran = ("checker ran on file (other warnings in file: %d before, %d after)" % (ob, oa) if oa > 0 and oa == ob else
+       "CHECK BY HAND: other warnings in file changed (%d before, %d after)" % (ob, oa) if oa != ob else
+       "CANNOT CONFIRM checker ran on file (no other warnings in it)")
+row = [cid, verdict, json.dumps(b["target"]), json.dumps(a["target"]), json.dumps(new), eb, ea, ran]
 new_file = not os.path.exists(res)
 with open(res, "a") as f:
     if new_file:
-        f.write("case\tverdict\tbefore(target keys)\tafter(target keys)\tnew keys in method\tbefore exit\tafter exit\n")
+        f.write("case\tverdict\tbefore(target keys)\tafter(target keys)\tnew keys in method\tbefore exit\tafter exit\tchecker ran?\n")
     f.write("\t".join(row) + "\n")
 print("RESULT:", "\t".join(row))
 PY
