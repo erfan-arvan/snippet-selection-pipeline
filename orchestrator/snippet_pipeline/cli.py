@@ -239,6 +239,7 @@ def cmd_auto(args) -> None:
         min_total_flagged=args.min_total_flagged,
         min_non_nullness_flagged=args.min_non_nullness_flagged,
         seed=args.auto_seed,
+        max_batches=args.max_batches,
     )
 
 
@@ -288,6 +289,11 @@ def main(argv: list[str] | None = None) -> int:
         "--auto-seed", type=int, default=1,
         help="auto stage only: seed for shuffling the eligible pool into batches. Keep this "
              "the same across resumed runs - changing it is rejected (see auto_batch_state.json).",
+    )
+    parser.add_argument(
+        "--max-batches", type=int, default=None,
+        help="auto stage only: run at most this many new batches in this invocation, even if the "
+             "flagged targets are already met (use 1 to process just the next batch).",
     )
     subparsers = parser.add_subparsers(dest="stage", required=True)
 

@@ -63,19 +63,43 @@ def _save_state(run_dir: Path, state: dict) -> None:
     _state_path(run_dir).write_text(json.dumps(state, indent=2))
 
 
+def _existing_diagnostics(run_dir: Path) -> dict[tuple[str, str], list[dict]]:
+    """Diagnostics already recorded in stats/results.jsonl, keyed by (snippet_id, checker_id).
+
+    Batches run before auto_batch_results.jsonl stored diagnostics only have them there; this
+    lets a resumed run carry them over instead of rewriting results.jsonl with empty lists.
+    """
+    path = run_dir / "stats" / "results.jsonl"
+    found: dict[tuple[str, str], list[dict]] = {}
+    if not path.is_file():
+        return found
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        d = json.loads(line)
+        if d.get("diagnostics"):
+            found[(d["snippet_id"], d["checker_id"])] = d["diagnostics"]
+    return found
+
+
 def _load_cumulative_results(run_dir: Path) -> list[checkers_stage.CheckerRunResult]:
     path = _results_path(run_dir)
     if not path.is_file():
         return []
+    fallback = _existing_diagnostics(run_dir)
     results = []
     for line in path.read_text().splitlines():
         if not line.strip():
             continue
         d = json.loads(line)
+        diags = d.get("diagnostics")
+        if diags is None:
+            diags = fallback.get((d["snippet_id"], d["checker_id"]), [])
         results.append(checkers_stage.CheckerRunResult(
             snippet_id=d["snippet_id"], checker_id=d["checker_id"], status=d["status"],
             on_target_count=d["on_target_count"], elsewhere_count=d["elsewhere_count"],
-            diagnostics=[], log_path=Path(d["log_path"]), returncode=d["returncode"],
+            diagnostics=[checkers_stage.Diagnostic(**x) for x in diags],
+            log_path=Path(d["log_path"]), returncode=d["returncode"],
         ))
     return results
 
@@ -89,6 +113,7 @@ def _append_results(run_dir: Path, new_results: list[checkers_stage.CheckerRunRe
                 "snippet_id": r.snippet_id, "checker_id": r.checker_id, "status": r.status,
                 "on_target_count": r.on_target_count, "elsewhere_count": r.elsewhere_count,
                 "returncode": r.returncode, "log_path": str(r.log_path),
+                "diagnostics": [x.__dict__ for x in r.diagnostics],
             }) + "\n")
 
 
@@ -194,6 +219,7 @@ def run_auto_batch(
     min_total_flagged: int = 100,
     min_non_nullness_flagged: int = 50,
     seed: int = 1,
+    max_batches: int | None = None,
 ) -> None:
     pool = load_manifest(included_path)
     random.Random(seed).shuffle(pool)
@@ -208,8 +234,12 @@ def run_auto_batch(
           f"{state['batches_run']} batch(es) already run, "
           f"{total_flagged} flagged so far ({non_nullness_flagged} non-nullness).")
 
+    batches_this_run = 0
     while True:
-        if total_flagged >= min_total_flagged and non_nullness_flagged > min_non_nullness_flagged:
+        if max_batches is not None and batches_this_run >= max_batches:
+            print(f"\nStopping after {batches_this_run} batch(es) this run (--max-batches {max_batches}).")
+            break
+        if max_batches is None and total_flagged >= min_total_flagged and non_nullness_flagged > min_non_nullness_flagged:
             print(f"\nStop condition met: {total_flagged} total flagged (>= {min_total_flagged}), "
                   f"{non_nullness_flagged} non-nullness flagged (> {min_non_nullness_flagged}).")
             break
@@ -231,6 +261,7 @@ def run_auto_batch(
         state["next_offset"] = offset + len(batch)
         state["batches_run"] = batch_num
         _save_state(run_dir, state)
+        batches_this_run += 1
 
         total_flagged, non_nullness_flagged = _flagged_counts(cumulative)
         batch_flagged, batch_non_nullness = _flagged_counts(batch_results)
