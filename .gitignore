@@ -20,4 +20,4 @@ aggregated_methods.csv
 .DS_Store
 
 # generated at run time by orchestrator/submit_original_warnings.sh
-config/.pipeline-original-warnings.generated.yaml
+config/.pipeline-*.generated.yaml

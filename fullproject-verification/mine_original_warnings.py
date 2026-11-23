@@ -70,7 +70,24 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--write-run", default=None)
     ap.add_argument("--max-methods", type=int, default=300)
+    ap.add_argument("--repos", default=None, help="comma-separated: mine only these projects")
+    ap.add_argument("--exclude-run", default=None,
+                    help="run dir whose manifest/candidates.jsonl methods are skipped (already sliced there)")
+    ap.add_argument("--match-repo", default=None,
+                    help="balanced sampling: give every mined project as many methods as this project has in "
+                         "--exclude-run (minus what the project already has there); --max-methods is then ignored")
+    ap.add_argument("--seed", type=int, default=1, help="random order of methods within a project (balanced mode)")
     a = ap.parse_args()
+    if a.repos:
+        REPOS[:] = [r for r in REPOS if r in a.repos.split(",")]
+    already, existing = set(), collections.Counter()
+    if a.exclude_run:
+        for line in open(os.path.join(a.exclude_run, "manifest", "candidates.jsonl")):
+            if line.strip():
+                r = json.loads(line)
+                already.add((r["project"], r["qualifiedClassName"].replace("$", "."), r["methodName"],
+                             int(r.get("numParams", len(r.get("paramTypes", []))))))
+                existing[r["project"]] += 1
     out_dir = a.out or os.path.join(a.logs, "mined")
     os.makedirs(out_dir, exist_ok=True)
 
@@ -132,6 +149,9 @@ def main():
                 if (repo, cls, name, n) not in included:
                     counts[(repo, chk, "skipped: not in included.jsonl")] += 1
                     continue
+                if (repo, cls, name, n) in already:
+                    counts[(repo, chk, "skipped: already sliced")] += 1
+                    continue
                 counts[(repo, chk, "kept")] += 1
                 src = open(os.path.join(root, rel), errors="replace").read().splitlines()
                 pnames = param_names(src, st, en) if n else set()
@@ -178,7 +198,27 @@ def main():
         print(f"  {repo:10} {chk:13} methods with warnings {c.get('methods with warnings', 0):5}  already sliced {c.get('skipped: already sliced', 0):4}"
               f"  not in criteria {c.get('skipped: not in included.jsonl', 0):5}  kept {c.get('kept', 0):4}")
     print(f"\n{len(rows)} candidate rows ({len(seen)} methods); {sum(1 for r in rows if not r['notes'])} without a triage note.")
-    if a.write_run:
+    if a.write_run and a.match_repo:
+        # Balanced sampling: every project gets (methods of --match-repo in --exclude-run) minus what it
+        # already has there. All of a project's eligible methods count, with or without a triage note
+        # (notes are information only); methods without a note come first, each group in random order.
+        import random
+        target = existing[a.match_repo]
+        picked = []
+        print(f"\nBalanced sampling against {a.match_repo}: {target} methods per project (seed {a.seed})")
+        for repo in REPOS:
+            keys = list(dict.fromkeys(r["record_key"] for r in rows if r["repo"] == repo))
+            has_unnoted = {r["record_key"] for r in rows if r["repo"] == repo and not r["notes"]}
+            first = [k for k in keys if k in has_unnoted]        # at least one warning without a triage note
+            rest = [k for k in keys if k not in has_unnoted]     # every warning has a note
+            rng = random.Random(f"{a.seed}-{repo}")
+            rng.shuffle(first); rng.shuffle(rest)
+            quota = max(0, target - existing[repo])
+            take = (first + rest)[:quota]
+            picked += take
+            print(f"  {repo:10} already {existing[repo]:4}  eligible now {len(keys):5}  quota {quota:4}  picked {len(take):4}"
+                  + ("  (fewer eligible methods than the quota)" if len(take) < quota else ""))
+    elif a.write_run:
         picked = []
         for r in rows:                                 # rows are sorted most promising first
             if r["notes"] or r["record_key"] in picked:
@@ -186,6 +226,7 @@ def main():
             picked.append(r["record_key"])
             if len(picked) >= a.max_methods:
                 break
+    if a.write_run:
         os.makedirs(os.path.join(a.write_run, "manifest"), exist_ok=True)
         cp = os.path.join(a.write_run, "manifest", "candidates.jsonl")
         with open(cp, "w") as f:

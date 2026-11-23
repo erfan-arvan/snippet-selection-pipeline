@@ -24,6 +24,8 @@
 # Submit from orchestrator/:   sbatch submit_original_warnings.sh
 #                              MAX_METHODS=500 sbatch submit_original_warnings.sh
 # Resubmitting keeps the method list from the first submit (REGENERATE=1 rebuilds it).
+# Another run: RUN_ID=<name> MINE_ARGS="<extra mine_original_warnings.py options>" sbatch submit_original_warnings.sh
+#   (own run directory, own Specimin copy and config, so several such jobs can run at the same time).
 # Results: $RUN/comparison/comparison.csv, comparison_by_slice.csv, comparison.xlsx
 #          $RUN/mined/candidates.csv, candidates.txt (every original warning considered)
 
@@ -41,13 +43,14 @@ export PYTHONUNBUFFERED=1
 
 OUTROOT=/project/mjk76/ea442/snippet-selection-pipeline-output
 LEGACY=$OUTROOT/legacy-import
-RUN=$OUTROOT/original-warnings
+RUN_ID="${RUN_ID:-original-warnings}"
+RUN=$OUTROOT/$RUN_ID
 step() { echo; echo "[$(date '+%F %T')] === $* ==="; }
 
 # Own Specimin copy + a config that points at it (everything else identical to pipeline.yaml).
 SPECIMIN_SRC=/scratch/mjk76/ea442/specimin
-SPECIMIN_OWN=/scratch/mjk76/ea442/specimin-original-warnings
-CFG=../config/.pipeline-original-warnings.generated.yaml
+SPECIMIN_OWN=/scratch/mjk76/ea442/specimin-$RUN_ID
+CFG=../config/.pipeline-$RUN_ID.generated.yaml
 step "prepare own Specimin copy"
 rsync -a "$SPECIMIN_SRC/" "$SPECIMIN_OWN/" || { echo "FATAL: could not copy Specimin" >&2; exit 1; }
 sed "s#^\(  specimin_dir:\).*#\1 $SPECIMIN_OWN#" ../config/pipeline.yaml > "$CFG"
@@ -58,11 +61,11 @@ if [ -s "$RUN/manifest/candidates.jsonl" ] && [ -z "${REGENERATE:-}" ]; then
   echo "keeping existing method list ($(wc -l < "$RUN/manifest/candidates.jsonl") methods); REGENERATE=1 to rebuild"
 else
   python3 ../fullproject-verification/mine_original_warnings.py \
-    --run "$LEGACY" --write-run "$RUN" --out "$RUN/mined" --max-methods "${MAX_METHODS:-300}" || exit 1
+    --run "$LEGACY" --write-run "$RUN" --out "$RUN/mined" --max-methods "${MAX_METHODS:-300}" ${MINE_ARGS:-} || exit 1
 fi
 [ -s "$RUN/manifest/candidates.jsonl" ] || { echo "FATAL: no methods to slice" >&2; exit 1; }
 
-PIPE=(python3 -u -m snippet_pipeline.cli -c "$CFG" --run-id original-warnings)
+PIPE=(python3 -u -m snippet_pipeline.cli -c "$CFG" --run-id "$RUN_ID")
 step "2a. slice (Specimin)";  "${PIPE[@]}" slice   || exit 1
 step "2b. package";          "${PIPE[@]}" package || exit 1
 step "2c. check";            "${PIPE[@]}" check   || exit 1
