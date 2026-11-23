@@ -1,5 +1,5 @@
 diff --git a/common/src/main/java/io/netty/util/NetUtil.java b/common/src/main/java/io/netty/util/NetUtil.java
-index c28389f..baca2d8 100644
+index c28389f..0162571 100644
 --- a/common/src/main/java/io/netty/util/NetUtil.java
 +++ b/common/src/main/java/io/netty/util/NetUtil.java
 @@ -939,7 +939,7 @@ public final class NetUtil {
@@ -7,7 +7,7 @@ index c28389f..baca2d8 100644
          // Need to include enough space for [hostString]:port.
          StringBuilder stringBuilder = new StringBuilder(hostLen + 3 + port.length());
 -        if (hostLen > 1 && host.charAt(0) == '[' && host.charAt(hostLen - 1) == ']') {
-+        if (host.length() > 1 && host.charAt(0) == '[' && host.charAt(hostLen - 1) == ']') {
++        if (host.length() > 1 && host.charAt(0) == '[' && host.charAt(host.length() - 1) == ']') {
              return stringBuilder.append(host);
          }
          return stringBuilder.append('[').append(host).append(']');
