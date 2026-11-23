@@ -89,6 +89,7 @@ def slice_candidate(
     target_method_signature: str,
     output_dir: Path,
     log_path: Path,
+    timeout: int = 600,
 ) -> SliceResult:
     output_dir.mkdir(parents=True, exist_ok=True)
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -110,13 +111,24 @@ def slice_candidate(
     # executable bit on checkout - re-assert it rather than trust that git got it right.
     gradlew_path.chmod(0o755)
     gradlew = str(gradlew_path)
-    result = subprocess.run(
-        [gradlew, "run", f"--args={args}", "--console=plain"],
-        cwd=specimin_dir,
-        capture_output=True,
-        text=True,
-        timeout=600,
-    )
+    try:
+        result = subprocess.run(
+            [gradlew, "run", f"--args={args}", "--console=plain"],
+            cwd=specimin_dir,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as e:
+        # One slow method must not stop the whole run: record it as a failed slice and go on.
+        out = e.stdout.decode(errors="replace") if isinstance(e.stdout, bytes) else (e.stdout or "")
+        err = e.stderr.decode(errors="replace") if isinstance(e.stderr, bytes) else (e.stderr or "")
+        log_path.write_text(
+            f"$ {gradlew} run --args='{args}'\n(cwd={specimin_dir})\n\n"
+            f"TIMEOUT: Specimin did not finish within {timeout} seconds\n"
+            f"--- stdout ---\n{out}\n--- stderr ---\n{err}\n"
+        )
+        return SliceResult(snippet_id="", success=False, output_dir=output_dir, log_path=log_path)
     log_path.write_text(
         f"$ {gradlew} run --args='{args}'\n(cwd={specimin_dir})\n\n"
         f"--- stdout ---\n{result.stdout}\n--- stderr ---\n{result.stderr}\n"
