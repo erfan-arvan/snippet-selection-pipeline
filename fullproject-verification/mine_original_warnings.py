@@ -90,7 +90,8 @@ def pick_overload(recs, types):
     """The included.jsonl record whose parameter types match this overload's (None if not exactly one)."""
     want = [_norm_type(x) for x in split_types(types)]
     hits = [r for r in recs if [_norm_type(x) for x in r.get("paramTypes", [])] == want]
-    return hits[0] if len(hits) == 1 else None
+    # included.jsonl can list the same method more than once (identical records): those are one method
+    return hits[-1] if hits else None
 
 
 def main():
