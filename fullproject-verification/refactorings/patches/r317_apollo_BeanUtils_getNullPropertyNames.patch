@@ -1,0 +1,14 @@
+diff --git a/apollo-common/src/main/java/com/ctrip/framework/apollo/common/utils/BeanUtils.java b/apollo-common/src/main/java/com/ctrip/framework/apollo/common/utils/BeanUtils.java
+index 160066b..88a9838 100644
+--- a/apollo-common/src/main/java/com/ctrip/framework/apollo/common/utils/BeanUtils.java
++++ b/apollo-common/src/main/java/com/ctrip/framework/apollo/common/utils/BeanUtils.java
+@@ -87,8 +87,7 @@ public class BeanUtils {
+           emptyNames.add(pd.getName());
+       }
+     }
+-    String[] result = new String[emptyNames.size()];
+-    return emptyNames.toArray(result);
++    return emptyNames.toArray(new String[emptyNames.size()]);
+   }
+ 
+   /**

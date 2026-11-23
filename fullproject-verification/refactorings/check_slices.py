@@ -172,9 +172,11 @@ def summarize(out, sliced_file, st, en):
 def check_case(cid, a):
     c = read_case(cid)
     sid = f'{c["repo"]}__{c["cls"].replace(".", "_")}__{c["method"]}__{c["nparams"]}'
-    src = os.path.join(a.run, "snippets", sid)
-    if not os.path.isfile(os.path.join(src, "snippet.json")):
+    runs = [r for r in a.run.split(",") if r]           # several run directories may be given
+    found = [os.path.join(r, "snippets", sid) for r in runs if os.path.isfile(os.path.join(r, "snippets", sid, "snippet.json"))]
+    if not found:
         return [cid, "NO SLICE FOUND", sid] + [""] * 5
+    src = found[0]
     meta = json.load(open(os.path.join(src, "snippet.json")))
     sliced_file = meta["sliced_file"].replace("\\", "/")
     patch = [os.path.join(HERE, "patches", f) for f in os.listdir(os.path.join(HERE, "patches"))
@@ -226,7 +228,8 @@ def check_case(cid, a):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run", default="/project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings")
+    ap.add_argument("--run", default="/project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings",
+                    help="run directory, or several separated by commas (the first that has the slice is used)")
     ap.add_argument("--work", default="/scratch/mjk76/ea442/slice-refactor-work")
     ap.add_argument("--out", default="/project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings/refactorings")
     ap.add_argument("cases", nargs="+")

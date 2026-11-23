@@ -18,6 +18,7 @@
 #
 # Submit from the repo root:
 #   CASES="ow34 ow89" sbatch fullproject-verification/refactorings/submit_check_slices.sh
+# Slices of other runs: RUNS="<run dir>,<run dir>" (default: the original-warnings run); results folder: OUT=<dir>
 # Results: /project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings/refactorings/results.tsv
 
 set -uo pipefail
@@ -30,7 +31,8 @@ module load Python/3.12.3
 export GRADLE_USER_HOME=/scratch/mjk76/ea442/.gradle-home
 export PYTHONUNBUFFERED=1
 [ -n "${CASES:-}" ] || { echo "set CASES, e.g. CASES=\"ow34 ow89\"" >&2; exit 2; }
-python3 fullproject-verification/refactorings/check_slices.py $CASES
-RES=/project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings/refactorings/results.tsv
+OUT="${OUT:-/project/mjk76/ea442/snippet-selection-pipeline-output/original-warnings/refactorings}"
+python3 fullproject-verification/refactorings/check_slices.py ${RUNS:+--run "$RUNS"} --out "$OUT" $CASES
+RES=$OUT/results.tsv
 echo; echo "===== results ($RES) ====="
 column -t -s $'\t' "$RES" 2>/dev/null || cat "$RES"

@@ -1,0 +1,15 @@
+diff --git a/common/src/main/java/io/netty/util/internal/StringUtil.java b/common/src/main/java/io/netty/util/internal/StringUtil.java
+index 37dbfc8..c0f761e 100644
+--- a/common/src/main/java/io/netty/util/internal/StringUtil.java
++++ b/common/src/main/java/io/netty/util/internal/StringUtil.java
+@@ -299,8 +299,8 @@ public final class StringUtil {
+             return EmptyArrays.EMPTY_BYTES;
+         }
+         byte[] bytes = new byte[length >>> 1];
+-        for (int i = 0; i < length; i += 2) {
+-            bytes[i >>> 1] = decodeHexByte(hexDump, fromIndex + i);
++        for (int j = 0; j < bytes.length; j++) {
++            bytes[j] = decodeHexByte(hexDump, fromIndex + (j << 1));
+         }
+         return bytes;
+     }

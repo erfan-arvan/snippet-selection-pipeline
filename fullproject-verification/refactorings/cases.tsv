@@ -15,3 +15,6 @@ ow101	dubbo	index	argument	dubbo-common/src/main/java/org/apache/dubbo/common/ut
 ow16	dubbo	index	argument	dubbo-common/src/main/java/org/apache/dubbo/common/convert/StringToCharacterConverter.java	org.apache.dubbo.common.convert.StringToCharacterConverter	convert	1	-
 ow52	dubbo	index	array.access.unsafe.high.constant	dubbo-common/src/main/java/org/apache/dubbo/common/utils/ArrayUtils.java	org.apache.dubbo.common.utils.ArrayUtils	first	1	-
 ow37	dubbo	index	array.access.unsafe.high.constant	dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java	org.apache.dubbo.common.extension.ExtensionLoader	isWrapperClass	1	-
+r317	apollo	nullness	toarray.nullable.elements.not.newarray,return	apollo-common/src/main/java/com/ctrip/framework/apollo/common/utils/BeanUtils.java	com.ctrip.framework.apollo.common.utils.BeanUtils	getNullPropertyNames	1	-
+r282	netty	index	argument	common/src/main/java/io/netty/util/NetUtil.java	io.netty.util.NetUtil	newSocketAddressStringBuilder	3	-
+r305	netty	index	array.access.unsafe.high	common/src/main/java/io/netty/util/internal/StringUtil.java	io.netty.util.internal.StringUtil	decodeHexDump	3	-
