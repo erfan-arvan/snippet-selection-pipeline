@@ -1,0 +1,13 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodComparator.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodComparator.java
+index 715100c..3028b9c 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodComparator.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodComparator.java
+@@ -55,7 +55,7 @@ public class MethodComparator implements Comparator<Method> {
+ 
+             value = types1.length - types2.length;
+ 
+-            if (value == 0) { // Step 3
++            if (types1.length == types2.length) { // Step 3
+                 for (int i = 0; i < types1.length; i++) {
+                     value = types1[i].getName().compareTo(types2[i].getName());
+                     if (value != 0) {

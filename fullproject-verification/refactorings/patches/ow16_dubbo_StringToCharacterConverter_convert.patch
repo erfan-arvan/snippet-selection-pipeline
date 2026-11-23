@@ -1,0 +1,27 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/convert/StringToCharacterConverter.java b/dubbo-common/src/main/java/org/apache/dubbo/common/convert/StringToCharacterConverter.java
+index 580986f..a7a84cb 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/convert/StringToCharacterConverter.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/convert/StringToCharacterConverter.java
+@@ -16,8 +16,6 @@
+  */
+ package org.apache.dubbo.common.convert;
+ 
+-import static org.apache.dubbo.common.utils.StringUtils.length;
+-
+ /**
+  * The class to convert {@link String} to {@link Character}
+  *
+@@ -27,11 +25,10 @@ public class StringToCharacterConverter implements StringConverter<Character> {
+ 
+     @Override
+     public Character convert(String source) {
+-        int length = length(source);
+-        if (length == 0) {
++        if (source == null || source.isEmpty()) {
+             return null;
+         }
+-        if (length > 1) {
++        if (source.length() > 1) {
+             throw new IllegalArgumentException("The source String is more than one character!");
+         }
+         return source.charAt(0);

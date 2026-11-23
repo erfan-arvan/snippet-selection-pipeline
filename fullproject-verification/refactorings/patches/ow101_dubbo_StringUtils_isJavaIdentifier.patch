@@ -1,0 +1,13 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java
+index 78ee6f5..21f66e5 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java
+@@ -566,7 +566,7 @@ public final class StringUtils {
+      * <a href="http://www.exampledepot.com/egs/java.lang/IsJavaId.html">more info.</a>
+      */
+     public static boolean isJavaIdentifier(String s) {
+-        if (isEmpty(s) || !Character.isJavaIdentifierStart(s.charAt(0))) {
++        if (s == null || s.isEmpty() || !Character.isJavaIdentifierStart(s.charAt(0))) {
+             return false;
+         }
+         for (int i = 1; i < s.length(); i++) {

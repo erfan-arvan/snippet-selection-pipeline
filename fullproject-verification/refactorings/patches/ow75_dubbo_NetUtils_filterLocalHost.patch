@@ -1,0 +1,28 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java
+index 9a86893..2166b62 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java
+@@ -305,14 +305,16 @@ public final class NetUtils {
+             if (NetUtils.isInvalidLocalHost(u.getHost())) {
+                 return u.setHost(NetUtils.getLocalHost()).toFullString();
+             }
+-        } else if (host.contains(":")) {
+-            int i = host.lastIndexOf(':');
+-            if (NetUtils.isInvalidLocalHost(host.substring(0, i))) {
+-                return NetUtils.getLocalHost() + host.substring(i);
+-            }
+         } else {
+-            if (NetUtils.isInvalidLocalHost(host)) {
+-                return NetUtils.getLocalHost();
++            int i = host.lastIndexOf(':');
++            if (i >= 0) {
++                if (NetUtils.isInvalidLocalHost(host.substring(0, i))) {
++                    return NetUtils.getLocalHost() + host.substring(i);
++                }
++            } else {
++                if (NetUtils.isInvalidLocalHost(host)) {
++                    return NetUtils.getLocalHost();
++                }
+             }
+         }
+         return host;

@@ -1,0 +1,17 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java b/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
+index a9a529a..e2089be 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
+@@ -919,10 +919,8 @@ public class ExtensionLoader<T> {
+      * return "", if setter name with length less than 3
+      */
+     private String getSetterProperty(Method method) {
+-        return method.getName().length() > 3
+-                ? method.getName().substring(3, 4).toLowerCase()
+-                        + method.getName().substring(4)
+-                : "";
++        String name = method.getName();
++        return name.length() > 3 ? name.substring(3, 4).toLowerCase() + name.substring(4) : "";
+     }
+ 
+     /**

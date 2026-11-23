@@ -1,0 +1,13 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodUtils.java
+index a29d93f..85bc63c 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/MethodUtils.java
+@@ -428,7 +428,7 @@ public interface MethodUtils {
+             return fieldName;
+         }
+ 
+-        if (StringUtils.isNotEmpty(fieldName)) {
++        if (!fieldName.isEmpty()) {
+             fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
+         }
+ 

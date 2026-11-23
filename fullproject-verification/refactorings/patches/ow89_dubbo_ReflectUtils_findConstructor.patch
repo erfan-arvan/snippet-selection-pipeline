@@ -1,0 +1,17 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
+index 4fcea01..c73b0c3 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java
+@@ -950,9 +950,10 @@ public final class ReflectUtils {
+             targetConstructor = null;
+             Constructor<?>[] constructors = clazz.getConstructors();
+             for (Constructor<?> constructor : constructors) {
++                Class<?>[] parameterTypes = constructor.getParameterTypes();
+                 if (Modifier.isPublic(constructor.getModifiers())
+-                        && constructor.getParameterTypes().length == 1
+-                        && constructor.getParameterTypes()[0].isAssignableFrom(paramType)) {
++                        && parameterTypes.length == 1
++                        && parameterTypes[0].isAssignableFrom(paramType)) {
+                     targetConstructor = constructor;
+                     break;
+                 }

@@ -1,0 +1,12 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ArrayUtils.java b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ArrayUtils.java
+index ddc8095..ea640b8 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ArrayUtils.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ArrayUtils.java
+@@ -78,6 +78,6 @@ public final class ArrayUtils {
+     }
+ 
+     public static <T> T first(T[] data) {
+-        return isEmpty(data) ? null : data[0];
++        return data == null || data.length == 0 ? null : data[0];
+     }
+ }

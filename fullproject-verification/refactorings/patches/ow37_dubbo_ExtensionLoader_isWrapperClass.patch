@@ -1,0 +1,14 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java b/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
+index a9a529a..c733ef4 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java
+@@ -1408,7 +1408,8 @@ public class ExtensionLoader<T> {
+     protected boolean isWrapperClass(Class<?> clazz) {
+         Constructor<?>[] constructors = clazz.getConstructors();
+         for (Constructor<?> constructor : constructors) {
+-            if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == type) {
++            Class<?>[] parameterTypes = constructor.getParameterTypes();
++            if (parameterTypes.length == 1 && parameterTypes[0] == type) {
+                 return true;
+             }
+         }

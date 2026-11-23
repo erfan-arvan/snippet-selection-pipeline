@@ -1,0 +1,16 @@
+diff --git a/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ProviderMethodModel.java b/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ProviderMethodModel.java
+index 7c08a7f..90ab0a2 100644
+--- a/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ProviderMethodModel.java
++++ b/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ProviderMethodModel.java
+@@ -62,9 +62,8 @@ public class ProviderMethodModel {
+         Class<?>[] parameterTypes = method.getParameterTypes();
+         if (parameterTypes.length > 0) {
+             methodArgTypes = new String[parameterTypes.length];
+-            int index = 0;
+-            for (Class<?> paramType : parameterTypes) {
+-                methodArgTypes[index++] = paramType.getName();
++            for (int i = 0; i < parameterTypes.length; i++) {
++                methodArgTypes[i] = parameterTypes[i].getName();
+             }
+         }
+         return methodArgTypes;
