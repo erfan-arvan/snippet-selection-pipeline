@@ -39,8 +39,9 @@ def read_case(cid):
 
 
 def hunks(patch_path):
-    """Each hunk as (old_lines, new_lines), trimmed to the changed span (context lines only between
-    the first and last change are kept), because a slice may not contain the surrounding code."""
+    """Each hunk as (trimmed_old, trimmed_new, full_old, full_new). "trimmed" keeps only the span
+    from the first to the last changed line (a slice may not contain the surrounding code);
+    "full" also has the patch's context lines, used when the trimmed text is not unique."""
     out, cur = [], None
     for l in open(patch_path).read().split("\n"):
         if l.startswith("@@"):
@@ -50,28 +51,76 @@ def hunks(patch_path):
     res = []
     for h in out:
         idx = [i for i, l in enumerate(h) if l[0] in "-+"]
-        h = h[idx[0]:idx[-1] + 1]
-        res.append(([l[1:] for l in h if l[0] in " -"], [l[1:] for l in h if l[0] in " +"]))
+        t = h[idx[0]:idx[-1] + 1]
+        res.append(([l[1:] for l in t if l[0] in " -"], [l[1:] for l in t if l[0] in " +"],
+                    [l[1:] for l in h if l[0] in " -"], [l[1:] for l in h if l[0] in " +"]))
     return res
+
+
+def _code(line):
+    """The line without // comments (outside string/char literals) and without any whitespace.
+    Specimin reprints the code: other line breaks and indentation, and no comments."""
+    out, q, i = [], None, 0
+    while i < len(line):
+        ch = line[i]
+        if q:
+            out.append(ch)
+            if ch == "\\" and i + 1 < len(line):
+                out.append(line[i + 1]); i += 1
+            elif ch == q:
+                q = None
+        elif ch in "\"'":
+            q = ch; out.append(ch)
+        elif line.startswith("//", i):
+            break
+        elif not ch.isspace():
+            out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+def _find(lines, old):
+    """Whole-line spans (first, last) of `lines` whose code equals the code of `old`, ignoring
+    whitespace, line breaks and comments."""
+    want = "".join(_code(x) for x in old)
+    if not want:
+        return []
+    codes = [_code(x) for x in lines]
+    hits = []
+    for s in range(len(lines)):
+        if not codes[s]:
+            continue
+        acc = ""
+        for e in range(s, len(lines)):
+            acc += codes[e]
+            if len(acc) >= len(want):
+                if acc == want:
+                    hits.append((s, e))
+                break
+            if not want.startswith(acc):
+                break
+    return hits
 
 
 def apply_to_slice(path, patch_path):
     """Returns a list of problems (empty = applied)."""
     lines = open(path).read().split("\n")
     problems = []
-    for old, new in hunks(patch_path):
-        key = [x.strip() for x in old]
-        hits = [i for i in range(len(lines) - len(key) + 1)
-                if [x.strip() for x in lines[i:i + len(key)]] == key]
+    for old, new, full_old, full_new in hunks(patch_path):
         only_imports = old and not [x for x in new if x.strip()] and all(
             x.strip().startswith("import ") or not x.strip() for x in old)
+        hits = _find(lines, old)
+        if len(hits) != 1:                     # not unique (or absent): use the context lines too
+            fh = _find(lines, full_old)
+            if len(fh) == 1:
+                hits, new = fh, full_new
         if len(hits) != 1:
             if only_imports and not hits:
                 continue                       # import the slice does not have: nothing to remove
             problems.append(f"{len(hits)} matches in the slice for:\n    " + "\n    ".join(old))
             continue
-        i = hits[0]
-        lines[i:i + len(key)] = new
+        s, e = hits[0]
+        lines[s:e + 1] = new
     if not problems:
         open(path, "w").write("\n".join(lines))
     return problems
