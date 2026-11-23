@@ -62,6 +62,37 @@ def param_is_index(line, pnames):
                 re.search(r"\b(?:" + idx_methods + r")\s*\((?:[^()]*,)?\s*(?:" + alt + r")\s*[,)]", line))
 
 
+def split_types(types):
+    """Locator's comma-joined parameter types -> list (commas inside generics are kept)."""
+    out, depth, cur = [], 0, ""
+    for ch in types:
+        depth += ch == "<"; depth -= ch == ">"
+        if ch == "," and depth == 0:
+            out.append(cur.strip()); cur = ""
+        else:
+            cur += ch
+    if cur.strip():
+        out.append(cur.strip())
+    return out
+
+
+def _norm_type(t):
+    """Compare parameter types loosely: no annotations, generics, packages or spaces; varargs = array."""
+    t = re.sub(r"@[\w.]+(\([^)]*\))?", "", t).replace("final ", "").replace("...", "[]")
+    while "<" in t:
+        t = re.sub(r"<[^<>]*>", "", t)
+    t = re.sub(r"\s+", "", t)
+    dims = t.count("[]")
+    return t.replace("[]", "").split(".")[-1].split("$")[-1] + "[]" * dims
+
+
+def pick_overload(recs, types):
+    """The included.jsonl record whose parameter types match this overload's (None if not exactly one)."""
+    want = [_norm_type(x) for x in split_types(types)]
+    hits = [r for r in recs if [_norm_type(x) for x in r.get("paramTypes", [])] == want]
+    return hits[0] if len(hits) == 1 else None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", default="/project/mjk76/ea442/snippet-selection-pipeline-output/legacy-import")
@@ -76,6 +107,9 @@ def main():
     ap.add_argument("--match-repo", default=None,
                     help="balanced sampling: give every mined project as many methods as this project has in "
                          "--exclude-run (minus what the project already has there); --max-methods is then ignored")
+    ap.add_argument("--per-repo", type=int, default=None,
+                    help="balanced sampling: this many methods from every mined project (random with --seed); "
+                         "--max-methods is then ignored")
     ap.add_argument("--seed", type=int, default=1, help="random order of methods within a project (balanced mode)")
     a = ap.parse_args()
     if a.repos:
@@ -92,12 +126,13 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     # methods that pass the selection criteria, and methods already sliced
-    included = {}
+    included = collections.defaultdict(list)          # (project, class, method, #params) -> records (one per overload)
     for line in open(os.path.join(a.run, "manifest", "included.jsonl")):
         if line.strip():
             r = json.loads(line)
             included[(r["project"], r["qualifiedClassName"].replace("$", "."), r["methodName"],
-                      int(r.get("numParams", len(r.get("paramTypes", [])))))] = r
+                      int(r.get("numParams", len(r.get("paramTypes", [])))))].append(r)
+    records = {}                                        # record_key -> the record written to candidates.jsonl
     processed = set()
     rj = os.path.join(a.run, "stats", "results.jsonl")
     if os.path.isfile(rj):
@@ -142,16 +177,27 @@ def main():
                     groups[(rel,) + m].append(d)
             for (rel, cls, name, n, types, st, en), ds in groups.items():
                 counts[(repo, chk, "methods with warnings")] += 1
-                sid = f"{repo}__{cls.replace('.', '_')}__{name}__{n}"
+                key4 = (repo, cls, name, n)
+                overloaded = sum(1 for m in methods[rel] if m[:3] == (cls, name, n)) > 1
+                base = f"{repo}__{cls.replace('.', '_')}__{name}__{n}"
+                sid = base + (f"__L{st}" if overloaded else "")   # one id per overload
                 if sid in processed:
                     counts[(repo, chk, "skipped: already sliced")] += 1
                     continue
-                if (repo, cls, name, n) not in included:
+                recs = included.get(key4, [])
+                if not recs:
                     counts[(repo, chk, "skipped: not in included.jsonl")] += 1
                     continue
-                if (repo, cls, name, n) in already:
+                rec = recs[-1] if not overloaded else pick_overload(recs, types)   # recs[-1]: as before
+                if rec is None:   # several overloads in included.jsonl, none with these parameter types
+                    counts[(repo, chk, "skipped: overload not identifiable in included.jsonl")] += 1
+                    continue
+                if not overloaded and key4 in already:
                     counts[(repo, chk, "skipped: already sliced")] += 1
                     continue
+                record_key = (repo, cls, name, n, st)
+                records[record_key] = dict(rec, startLine=st, endLine=en, fpvClass=cls, fpvStartLine=st, fpvEndLine=en,
+                                           fpvParamTypes=split_types(types), **({"fpvSnippetId": sid} if overloaded else {}))
                 counts[(repo, chk, "kept")] += 1
                 src = open(os.path.join(root, rel), errors="replace").read().splitlines()
                 pnames = param_names(src, st, en) if n else set()
@@ -164,14 +210,14 @@ def main():
                     if restricted:
                         notes.append("log was restricted (-AonlyDefs): this class may not have been fully checked")
                     rank = (1 if notes else 0, 0 if chk != "nullness" else 1)
-                    rows.append(dict(rank=rank, record_key=(repo, cls, name, n), repo=repo, checker=chk, key=key, count=len(kd),
+                    rows.append(dict(rank=rank, record_key=record_key, snippet_id=sid, repo=repo, checker=chk, key=key, count=len(kd),
                                      method=f"{cls}.{name}", nparams=n, file=rel, lines=f"{st}-{en}",
                                      warning_lines=", ".join(str(x[1]) for x in kd),
                                      messages=" | ".join(sorted({x[4][:140] for x in kd})),
                                      notes="; ".join(notes), link=gh_url(repo, rel, st, en)))
-                    code[(repo, cls, name, n)] = (rel, st, en, {x[1] for x in ds}, src)
+                    code[record_key] = (rel, st, en, {x[1] for x in ds}, src)
     rows.sort(key=lambda r: (r["rank"], r["repo"], r["method"], r["checker"], r["key"]))
-    cols = ["repo", "checker", "key", "count", "method", "nparams", "file", "lines", "warning_lines", "messages", "notes", "link"]
+    cols = ["repo", "snippet_id", "checker", "key", "count", "method", "nparams", "file", "lines", "warning_lines", "messages", "notes", "link"]
     with open(os.path.join(out_dir, "candidates.csv"), "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
@@ -179,12 +225,12 @@ def main():
     seen = set()
     with open(os.path.join(out_dir, "candidates.txt"), "w") as f:
         for r in rows:
-            k = (r["repo"],) + tuple(r["method"].rsplit(".", 1)) + (r["nparams"],)
+            k = r["record_key"]
             if k in seen or k not in code:
                 continue
             seen.add(k)
             rel, st, en, wl, src = code[k]
-            ks = [x for x in rows if (x["repo"], x["method"], x["nparams"]) == (r["repo"], r["method"], r["nparams"])]
+            ks = [x for x in rows if x["record_key"] == k]
             f.write(f"=== {r['repo']} | {r['method']} ({r['nparams']} params) | {rel}:{st}-{en}\n")
             for x in ks:
                 f.write(f"--- {x['checker']} [{x['key']}] x{x['count']} at {x['warning_lines']}: {x['messages']}"
@@ -198,14 +244,15 @@ def main():
         print(f"  {repo:10} {chk:13} methods with warnings {c.get('methods with warnings', 0):5}  already sliced {c.get('skipped: already sliced', 0):4}"
               f"  not in criteria {c.get('skipped: not in included.jsonl', 0):5}  kept {c.get('kept', 0):4}")
     print(f"\n{len(rows)} candidate rows ({len(seen)} methods); {sum(1 for r in rows if not r['notes'])} without a triage note.")
-    if a.write_run and a.match_repo:
+    if a.write_run and (a.match_repo or a.per_repo):
         # Balanced sampling: every project gets (methods of --match-repo in --exclude-run) minus what it
         # already has there. All of a project's eligible methods count, with or without a triage note
         # (notes are information only); methods without a note come first, each group in random order.
         import random
-        target = existing[a.match_repo]
+        target = a.per_repo if a.per_repo else existing[a.match_repo]
         picked = []
-        print(f"\nBalanced sampling against {a.match_repo}: {target} methods per project (seed {a.seed})")
+        print(f"\nBalanced sampling: {target} methods per project"
+              + ("" if a.per_repo else f" (as many as {a.match_repo} has in {a.exclude_run})") + f" (seed {a.seed})")
         for repo in REPOS:
             keys = list(dict.fromkeys(r["record_key"] for r in rows if r["repo"] == repo))
             has_unnoted = {r["record_key"] for r in rows if r["repo"] == repo and not r["notes"]}
@@ -213,7 +260,7 @@ def main():
             rest = [k for k in keys if k not in has_unnoted]     # every warning has a note
             rng = random.Random(f"{a.seed}-{repo}")
             rng.shuffle(first); rng.shuffle(rest)
-            quota = max(0, target - existing[repo])
+            quota = target if a.per_repo else max(0, target - existing[repo])
             take = (first + rest)[:quota]
             picked += take
             print(f"  {repo:10} already {existing[repo]:4}  eligible now {len(keys):5}  quota {quota:4}  picked {len(take):4}"
@@ -231,7 +278,7 @@ def main():
         cp = os.path.join(a.write_run, "manifest", "candidates.jsonl")
         with open(cp, "w") as f:
             for k in picked:
-                f.write(json.dumps(included[k]) + "\n")
+                f.write(json.dumps(records[k]) + "\n")
         print(f"\n{len(picked)} methods to slice -> {cp}")
         print("  by repo/checker of their best warning:",
               dict(collections.Counter((r["repo"], r["checker"]) for r in rows if r["record_key"] in set(picked) and not r["notes"])))

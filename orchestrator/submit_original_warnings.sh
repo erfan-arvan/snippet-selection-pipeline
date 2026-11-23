@@ -16,7 +16,7 @@
 #   1. mine: methods with an original-project warning that pass the selection criteria
 #      (legacy-import's included.jsonl) and were not sliced before -> candidates.jsonl of a NEW
 #      run "original-warnings" (most promising first, at most MAX_METHODS, default 300)
-#   2. slice (Specimin) -> package -> check, the pipeline's own stages, on exactly those methods
+#   2. slice (Specimin) -> package (slice_package_exact.py: exact overload) -> check, on exactly those methods
 #   3. compare the slices' warnings with the original warnings (compare_results.py)
 # legacy-import and any job running on it are not touched: own run directory, own copy of
 # Specimin (two jobs must not run Gradle in the same Specimin folder at once).
@@ -66,8 +66,10 @@ fi
 [ -s "$RUN/manifest/candidates.jsonl" ] || { echo "FATAL: no methods to slice" >&2; exit 1; }
 
 PIPE=(python3 -u -m snippet_pipeline.cli -c "$CFG" --run-id "$RUN_ID")
-step "2a. slice (Specimin)";  "${PIPE[@]}" slice   || exit 1
-step "2b. package";          "${PIPE[@]}" package || exit 1
+# Slice + package with the exact method that holds the warning (overloads included; a Specimin
+# timeout fails only that method). Same pipeline functions; the pipeline code itself is unchanged.
+step "2a+2b. slice (Specimin) and package, exact overloads"
+python3 -u ../fullproject-verification/slice_package_exact.py -c "$CFG" --run-id "$RUN_ID" || exit 1
 step "2c. check";            "${PIPE[@]}" check   || exit 1
 
 step "3. compare slice warnings with the original warnings"
